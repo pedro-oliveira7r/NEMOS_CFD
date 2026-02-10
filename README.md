@@ -10,7 +10,7 @@ Stop copy-pasting dictionaries. Create parametric OpenFOAM cases using simple Py
 
 ## 🚀 Key Features
 
-* **Automated Mesh Setup:** Generates `blockMeshDict` (or other mesh configs) programmatically based on user parameters.
+* **Automated Mesh Setup:** Generates meshes programmatically based on user parameters.
 * **Case Configuration:** Automates the setup of `boundaryConditions`, `transportProperties`, and turbulence models.
 * **Python Interface:** Full control over simulation parameters using Python classes and methods.
 * **Reproducibility:** Ensures consistent case setup for parametric studies or optimization loops.
@@ -21,7 +21,7 @@ Before you begin, ensure you have the following installed:
 
 * **Python 3.8** or higher
 * **OpenFOAM** (Tested on version [v2012 / v9 / v2306 - liste as versões que você testou])
-* **Paraview** (For visualization)
+* **Salome** (For visualization)
 
 ## 📦 Installation
 
