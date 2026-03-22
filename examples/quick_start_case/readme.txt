@@ -25,16 +25,16 @@ Follow these steps to execute the case:
 3. **Generate the 3D geometry and Mesh**
    The "script.py" defines the room layout. Here, a 3x3x3m Simple_Meeting_Room is defined with 2 people, 
    a custom air conditioning unit, a table and 4 air outlets.
-   The "add_box" and "add_cilinder" commands are commented out, they create custom 3D volumes for further mesh refining 
-   around the seated people. However, the mesh without these commands has 2828534 elements and 397MB size, so enabling these may 
-   not be recommended.
+   The "add_box" and "add_cilinder" commands can be commented out, they create custom 3D volumes for further mesh refining 
+   around the seated people. 
    The scrip can be modified indefinitely as long as the shown structure and geometrical boundaries are respected.
    **To generate the mesh**, all you have to do is to copy the text from the script, open SALOME, and paste the script
    in the SALOME terminal.
    The geometry and mesh generation process will start.
    **Note:** you dont have to copy the script all at once. You can go to SALOME's geometry tab and input it gradually
    in order to verify the geometry.
-   This example's mesh took 528.35 seconds to generate in a Ryzen 5600H with 16gb ram system.
+   This example's mesh took 923.34 seconds to generate in a Ryzen 5600H with 16gb ram system. It has 4106135 elements and 549MB size.
+   Without the extra refinement the mesh took 528.35 seconds, has 2828534 elements and 397MB size.
    Export the mesh to your case's folder.
 
 4. **Convert the mesh and edit the boundary file**
