@@ -590,7 +590,7 @@ class Mesh_configuration:
         self.m2DMinSize = minSize
 
 
-class Person_seated:
+class Person:
 
     def __init__(self, salome_env, name='Person'):
 
