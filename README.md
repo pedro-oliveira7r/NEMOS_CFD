@@ -48,15 +48,13 @@ To verify the installation and see the library in action, run the included test 
 2.  **Generate the case files:**
     Run the Python script to create the mesh dictionaries and initial conditions.
     ```bash
-    # O nome do script que roda sua automação
     python generate_case.py
     ```
 
 3.  **Run the Simulation:**
     Execute the standard OpenFOAM commands (or use the provided run script if available):
     ```bash
-    blockMesh
-    simpleFoam  # Ou o solver adequado para o seu caso
+    buoyantSimpleFoam  # Ou o solver adequado para o seu caso
     ```
 
 4.  **Visualize:**
@@ -68,7 +66,7 @@ To verify the installation and see the library in action, run the included test 
 ## 📂 Project Structure
 
 ```text
-nome-da-sua-biblioteca/
+name/
 ├── src/               # Source code of the library
 ├── examples/          # Ready-to-run examples and test cases
 │   └── quick_start/   # The basic test case
