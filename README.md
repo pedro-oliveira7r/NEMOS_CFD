@@ -54,7 +54,7 @@ To verify the installation and see the library in action, run the included test 
 3.  **Run the Simulation:**
     Execute the standard OpenFOAM commands (or use the provided run script if available):
     ```bash
-    buoyantSimpleFoam  # Ou o solver adequado para o seu caso
+    buoyantSimpleFoam
     ```
 
 4.  **Visualize:**
