@@ -446,23 +446,40 @@ class Room:
 
             salome.sg.updateObjBrowser()
 
-    def create_mesh(self, mesh=None, K_mesh=1, export=False, caminho=''):
-        if mesh is None:
-            mesh = Mesh_configuration()
 
+class Mesh:
+
+    def __init__(
+        self,
+        room,
+        m2DMaxSize=0.2,
+        m2DMinSize=0.02,
+        m3DMaxSize=0.075,
+        m3DMinSize=0.001,
+        fineness=3,
+    ):
+
+        self.room = room
+        self.m2DMaxSize = m2DMaxSize
+        self.m2DMinSize = m2DMinSize
+        self.m3DMaxSize = m3DMaxSize
+        self.m3DMinSize = m3DMinSize
+        self.fineness = fineness
+
+    def create_mesh(self, K_mesh=1, export=False, caminho=''):
         smesh = smeshBuilder.New()
         inicio = time.time()
 
-        Mesh_1 = smesh.Mesh(self.object, 'Mesh_1')
+        Mesh_1 = smesh.Mesh(self.room.object, 'Mesh_1')
         NETGEN_1D_2D = Mesh_1.Triangle(algo=smeshBuilder.NETGEN_1D2D)
         NETGEN_2D_Parameters_1 = NETGEN_1D_2D.Parameters()
 
         # Parâmetros Gerais 2D (faces)
-        NETGEN_2D_Parameters_1.SetMaxSize(mesh.m2DMaxSize)
-        NETGEN_2D_Parameters_1.SetMinSize(mesh.m2DMinSize)
+        NETGEN_2D_Parameters_1.SetMaxSize(self.m2DMaxSize)
+        NETGEN_2D_Parameters_1.SetMinSize(self.m2DMinSize)
         NETGEN_2D_Parameters_1.SetSecondOrder(0)
         NETGEN_2D_Parameters_1.SetOptimize(1)
-        NETGEN_2D_Parameters_1.SetFineness(3)
+        NETGEN_2D_Parameters_1.SetFineness(self.fineness)
         NETGEN_2D_Parameters_1.SetChordalError(-1)
         NETGEN_2D_Parameters_1.SetChordalErrorEnabled(0)
         NETGEN_2D_Parameters_1.SetUseSurfaceCurvature(1)
@@ -475,19 +492,19 @@ class Room:
         # Parâmetros Gerais 3D (volumes)
         NETGEN_3D = Mesh_1.Tetrahedron()
         NETGEN_3D_Parameters_1 = NETGEN_3D.Parameters()
-        NETGEN_3D_Parameters_1.SetMaxSize(0.075 * K_mesh)
-        NETGEN_3D_Parameters_1.SetMinSize(0.001)
+        NETGEN_3D_Parameters_1.SetMaxSize(self.m3DMaxSize * K_mesh)
+        NETGEN_3D_Parameters_1.SetMinSize(self.m3DMinSize)
         NETGEN_3D_Parameters_1.SetOptimize(1)
-        NETGEN_3D_Parameters_1.SetFineness(3)  # 2 - Coarse, 3 - Fine
+        NETGEN_3D_Parameters_1.SetFineness(self.fineness)  # 2 - Coarse, 3 - Fine
         NETGEN_3D_Parameters_1.SetCheckOverlapping(0)
         NETGEN_3D_Parameters_1.SetElemSizeWeight(1.51004e-311)
         NETGEN_3D_Parameters_1.SetCheckChartBoundary(224)
 
-        for box in self.boxList:
+        for box in self.room.boxList:
             NETGEN_3D_Parameters_1.SetLocalSizeOnShape(box, 0.02 * K_mesh)
-        for cilinder in self.CilinderList:
+        for cilinder in self.room.CilinderList:
             NETGEN_3D_Parameters_1.SetLocalSizeOnShape(cilinder, 0.01 * K_mesh)
-        for ponta in self.PontaList:
+        for ponta in self.room.PontaList:
             NETGEN_3D_Parameters_1.SetLocalSizeOnShape(ponta, 0.0065 * K_mesh)
 
         # Parâmetros: Objects
@@ -495,9 +512,9 @@ class Room:
         Groups = []
         Names = []
 
-        for i in range(len(self.faces_groups)):
-            f_grp = self.faces_groups[i]
-            f_name = self.faces_names_groups[i]
+        for i in range(len(self.room.faces_groups)):
+            f_grp = self.room.faces_groups[i]
+            f_name = self.room.faces_names_groups[i]
 
             if f_name == 'dip':
                 NETGEN_2D_Parameters_1.SetLocalSizeOnShape(f_grp, 0.005)
@@ -577,17 +594,6 @@ class Room:
         if export == True:
             print('Exportando a malha para: ' + caminho)
             Mesh_1.ExportUNV(caminho, 0)
-
-
-class Mesh_configuration:
-
-    def __init__(self):
-        self.m2DMaxSize = 0.2
-        self.m2DMinSize = 0.02
-
-    def set2Dsizes(self, maxSize, minSize):
-        self.m2DMaxSize = maxSize
-        self.m2DMinSize = minSize
 
 
 class Object:
@@ -1243,25 +1249,7 @@ class Table(Object):
             salome.sg.updateObjBrowser()
         
         return self
-
-
-class Table_retangular(Table):
-
-    def __init__(self, salome_env, dx=0.6, dy=0.02, dz=0.6,
-                 x=1.5, y=0.6, z=1.5, name='Table'):
-
-        super().__init__(salome_env, name)
-        self.retangular(dx=dx, dy=dy, dz=dz, x=x, y=y, z=z)
-
-
-class Table_circular(Table):
-
-    def __init__(self, salome_env, raio=0.35, espessura=0.02,
-                 x=1.5, y=0.6, z=1.5, name='Table'):
-
-        super().__init__(salome_env, name)
-        self.circular(raio=raio, espessura=espessura, x=x, y=y, z=z)
-
+    
     def circular(self, raio=0.35, espessura=0.02, x=1.5, y=0.6, z=1.5):
 
         P1 = self.salome_env.geompy.MakeVertex(0, 0, 0)
@@ -1280,3 +1268,21 @@ class Table_circular(Table):
             salome.sg.updateObjBrowser()
         
         return self
+
+
+class Table_retangular(Table):
+
+    def __init__(self, salome_env, dx=0.6, dy=0.02, dz=0.6,
+                 x=1.5, y=0.6, z=1.5, name='Table'):
+
+        super().__init__(salome_env, name)
+        self.retangular(dx=dx, dy=dy, dz=dz, x=x, y=y, z=z)
+
+
+class Table_circular(Table):
+
+    def __init__(self, salome_env, raio=0.35, espessura=0.02,
+                 x=1.5, y=0.6, z=1.5, name='Table'):
+
+        super().__init__(salome_env, name)
+        self.circular(raio=raio, espessura=espessura, x=x, y=y, z=z)

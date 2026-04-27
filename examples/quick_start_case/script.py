@@ -1,4 +1,4 @@
-import nemos1_05 as nemos
+import nemos1_06 as nemos
 a = nemos.Salome_Env()
 b = nemos.Room(salome_env=a, dx=3.000, dy=3.000, dz=3.000, name='Room')
 c = nemos.Person_seated(salome_env=a, x=2.025, thickness=0.15)
@@ -17,5 +17,6 @@ b.add_box_volume(person=d)
 b.add_cilinder(salome_env=a, dip=e)
 b.add_cilinder(salome_env=a, dip=f)
 nemos.salome_update()
-b.create_mesh(export=True, caminho=r"C:\Users\pedro\Desktop\TCC1\Mesh_3.unv")
+mesh = nemos.Mesh(b)
+mesh.create_mesh(export=True, caminho=r"C:\Users\pedro\Desktop\TCC1\Mesh_3.unv")
 
