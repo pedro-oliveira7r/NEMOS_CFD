@@ -1,6 +1,6 @@
 import nemos1_06 as nemos
 a = nemos.Salome_Env()
-b = nemos.Room(salome_env=a, dx=3.000, dy=3.000, dz=3.000, name='Room')
+b = nemos.Room(salome_env=a, dx=3.000, dy=3.000, dz=3.000)
 c = nemos.Person_seated(salome_env=a, x=2.025, thickness=0.15)
 d = nemos.Person_seated(salome_env=a, x=0.975, thickness=0.15, theta=180)
 e = nemos.Dip_type_00(salome_env=a, x=2.025, y=1)

@@ -1,5 +1,5 @@
 import math
-from os import name
+import inspect
 import sys
 import time
 
@@ -47,9 +47,9 @@ class Salome_Env:
 
 class Room:
 
-    def __init__(self, salome_env, dx=3.000, dy=3.000, dz=3.000, name='Room'):
+    def __init__(self, salome_env, dx=3.000, dy=3.000, dz=3.000, **kwargs):
         self.salome_env = salome_env
-        self.name = name
+        self.name = 'Room'
         self.H = dy
         aux = [dx, dy, dz]
         aux.sort()
@@ -60,6 +60,9 @@ class Room:
         self.inlet_faces = []
         self.wall_faces = []
         self.faces_groups = []
+        # List[Tuple[str, str]] entries: (group_type, patch_name)
+        # - group_type drives sizing/refinement logic in Mesh
+        # - patch_name is the label written into the mesh/boundary
         self.faces_names_groups = []
         self.boxList = []
         self.CilinderList = []
@@ -80,8 +83,7 @@ class Room:
         F4 = salome_env.geompy.MakeFaceWires([Sketch_1_1], 1)
         self.object = salome_env.geompy.MakePrismVecH(F4, salome_env.OZ, dz)
 
-        if name is not None:
-            salome_env.geompy.addToStudy(self.object, name)
+        salome_env.geompy.addToStudy(self.object, self.name)
 
         if salome.sg.hasDesktop():
             salome.sg.updateObjBrowser()
@@ -243,6 +245,26 @@ class Room:
             salome.sg.updateObjBrowser()
 
     def add(self, obj_list):
+            # Auto-name objects by the variable name used in the user script.
+            # Example: `e = nemos.Dip_type_00(...)` -> obj.name == "e".
+            frame = inspect.currentframe()
+            try:
+                caller = frame.f_back
+                obj_ids = {id(o) for o in obj_list}
+                inferred = {}
+                # Prefer locals, then globals.
+                for scope in (caller.f_locals, caller.f_globals):
+                    for var_name, value in scope.items():
+                        if id(value) in obj_ids and isinstance(var_name, str) and var_name.isidentifier():
+                            inferred[id(value)] = var_name
+            finally:
+                del frame
+
+            for obj in obj_list:
+                var_name = inferred.get(id(obj))
+                if var_name:
+                    obj.name = var_name
+
             sal_obj_list = []
             for obj in obj_list:
                 sal_obj_list.append(obj.object)
@@ -286,11 +308,11 @@ class Room:
             self.faces_groups.append(group_faces)
 
             if isinstance(obj, Dip):
-                self.faces_names_groups.append("dip")
+                self.faces_names_groups.append(("dip", obj.name))
             elif isinstance(obj, Table):
-                self.faces_names_groups.append("table")
+                self.faces_names_groups.append(("table", obj.name))
             elif isinstance(obj, Person):
-                self.faces_names_groups.append("person")
+                self.faces_names_groups.append(("person", obj.name))
 
             # Iterar sobre as faces e verificar proximidade e área
             dip_y_max = 0
@@ -345,7 +367,7 @@ class Room:
                 )
 
                 self.faces_groups.append(group_inlet)
-                self.faces_names_groups.append("inlet")
+                self.faces_names_groups.append(("inlet", "inlet_" + obj.name))
 
                 self.salome_env.geompy.AddObject(group_inlet, face_inlet_id)
                 self.salome_env.geompy.addToStudyInFather(
@@ -370,7 +392,7 @@ class Room:
             self.object, self.salome_env.geompy.ShapeType["FACE"]
         )
         self.faces_groups.append(group_outlet)
-        self.faces_names_groups.append("outlet")
+        self.faces_names_groups.append(("outlet", "outlet"))
 
         # Iterar sobre as faces e verificar proximidade e área
         for face_room in faces_room:
@@ -392,7 +414,7 @@ class Room:
                     face_ids.append(face_id)
 
         self.salome_env.geompy.addToStudyInFather(
-            self.object, group_outlet, "outlet_" + self.name
+            self.object, group_outlet, "outlet"
         )
         self.outlet_faces = face_ids
         face_wall_ids = list(set(face_wall_ids) - set(face_ids))
@@ -405,13 +427,13 @@ class Room:
         )
 
         self.faces_groups.append(group_wall)
-        self.faces_names_groups.append("wall")
+        self.faces_names_groups.append(("wall", "wall"))
 
         for face_id in face_wall_ids:
             self.salome_env.geompy.AddObject(group_wall, face_id)
 
         self.salome_env.geompy.addToStudyInFather(
-            self.object, group_wall, "wall_" + self.name
+            self.object, group_wall, "wall"
         )
 
     def insert_ceiling_opening(self, x=1, z=1, d=0.025):
@@ -514,65 +536,65 @@ class Mesh:
 
         for i in range(len(self.room.faces_groups)):
             f_grp = self.room.faces_groups[i]
-            f_name = self.room.faces_names_groups[i]
+            f_type, f_patch_name = self.room.faces_names_groups[i]
 
-            if f_name == 'dip':
+            if f_type == 'dip':
                 NETGEN_2D_Parameters_1.SetLocalSizeOnShape(f_grp, 0.005)
                 v_layer = NETGEN_3D.ViscousLayers(
                     0.0025, 5, 1.2, f_grp, 0, smeshBuilder.SURF_OFFSET_SMOOTH
                 )
                 Viscous_Layers.append(v_layer)
                 Groups.append(Mesh_1.GroupOnGeom(
-                    f_grp, 'dip' + str(len(Groups)), SMESH.FACE)
+                    f_grp, f_patch_name, SMESH.FACE)
                 )
-                Names.append('dip' + str(len(Groups)))
+                Names.append(f_patch_name)
 
-            elif f_name == 'person':
+            elif f_type == 'person':
                 NETGEN_2D_Parameters_1.SetLocalSizeOnShape(f_grp, 0.02)
                 v_layer = NETGEN_3D.ViscousLayers(
                     0.01, 5, 1.2, f_grp, 0, smeshBuilder.SURF_OFFSET_SMOOTH
                 )
                 Viscous_Layers.append(v_layer)
                 Groups.append(Mesh_1.GroupOnGeom(
-                    f_grp, 'person' + str(len(Groups)), SMESH.FACE)
+                    f_grp, f_patch_name, SMESH.FACE)
                 )
-                Names.append('person' + str(len(Groups)))
+                Names.append(f_patch_name)
 
-            elif f_name == 'wall':
+            elif f_type == 'wall':
                 NETGEN_2D_Parameters_1.SetLocalSizeOnShape(f_grp, 0.050)
                 v_layer = NETGEN_3D.ViscousLayers(
                     0.030, 5, 1.2, f_grp, 0, smeshBuilder.SURF_OFFSET_SMOOTH
                 )
                 Viscous_Layers.append(v_layer)
                 Groups.append(Mesh_1.GroupOnGeom(
-                    f_grp, 'wall' + str(len(Groups)), SMESH.FACE)
+                    f_grp, f_patch_name, SMESH.FACE)
                 )
-                Names.append('wall' + str(len(Groups)))
+                Names.append(f_patch_name)
 
-            elif f_name == 'table':
+            elif f_type == 'table':
                 NETGEN_2D_Parameters_1.SetLocalSizeOnShape(f_grp, 0.02)
                 v_layer = NETGEN_3D.ViscousLayers(
                     0.01, 5, 1.2, f_grp, 0, smeshBuilder.SURF_OFFSET_SMOOTH
                 )
                 Viscous_Layers.append(v_layer)
                 Groups.append(Mesh_1.GroupOnGeom(
-                    f_grp, 'table' + str(len(Groups)), SMESH.FACE)
+                    f_grp, f_patch_name, SMESH.FACE)
                 )
-                Names.append('table' + str(len(Groups)))
+                Names.append(f_patch_name)
 
-            elif f_name == 'outlet':
+            elif f_type == 'outlet':
                 NETGEN_2D_Parameters_1.SetLocalSizeOnShape(f_grp, 0.03)
                 Groups.append(Mesh_1.GroupOnGeom(
-                    f_grp, 'outlet' + str(len(Groups)), SMESH.FACE)
+                    f_grp, f_patch_name, SMESH.FACE)
                 )
-                Names.append('outlet' + str(len(Groups)))
+                Names.append(f_patch_name)
 
-            elif f_name == 'inlet':
+            elif f_type == 'inlet':
                 NETGEN_2D_Parameters_1.SetLocalSizeOnShape(f_grp, 0.03)
                 Groups.append(Mesh_1.GroupOnGeom(
-                    f_grp, 'inlet' + str(len(Groups)), SMESH.FACE)
+                    f_grp, f_patch_name, SMESH.FACE)
                 )
-                Names.append('inlet' + str(len(Groups)))
+                Names.append(f_patch_name)
 
         isDone = Mesh_1.Compute()
 
@@ -598,19 +620,19 @@ class Mesh:
 
 class Object:
 
-    def __init__(self, salome_env, name='Object'):
+    def __init__(self, salome_env, **kwargs):
 
         self.salome_env = salome_env
-        self.name = name
+        self.name = self.__class__.__name__
         self.faces = []
         self.object = None
 
 
 class Person(Object):
 
-    def __init__(self, salome_env, name='Person'):
+    def __init__(self, salome_env, **kwargs):
 
-        super().__init__(salome_env, name)
+        super().__init__(salome_env, **kwargs)
 
     def seated(self, h=1.700, thickness=0.200, width=0.225,
                  fillet_radius=0.030, x=1, z=1.5, theta=0):
@@ -812,9 +834,9 @@ class Person(Object):
 class Person_seated(Person):
 
     def __init__(self, salome_env, h=1.700, thickness=0.200, width=0.225,
-                 fillet_radius=0.030, x=1, z=1.5, theta=0, name='Person'):
+                 fillet_radius=0.030, x=1, z=1.5, theta=0, **kwargs):
 
-        super().__init__(salome_env, name)
+        super().__init__(salome_env, **kwargs)
         self.seated(
             h=h, thickness=thickness, width=width,
             fillet_radius=fillet_radius, x=x, z=z, theta=theta
@@ -823,17 +845,17 @@ class Person_seated(Person):
 
 class Person_standing(Person):
 
-    def __init__(self, salome_env, x=1, z=1.5, theta=0, name='Person'):
+    def __init__(self, salome_env, x=1, z=1.5, theta=0, **kwargs):
 
-        super().__init__(salome_env, name)
+        super().__init__(salome_env, **kwargs)
         self.standing(x=x, z=z, theta=theta)
 
 
 class Dip(Object):
 
-    def __init__(self, salome_env, d=0.05, x=1, y=1.2, z=1.5, name='DIP'):
+    def __init__(self, salome_env, d=0.05, x=1, y=1.2, z=1.5, **kwargs):
 
-        super().__init__(salome_env, name)
+        super().__init__(salome_env, **kwargs)
         self.room = salome_env.room
         self.x = x
         self.y = y
@@ -1187,40 +1209,40 @@ class Dip(Object):
 
 class Dip_type_00(Dip):
 
-    def __init__(self, salome_env, d=0.05, x=1, y=1.2, z=1.5, name='DIP'):
+    def __init__(self, salome_env, d=0.05, x=1, y=1.2, z=1.5, **kwargs):
 
-        super().__init__(salome_env, d=d, x=x, y=y, z=z, name=name)
+        super().__init__(salome_env, d=d, x=x, y=y, z=z, **kwargs)
         self.type_00()
 
 
 class Dip_type_01(Dip):
 
-    def __init__(self, salome_env, d=0.05, x=1, y=1.2, z=1.5, name='DIP'):
+    def __init__(self, salome_env, d=0.05, x=1, y=1.2, z=1.5, **kwargs):
 
-        super().__init__(salome_env, d=d, x=x, y=y, z=z, name=name)
+        super().__init__(salome_env, d=d, x=x, y=y, z=z, **kwargs)
         self.type_01()
 
 
 class Dip_type_02(Dip):
 
-    def __init__(self, salome_env, d=0.05, x=1, y=1.2, z=1.5, name='DIP'):
+    def __init__(self, salome_env, d=0.05, x=1, y=1.2, z=1.5, **kwargs):
 
-        super().__init__(salome_env, d=d, x=x, y=y, z=z, name=name)
+        super().__init__(salome_env, d=d, x=x, y=y, z=z, **kwargs)
         self.type_02()
 
 
 class Dip_type_03(Dip):
 
-    def __init__(self, salome_env, d=0.05, x=1, y=1.2, z=1.5, name='DIP'):
+    def __init__(self, salome_env, d=0.05, x=1, y=1.2, z=1.5, **kwargs):
 
-        super().__init__(salome_env, d=d, x=x, y=y, z=z, name=name)
+        super().__init__(salome_env, d=d, x=x, y=y, z=z, **kwargs)
         self.type_03()
 
 
 class Table(Object):
-    def __init__(self, salome_env, name='Table'):
+    def __init__(self, salome_env, **kwargs):
 
-        super().__init__(salome_env, name)
+        super().__init__(salome_env, **kwargs)
 
     def retangular(self, dx=0.6, dy=0.02, dz=0.6, x=1.5, y=0.6, z=1.5):
         # Criação dos vértices
@@ -1273,16 +1295,16 @@ class Table(Object):
 class Table_retangular(Table):
 
     def __init__(self, salome_env, dx=0.6, dy=0.02, dz=0.6,
-                 x=1.5, y=0.6, z=1.5, name='Table'):
+                 x=1.5, y=0.6, z=1.5, **kwargs):
 
-        super().__init__(salome_env, name)
+        super().__init__(salome_env, **kwargs)
         self.retangular(dx=dx, dy=dy, dz=dz, x=x, y=y, z=z)
 
 
 class Table_circular(Table):
 
     def __init__(self, salome_env, raio=0.35, espessura=0.02,
-                 x=1.5, y=0.6, z=1.5, name='Table'):
+                 x=1.5, y=0.6, z=1.5, **kwargs):
 
-        super().__init__(salome_env, name)
+        super().__init__(salome_env, **kwargs)
         self.circular(raio=raio, espessura=espessura, x=x, y=y, z=z)

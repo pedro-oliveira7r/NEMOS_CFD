@@ -18,12 +18,23 @@ class OpenFOAMCase:
         
         self.boundary_file = self.polyMesh_dir / "boundary"
 
-    def gerar_arquivos_base(self):
+    def gerar_arquivos_base(self, simulation_config=None):
         """
         Gera arquivos do OpenFOAM exatamente como os originais fornecidos:
         - constant/: g, thermophysicalProperties, turbulenceProperties
         - system/: controlDict, decomposeParDict, fvOptions, fvSchemes, fvSolution
         """
+
+        simulation_config = simulation_config or {}
+        control_cfg = simulation_config.get("controlDict", {}) or {}
+        decompose_cfg = simulation_config.get("decomposeParDict", {}) or {}
+
+        start_time = control_cfg.get("startTime", 0)
+        end_time = control_cfg.get("endTime", 3500)
+        delta_t = control_cfg.get("delta", control_cfg.get("deltaT", 0.1))
+        write_interval = control_cfg.get("writeInterval", 200)
+
+        parallel_flag = str(decompose_cfg.get("parallel", "Y")).strip().upper().startswith("Y")
 
         # ---------------- Pastas ----------------
         pasta_constant = os.path.join(self.case_path, "constant")
@@ -398,6 +409,34 @@ class OpenFOAMCase:
     """
         }
 
+        # Parametriza apenas os comandos solicitados, mantendo o restante intacto.
+        control_text = arquivos_system.get("controlDict", "")
+        control_text = re.sub(
+            r"(?m)^(\s*startTime\s+).*(;\s*)$",
+            r"\g<1>" + str(start_time) + r"\g<2>",
+            control_text,
+        )
+        control_text = re.sub(
+            r"(?m)^(\s*endTime\s+).*(;\s*)$",
+            r"\g<1>" + str(end_time) + r"\g<2>",
+            control_text,
+        )
+        control_text = re.sub(
+            r"(?m)^(\s*deltaT\s+).*(;\s*)$",
+            r"\g<1>" + str(delta_t) + r"\g<2>",
+            control_text,
+        )
+        control_text = re.sub(
+            r"(?m)^(\s*writeInterval\s+).*(;\s*)$",
+            r"\g<1>" + str(write_interval) + r"\g<2>",
+            control_text,
+        )
+        arquivos_system["controlDict"] = control_text
+
+        # Se o usuário escolher serial, não gera decomposeParDict.
+        if not parallel_flag:
+            arquivos_system.pop("decomposeParDict", None)
+
         for nome, conteudo in arquivos_system.items():
             with open(os.path.join(pasta_system, nome), "w") as f:
                 f.write(conteudo)
@@ -407,9 +446,26 @@ class OpenFOAMCase:
 
 class SalomeMesher:
     """Gerencia a geração de malha via SALOME."""
-    def __init__(self, salome_exe: str, script_path: str):
+    def __init__(self, salome_exe: str, script_path: str = None, supervisor=None):
         self.salome_exe = Path(salome_exe)
-        self.script_path = Path(script_path)
+        self.script_path = Path(script_path) if script_path else None
+        self.supervisor = supervisor
+
+    def _ensure_machine_script(self):
+        if self.supervisor is None:
+            return
+
+        # Ensure Supervisor is loaded.
+        self.supervisor.generate_machine_script()
+
+        if self.script_path is None:
+            user_path = getattr(self.supervisor, "user_script_path", None)
+            if user_path is None:
+                raise ValueError("Supervisor não possui user_script_path para inferir o caminho do script de máquina")
+            self.script_path = user_path.with_name(user_path.stem + "_machine.py")
+
+        script_text = self.supervisor.machine_script
+        self.script_path.write_text(script_text, encoding="utf-8")
 
     def executar_batch(self, output_expected: str = None):
         """
@@ -422,7 +478,12 @@ class SalomeMesher:
         if not os.path.exists(self.salome_exe):
             print(f"ERRO: Executável do SALOME não encontrado em: '{self.salome_exe}'")
             return
-        if not os.path.exists(self.script_path):
+
+        # Se um Supervisor foi fornecido, garante que o script de máquina exista.
+        if self.supervisor is not None:
+            self._ensure_machine_script()
+
+        if self.script_path is None or not os.path.exists(self.script_path):
             print(f"ERRO: Script a ser executado não encontrado em: '{self.script_path}'")
             return
 
@@ -468,8 +529,123 @@ class SalomeMesher:
 
 class BoundaryManager:
     """Gerencia as condições de contorno e arquivos da pasta 0."""
-    def __init__(self, case: OpenFOAMCase):
+    def __init__(self, case: OpenFOAMCase, supervisor=None):
         self.case = case
+        self.supervisor = supervisor
+
+        if self.supervisor is not None:
+            # Make sure we have configs/types available.
+            try:
+                self.supervisor.read_user_script()
+            except Exception:
+                # Keep lazy behavior; errors will surface when used.
+                pass
+
+    def _get_simulation_config(self) -> dict:
+        if self.supervisor is None:
+            return {}
+        return getattr(self.supervisor, "simulation_config", {}) or {}
+
+    def _infer_semantic_type(self, patch_name: str):
+        """Returns semantic types like person/dip/table/wall/inlet/outlet."""
+        if patch_name == "wall":
+            return "wall"
+        if patch_name == "outlet":
+            return "outlet"
+        if patch_name.startswith("inlet_"):
+            return "inlet"
+
+        if self.supervisor is not None:
+            obj_types = getattr(self.supervisor, "object_types", {}) or {}
+            if patch_name in obj_types:
+                return obj_types[patch_name]
+
+        # Legacy fallback (old patch naming scheme)
+        if patch_name.startswith("wall"):
+            return "wall"
+        if patch_name.startswith("inlet"):
+            return "inlet"
+        if patch_name.startswith("outlet"):
+            return "outlet"
+        if patch_name.startswith("person"):
+            return "person"
+        if patch_name.startswith("dip"):
+            return "dip"
+        if patch_name.startswith("table"):
+            return "table"
+
+        return None
+
+    def _infer_boundary_type(self, patch_name: str):
+        """Returns OpenFOAM boundary type: wall/inlet/outlet or None."""
+        semantic = self._infer_semantic_type(patch_name)
+        if semantic in ("person", "dip", "table", "wall"):
+            return "wall"
+        if semantic in ("inlet", "outlet"):
+            return semantic
+        return None
+
+    def _as_uniform_scalar(self, value, fallback: float):
+        if value is None:
+            return f"uniform {fallback}"
+        if isinstance(value, (int, float)):
+            return f"uniform {value}"
+        s = str(value).strip()
+        if not s:
+            return f"uniform {fallback}"
+        return s
+
+    def _extract_uniform_scalar_value(self, uniform_str: str, fallback: float):
+        if uniform_str is None:
+            return fallback
+        s = str(uniform_str)
+        m = re.search(r"uniform\s+([-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)", s)
+        if not m:
+            return fallback
+        try:
+            return float(m.group(1))
+        except Exception:
+            return fallback
+
+    def _inlet_velocity_value(self):
+        cfg = self._get_simulation_config()
+        u_cfg = (cfg.get("fields", {}) or {}).get("U", {}) or {}
+        raw = u_cfg.get("value", None)
+
+        if isinstance(raw, (int, float)):
+            return f"uniform (0 {raw} 0)"
+
+        if raw is None:
+            return "uniform (0 -1 0)"
+
+        s = str(raw).strip()
+        if not s:
+            return "uniform (0 -1 0)"
+        return s
+
+    def _default_t_face(self):
+        cfg = self._get_simulation_config()
+        t_cfg = (cfg.get("fields", {}) or {}).get("T", {}) or {}
+        # accept a few aliases for global face temperature
+        for key in ("T_Face", "faceValue", "wallValue", "value"):
+            if key in t_cfg:
+                return float(t_cfg[key]) if isinstance(t_cfg[key], (int, float)) else self._extract_uniform_scalar_value(t_cfg[key], 300.0)
+        internal = t_cfg.get("internalField", "uniform 300")
+        return self._extract_uniform_scalar_value(internal, 300.0)
+
+    def _default_t_flow(self):
+        cfg = self._get_simulation_config()
+        t_cfg = (cfg.get("fields", {}) or {}).get("T", {}) or {}
+        for key in ("T_Flow", "flowValue", "inletValue"):
+            if key in t_cfg:
+                return float(t_cfg[key]) if isinstance(t_cfg[key], (int, float)) else self._extract_uniform_scalar_value(t_cfg[key], 293.0)
+        return 293.0
+
+    def _object_sim_value(self, var_name: str, key: str):
+        if self.supervisor is None:
+            return None
+        obj_sim = getattr(self.supervisor, "object_simulation", {}) or {}
+        return (obj_sim.get(var_name, {}) or {}).get(key)
 
     def editar_boundary(self):
         """
@@ -480,17 +656,6 @@ class BoundaryManager:
         caminho_arquivo (str): O caminho para o arquivo 'boundary'.
                             O padrão é 'boundary' no diretório atual.
         """
-        # 1. Define as regras de mapeamento
-        # Mapeia o início do nome do elemento para o tipo de fronteira desejado
-        regras_mapeamento = {
-            "person": "wall",
-            "dip": "wall",
-            "table": "wall",
-            "wall": "wall",
-            "inlet": "inlet",
-            "outlet": "outlet"
-        }
-
         # Verifica se o arquivo existe
         if not os.path.exists(self.case.boundary_file):
             print(f"❌ Erro: O arquivo '{self.case.boundary_file}' não foi encontrado.")
@@ -503,31 +668,28 @@ class BoundaryManager:
         novas_linhas = []
         bloco_atual = None
 
-        # 3. Itera sobre cada linha para aplicar as regras
-        for linha in linhas:
+        for idx, linha in enumerate(linhas):
             linha_limpa = linha.strip()
 
-            # Verifica se a linha é o início de um novo bloco de fronteira
-            # (ex: "person1", "inlet3", etc.)
-            for nome_base, tipo_novo in regras_mapeamento.items():
-                # Usamos regex para garantir que o nome é seguido por um número (ou nada)
-                # e não é parte de outra palavra. ^ = início da linha.
-                if re.match(f'^{nome_base}[0-9]*$', linha_limpa):
-                    bloco_atual = nome_base
-                    break
-            
-            # Se estamos dentro de um bloco que corresponde a uma regra
-            # e a linha atual define o tipo como "patch"...
-            if bloco_atual and "type" in linha and "patch" in linha:
-                tipo_alvo = regras_mapeamento[bloco_atual]
-                # Substitui 'patch' pelo tipo correto, mantendo a formatação original
-                linha_modificada = linha.replace("patch", tipo_alvo)
-                novas_linhas.append(linha_modificada)
-            else:
-                # Caso contrário, mantém a linha original
-                novas_linhas.append(linha)
+            # Detecta início de bloco: uma linha só com o nome do patch, seguida de "{"
+            if re.match(r"^[A-Za-z_]\w*$", linha_limpa):
+                j = idx + 1
+                while j < len(linhas) and linhas[j].strip() == "":
+                    j += 1
+                if j < len(linhas) and linhas[j].strip().startswith("{"):
+                    bloco_atual = linha_limpa
 
-            # Se a linha contém '}', significa que o bloco de definição terminou
+            if bloco_atual and re.search(r"\btype\b", linha) and ";" in linha:
+                tipo_alvo = self._infer_boundary_type(bloco_atual)
+                if tipo_alvo is not None:
+                    linha = re.sub(
+                        r"(\btype\s+)\w+(\s*;)",
+                        rf"\1{tipo_alvo}\2",
+                        linha,
+                    )
+
+            novas_linhas.append(linha)
+
             if "}" in linha_limpa:
                 bloco_atual = None
         
@@ -538,6 +700,14 @@ class BoundaryManager:
         print(f"✅ Arquivo '{self.case.boundary_file}' foi atualizado com sucesso!")
 
         # Configurações dos campos (class, dimensions, internalField)
+        cfg = self._get_simulation_config()
+        fields_cfg = (cfg.get("fields", {}) or {})
+
+        t_internal = self._as_uniform_scalar(fields_cfg.get("T", {}).get("internalField", None), 300)
+        p_internal = self._as_uniform_scalar(fields_cfg.get("p", {}).get("internalField", None), 101325)
+        k_internal = self._as_uniform_scalar(fields_cfg.get("k", {}).get("internalField", None), 0.001)
+        eps_internal = self._as_uniform_scalar(fields_cfg.get("epsilon", {}).get("internalField", None), 1e-5)
+
         self.fields_config = {
             'U': {
                 'class': 'volVectorField',
@@ -552,12 +722,12 @@ class BoundaryManager:
             'epsilon': {
                 'class': 'volScalarField',
                 'dimensions': '[0 2 -3 0 0 0 0]',
-                'internalField': 'uniform 1e-5',
+                'internalField': eps_internal,
             },
             'k': {
                 'class': 'volScalarField',
                 'dimensions': '[0 2 -2 0 0 0 0]',
-                'internalField': 'uniform 0.001',
+                'internalField': k_internal,
             },
             'nut': {
                 'class': 'volScalarField',
@@ -567,17 +737,17 @@ class BoundaryManager:
             'p': {
                 'class': 'volScalarField',
                 'dimensions': '[1 -1 -2 0 0 0 0]',
-                'internalField': 'uniform 101325',
+                'internalField': p_internal,
             },
             'p_rgh': {
                 'class': 'volScalarField',
                 'dimensions': '[1 -1 -2 0 0 0 0]',
-                'internalField': 'uniform 101325',
+                'internalField': p_internal,
             },
             'T': {
                 'class': 'volScalarField',
                 'dimensions': '[0 0 0 1 0 0 0]',
-                'internalField': 'uniform 300',
+                'internalField': t_internal,
             },
         }
 
@@ -630,7 +800,7 @@ class BoundaryManager:
                 'inlet': """        type            calculated;
                 value           $internalField;""",
                 'outlet': """        type            fixedValue;
-                value           uniform 101325;""",
+                value           $internalField;""",
             },
             'p_rgh': {
                 'wall': """        type            fixedFluxPressure;
@@ -686,23 +856,64 @@ class BoundaryManager:
         for patch_type, patch_names in patch_dict.items():
             for patch_name in patch_names:
                 cond = ""
-                # ⭐ LÓGICA MODIFICADA PARA TEMPERATURA (T) ⭐
-                if field_name == 'T' and patch_type == 'wall':
-                    if patch_name.startswith('person'):
-                        valor = 307
-                    elif patch_name.startswith('dip'):
-                        valor = 293
-                    # table e wall têm o mesmo valor, então podemos agrupá-los
-                    elif patch_name.startswith('table') or patch_name.startswith('wall'):
-                        valor = 300
-                    else:
-                        # Um valor padrão para outros walls não especificados
-                        valor = 300
-                    
-                    cond = f"""        type            fixedValue;
+                if field_name == 'T':
+                    if patch_type == 'inlet':
+                        # Per-inlet temperature: inlet_<dipVar> -> uses dip's T_Flow.
+                        valor = self._default_t_flow()
+                        if patch_name.startswith('inlet_'):
+                            var = patch_name[len('inlet_'):]
+                            v = self._object_sim_value(var, 'T_Flow')
+                            if v is not None:
+                                try:
+                                    valor = float(v)
+                                except Exception:
+                                    pass
+
+                        cond = f"""        type            fixedValue;
             value           uniform {valor};"""
+                    elif patch_type == 'wall':
+                        semantic = self._infer_semantic_type(patch_name)
+                        default_face = self._default_t_face()
+
+                        valor = default_face
+                        if semantic in ('person', 'table'):
+                            v = self._object_sim_value(patch_name, 'T_Face')
+                            if v is not None:
+                                try:
+                                    valor = float(v)
+                                except Exception:
+                                    pass
+                        elif semantic == 'dip':
+                            v = self._object_sim_value(patch_name, 'T_Flow')
+                            if v is not None:
+                                try:
+                                    valor = float(v)
+                                except Exception:
+                                    pass
+                            else:
+                                valor = self._default_t_flow()
+                        elif semantic == 'wall':
+                            valor = default_face
+
+                        cond = f"""        type            fixedValue;
+            value           uniform {valor};"""
+                    else:
+                        cond = self.field_conditions.get(field_name, {}).get(patch_type, "        type            zeroGradient;")
+
+                elif field_name == 'U' and patch_type == 'inlet':
+                    value_str = self._inlet_velocity_value()
+                    if patch_name.startswith('inlet_'):
+                        var = patch_name[len('inlet_'):]
+                        v = self._object_sim_value(var, 'V_Flow')
+                        if v is not None:
+                            try:
+                                value_str = f"uniform (0 {float(v)} 0)"
+                            except Exception:
+                                pass
+
+                    cond = f"""        type            fixedValue;
+                value           {value_str};"""
                 else:
-                    # Lógica original para todos os outros casos
                     cond = self.field_conditions.get(field_name, {}).get(patch_type, "        type            zeroGradient;")
                 
                 body += f"    {patch_name}\n    {{\n{cond}\n    }}\n"
@@ -732,8 +943,19 @@ class BoundaryManager:
 
 class OpenFOAMRunner:
     """Gerencia a execução dos comandos do OpenFOAM."""
-    def __init__(self, case: OpenFOAMCase):
+    def __init__(self, case: OpenFOAMCase, supervisor=None):
         self.case = case
+        self.supervisor = supervisor
+
+        self.parallel_flag = True
+        if self.supervisor is not None:
+            try:
+                self.supervisor.read_user_script()
+            except Exception:
+                pass
+            cfg = getattr(self.supervisor, "simulation_config", {}) or {}
+            decompose_cfg = cfg.get("decomposeParDict", {}) or {}
+            self.parallel_flag = str(decompose_cfg.get("parallel", "Y")).strip().upper().startswith("Y")
 
     def preparar_malha(self, script_name: str = 'comandos_1.sh'):
         caminho_script_windows = self.case.case_path / script_name
@@ -811,11 +1033,10 @@ class OpenFOAMRunner:
     echo "Diretório de trabalho atual: $(pwd)"
 
     # Executa comandos do OpenFOAM
-    echo "Decompondo os arquivos:"
-    decomposePar
+    {"" if not self.parallel_flag else "echo \"Decompondo os arquivos:\"\n    decomposePar\n"}
 
     echo "Rodando a simulação:"
-    mpirun -np 4 buoyantSimpleFoam -parallel
+    {"buoyantSimpleFoam" if not self.parallel_flag else "mpirun -np 4 buoyantSimpleFoam -parallel"}
 
     """
 
@@ -836,38 +1057,48 @@ class Supervisor:
     """Lê script do usuário, guarda dados de simulação e gera script de máquina."""
 
     DEFAULT_SIMULATION_CONFIG = {
-        "case": {
-            "name": "default_case",
-            "description": "Caso padrão gerado automaticamente",
-        },
-        "solver": {
-            "application": "buoyantSimpleFoam",
-            "parallel_cores": 4,
-            "turbulence_model": "kEpsilon",
-        },
-        "time": {
+        # These defaults must allow the entire simulation_config block
+        # (everything above `import nemos1_06 as nemos`) to be omitted.
+        "controlDict": {
             "startTime": 0,
             "endTime": 3500,
+            # Prefer OpenFOAM's conventional naming.
             "deltaT": 0.1,
             "writeInterval": 200,
         },
-        "numerics": {
-            "residual_target": 1e-6,
-            "max_outer_iterations": 250,
+        # Minimal switch (Y/N) for parallel runs.
+        "decomposeParDict": {
+            "parallel": "N",
         },
-        "thermal": {
-            "T_initial_K": 300,
-            "T_inlet_K": 293,
-            "gravity": [0, -9.81, 0],
+        # Minimal field defaults.
+        "fields": {
+            "U": {
+                "value": "uniform (0 -1 0)",
+            },
+            "T": {
+                "internalField": "uniform 300",
+            },
+            "p": {
+                "internalField": "uniform 101325",
+            },
+            "k": {
+                "internalField": "uniform 0.001",
+            },
+            "epsilon": {
+                "internalField": "uniform 1e-5",
+            },
         },
     }
 
     SIMULATION_INLINE_KEYS = {
         "T_face",
+        "T_Face",
         "metabolic_heat_W",
         "species_source",
         "supply_T_C",
         "supply_velocity_m_s",
+        "T_Flow",
+        "V_Flow",
         "flow_profile",
         "material",
         "emissivity",
@@ -876,9 +1107,47 @@ class Supervisor:
     def __init__(self, user_script_path: str):
         self.user_script_path = Path(user_script_path)
         self.simulation_config = copy.deepcopy(self.DEFAULT_SIMULATION_CONFIG)
+        self.user_simulation_config = {}
         self.object_simulation = {}
+        # Maps variable name -> semantic geometry type (e.g. "person", "dip", "table", "room").
+        # This is used later to keep boundary/BC logic stable even when patches are
+        # named after user variables (e.g. "c", "e").
+        self.object_types = {}
+        # Maps variable name -> instantiated class name (e.g. "Person_seated").
+        self.object_classes = {}
         self.machine_script = ""
         self._loaded = False
+
+    def _class_to_object_type(self, class_name: str):
+        if not class_name:
+            return None
+        if class_name == "Room":
+            return "room"
+        if class_name.startswith("Person"):
+            return "person"
+        if class_name.startswith("Dip"):
+            return "dip"
+        if class_name.startswith("Table"):
+            return "table"
+        return None
+
+    @property
+    def controlDict(self) -> dict:
+        if not self._loaded:
+            self.read_user_script()
+        return self.simulation_config.get("controlDict", {})
+
+    @property
+    def decomposeParDict(self) -> dict:
+        if not self._loaded:
+            self.read_user_script()
+        return self.simulation_config.get("decomposeParDict", {})
+
+    @property
+    def fields(self) -> dict:
+        if not self._loaded:
+            self.read_user_script()
+        return self.simulation_config.get("fields", {})
 
     def _merge_dicts(self, base: dict, override: dict):
         result = copy.deepcopy(base)
@@ -888,6 +1157,31 @@ class Supervisor:
             else:
                 result[key] = value
         return result
+
+    def _normalize_simulation_config(self, cfg: dict) -> dict:
+        """Normaliza aliases e garante chaves mínimas para uso interno."""
+        cfg = copy.deepcopy(cfg) if cfg is not None else {}
+
+        control = cfg.setdefault("controlDict", {})
+        # Accept user-friendly alias `delta` used in the user_script and expose
+        # the conventional OpenFOAM key `deltaT` as well.
+        if "delta" in control and "deltaT" not in control:
+            control["deltaT"] = control["delta"]
+        if "deltaT" in control and "delta" not in control:
+            control["delta"] = control["deltaT"]
+
+        cfg.setdefault("decomposeParDict", {})
+        cfg.setdefault("fields", {})
+
+        # Ensure expected field dicts exist (so downstream code can assume keys).
+        fields = cfg["fields"]
+        fields.setdefault("U", {})
+        fields.setdefault("T", {})
+        fields.setdefault("p", {})
+        fields.setdefault("k", {})
+        fields.setdefault("epsilon", {})
+
+        return cfg
 
     def _find_matching_brace(self, text: str, open_idx: int):
         depth = 0
@@ -1063,6 +1357,11 @@ class Supervisor:
             return line
 
         indent, var_name, class_name, args_text = match.groups()
+
+        self.object_classes[var_name] = class_name
+        inferred_type = self._class_to_object_type(class_name)
+        if inferred_type is not None:
+            self.object_types[var_name] = inferred_type
         tokens = self._split_top_level_commas(args_text)
 
         kept_tokens = []
@@ -1093,6 +1392,8 @@ class Supervisor:
             source_wo_sim = source_text
 
         self.object_simulation = {}
+        self.object_types = {}
+        self.object_classes = {}
         sanitized_lines = []
         for line in source_wo_sim.splitlines():
             sanitized_lines.append(self._sanitize_object_line(line))
@@ -1113,10 +1414,10 @@ class Supervisor:
         if user_sim_cfg is None:
             user_sim_cfg = {}
 
-        self.simulation_config = self._merge_dicts(
-            self.DEFAULT_SIMULATION_CONFIG,
-            user_sim_cfg,
-        )
+        self.user_simulation_config = user_sim_cfg
+
+        merged = self._merge_dicts(self.DEFAULT_SIMULATION_CONFIG, user_sim_cfg)
+        self.simulation_config = self._normalize_simulation_config(merged)
         self.machine_script = self._build_machine_script(source_text)
         self._loaded = True
 
@@ -1141,14 +1442,23 @@ class Supervisor:
 if __name__ == "__main__":
     # Fluxo legado de execução direta do Auto_6.
     case = OpenFOAMCase(r"C:\Users\pedro\Desktop\TCC1\Sim_000")
+
+    user_script_path = case.case_path / "user_script.py"
+    supervisor = None
+    if user_script_path.exists():
+        supervisor = Supervisor(str(user_script_path))
+        supervisor.read_user_script()
+        # Gera arquivos base já parametrizados.
+        case.gerar_arquivos_base(supervisor.simulation_config)
+
     mesher = SalomeMesher(
         r"c:\SALOME-9.15.0\run_salome.bat",
-        r"C:\Users\pedro\Desktop\TCC1\Sim_000\script.py",
+        str(case.case_path / "script.py"),
+        supervisor=supervisor,
     )
-    boundary_manager = BoundaryManager(case)
-    runner = OpenFOAMRunner(case)
+    boundary_manager = BoundaryManager(case, supervisor=supervisor)
+    runner = OpenFOAMRunner(case, supervisor=supervisor)
 
-    # case.gerar_arquivos_base()
     # mesher.executar_batch()
     runner.preparar_malha()
     boundary_manager.editar_boundary()
