@@ -458,14 +458,21 @@ class SalomeMesher:
         # Ensure Supervisor is loaded.
         self.supervisor.generate_machine_script()
 
+        user_path = getattr(self.supervisor, "user_script_path", None)
+
         if self.script_path is None:
-            user_path = getattr(self.supervisor, "user_script_path", None)
             if user_path is None:
                 raise ValueError("Supervisor não possui user_script_path para inferir o caminho do script de máquina")
             self.script_path = user_path.with_name(user_path.stem + "_machine.py")
 
         script_text = self.supervisor.machine_script
         self.script_path.write_text(script_text, encoding="utf-8")
+
+        # Also store a stable copy inside the case folder.
+        # Convention: <case_dir>/machine_script.py
+        if user_path is not None:
+            machine_copy_path = user_path.parent / "machine_script.py"
+            machine_copy_path.write_text(script_text, encoding="utf-8")
 
     def executar_batch(self, output_expected: str = None):
         """
@@ -1448,6 +1455,7 @@ if __name__ == "__main__":
     if user_script_path.exists():
         supervisor = Supervisor(str(user_script_path))
         supervisor.read_user_script()
+        supervisor.write_machine_script(str(case.case_path / "machine_script.py"))
         # Gera arquivos base já parametrizados.
         case.gerar_arquivos_base(supervisor.simulation_config)
 
@@ -1459,7 +1467,7 @@ if __name__ == "__main__":
     boundary_manager = BoundaryManager(case, supervisor=supervisor)
     runner = OpenFOAMRunner(case, supervisor=supervisor)
 
-    # mesher.executar_batch()
+    mesher.executar_batch()
     runner.preparar_malha()
     boundary_manager.editar_boundary()
     boundary_manager.generate_all_fields()
