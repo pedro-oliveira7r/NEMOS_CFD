@@ -8,6 +8,7 @@ import subprocess
 from pathlib import Path
 
 _ACTIVE_SIMULATION = None
+DEFAULT_SALOME_EXE = r"c:\SALOME-9.15.0\run_salome.bat"
 
 
 def _set_active_simulation(simulation):
@@ -1721,6 +1722,43 @@ class Mesh(_RecordedObject):
 def salome_update():
     sim = _get_active_simulation()
     sim._record_line("nemos.salome_update()")
+
+
+def setup_workflow(simulation, salome_exe: str = DEFAULT_SALOME_EXE, script_path: str = None):
+    if simulation is None:
+        raise ValueError("Simulation nao pode ser None")
+    if simulation.case_path is None:
+        raise ValueError("Simulation precisa de case_path")
+
+    case = OpenFOAMCase(str(simulation.case_path))
+    simulation.read_user_script()
+    simulation.write_machine_script(str(case.case_path / "machine_script.py"))
+    case.gerar_arquivos_base(simulation.simulation_config)
+
+    if script_path is None:
+        script_path = str(case.case_path / "script.py")
+
+    mesher = SalomeMesher(salome_exe, script_path, simulation=simulation)
+    boundary_manager = BoundaryManager(case, simulation=simulation)
+    runner = OpenFOAMRunner(case, simulation=simulation)
+
+    return case, mesher, boundary_manager, runner
+
+
+def run_full_flow(simulation, salome_exe: str = DEFAULT_SALOME_EXE, script_path: str = None):
+    case, mesher, boundary_manager, runner = setup_workflow(
+        simulation,
+        salome_exe=salome_exe,
+        script_path=script_path,
+    )
+
+    mesher.executar_batch()
+    runner.preparar_malha()
+    boundary_manager.editar_boundary()
+    boundary_manager.generate_all_fields()
+    runner.rodar_simulacao()
+
+    return case
 
 
 if __name__ == "__main__":
