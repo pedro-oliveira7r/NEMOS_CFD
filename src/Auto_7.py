@@ -1140,10 +1140,11 @@ class Simulation:
         self.machine_script = ""
         self._loaded = False
         self._recording_enabled = self.user_script_path is None
-        self._machine_lines = ["import nemos1_07 as nemos"]
+        self._machine_lines = ["import nemos1_08 as nemos"]
         self._object_var_names = {}
         self._used_var_names = set()
         self._var_counter = 0
+        self._salome_env_recorded = False
 
         if kwargs:
             self.simulation_config = self._apply_simulation_kwargs(kwargs)
@@ -1378,6 +1379,7 @@ class Simulation:
         if not self._recording_enabled:
             return None
 
+
         kwargs = dict(kwargs)
         name_value = kwargs.get("name")
 
@@ -1589,7 +1591,8 @@ class Simulation:
         self.object_classes = {}
         sanitized_lines = []
         for line in source_wo_sim.splitlines():
-            sanitized_lines.append(self._sanitize_object_line(line))
+            sanitized_line = self._sanitize_object_line(line)
+            sanitized_lines.append(sanitized_line)
 
         return "\n".join(sanitized_lines).strip() + "\n"
 
@@ -1736,7 +1739,7 @@ def setup_workflow(simulation, salome_exe: str = DEFAULT_SALOME_EXE, script_path
     case.gerar_arquivos_base(simulation.simulation_config)
 
     if script_path is None:
-        script_path = str(case.case_path / "script.py")
+        script_path = str(case.case_path / "machine_script.py")
 
     mesher = SalomeMesher(salome_exe, script_path, simulation=simulation)
     boundary_manager = BoundaryManager(case, simulation=simulation)
@@ -1776,7 +1779,7 @@ if __name__ == "__main__":
 
     mesher = SalomeMesher(
         r"c:\SALOME-9.15.0\run_salome.bat",
-        str(case.case_path / "script.py"),
+        str(case.case_path / "machine_script.py"),
         simulation=simulation,
     )
     boundary_manager = BoundaryManager(case, simulation=simulation)

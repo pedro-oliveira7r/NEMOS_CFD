@@ -23,7 +23,7 @@ def _set_active_salome_env(salome_env):
 
 def _get_active_salome_env():
     if _ACTIVE_SALOME_ENV is None:
-        raise RuntimeError("Salome_Env nao foi inicializado.")
+        return Salome_Env()
     return _ACTIVE_SALOME_ENV
 
 def salome_start():
@@ -284,6 +284,8 @@ class Room:
             if salome.sg.hasDesktop():
                 salome.sg.updateObjBrowser()
 
+            self.create_faces_groups()
+
     def create_faces_groups(self, group_list=None, group_name=None):
         # Extrair as faces de RoomCUT e DIP
         faces_room = self.salome_env.geompy.ExtractShapes(
@@ -439,6 +441,8 @@ class Room:
         self.salome_env.geompy.addToStudyInFather(
             self.object, group_wall, "wall"
         )
+
+        salome_update()
 
     def insert_ceiling_opening(self, x=1, z=1, d=0.025):
             
@@ -958,7 +962,7 @@ class Dip_type_00(Object):
     def __init__(self, salome_env=None, d=0.05, x=1, y=1.2, z=1.5, **kwargs):
 
         super().__init__(salome_env, **kwargs)
-        self.room = salome_env.room
+        self.room = self.salome_env.room
         self.x = x
         self.y = y
         self.z = z
@@ -1030,7 +1034,7 @@ class Dip_type_01(Object):
     def __init__(self, salome_env=None, d=0.05, x=1, y=1.2, z=1.5, **kwargs):
 
         super().__init__(salome_env, **kwargs)
-        self.room = salome_env.room
+        self.room = self.salome_env.room
         self.x = x
         self.y = y
         self.z = z
@@ -1155,7 +1159,7 @@ class Dip_type_02(Object):
     def __init__(self, salome_env=None, d=0.05, x=1, y=1.2, z=1.5, **kwargs):
 
         super().__init__(salome_env, **kwargs)
-        self.room = salome_env.room
+        self.room = self.salome_env.room
         self.x = x
         self.y = y
         self.z = z
@@ -1312,7 +1316,7 @@ class Dip_type_03(Object):
     def __init__(self, salome_env=None, d=0.05, x=1, y=1.2, z=1.5, **kwargs):
 
         super().__init__(salome_env, **kwargs)
-        self.room = salome_env.room
+        self.room = self.salome_env.room
         self.x = x
         self.y = y
         self.z = z
