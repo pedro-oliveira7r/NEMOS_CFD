@@ -1748,7 +1748,7 @@ def setup_workflow(simulation, salome_exe: str = DEFAULT_SALOME_EXE, script_path
     return case, mesher, boundary_manager, runner
 
 
-def run_full_flow(simulation, salome_exe: str = DEFAULT_SALOME_EXE, script_path: str = None):
+def run(simulation, salome_exe: str = DEFAULT_SALOME_EXE, script_path: str = None):
     case, mesher, boundary_manager, runner = setup_workflow(
         simulation,
         salome_exe=salome_exe,

@@ -10,8 +10,7 @@ sim = nemos.Simulation(
 	T_internalField="uniform 300",
 	p_internalField="uniform 101325",
 	k_internalField="uniform 0.001",
-	epsilon_internalField="uniform 1e-5",
-	U_internalField="uniform (0 -1 0)",
+	epsilon_internalField="uniform 1e-5"
 )
 a = nemos.Room(dx=4.5, dy=3.0, dz=4.0, T_Face=300, name = "Room")
 b = nemos.Person_seated(x=1.0, z=1.0, thickness=0.15, T_Face=304, name = "Person_1")
