@@ -9,17 +9,17 @@ from collections import defaultdict
 # ==============================================================================
 
 # 1. Caminho para o executável/batch do SALOME.
-CAMINHO_EXECUTAVEL_SALOME = r"C:\SALOME-9.12.0\run_SALOME.bat" 
+CAMINHO_EXECUTAVEL_SALOME = r"c:\SALOME-9.15.0\run_salome.bat"
 
 # 2. Caminho para o script Python que o SALOME irá executar.
-CAMINHO_SCRIPT_A_EXECUTAR = r"C:\Users\pedro\Desktop\Auto_Nemos\script.py"
+CAMINHO_SCRIPT_A_EXECUTAR = r"C:\Users\pedro\Desktop\NEMOS_2026\Sim_000\script.py"
 
-PASTA_DA_SIM = r"C:\Users\pedro\Desktop\Auto_Nemos\SIM_1"
+PASTA_DA_SIM = r"C:\Users\pedro\Desktop\NEMOS_2026\Sim_000"
 
 caminho_arquivo = r"\constant\polyMesh\boundary"
 caminho_boundary = PASTA_DA_SIM+caminho_arquivo
 
-# 2. Nome do arquivo da Malha
+# 2. Nome do arquivo que estamos aguardando.
 NOME_DO_ARQUIVO = "Mesh_1.unv"
 
 caminho_0 = r'\0'
@@ -28,6 +28,7 @@ output_dir = PASTA_DA_SIM+caminho_0 # Caminho completo para a pasta 0
 def executar_salome_batch():
     """
     Executa o SALOME em modo batch (terminal) para rodar um script Python.
+    Esta é a abordagem robusta e recomendada para automação.
     """
     print("--- Iniciando o Executor SALOME em Modo Batch ---")
 
@@ -41,26 +42,21 @@ def executar_salome_batch():
 
     # Constrói o comando a ser executado.
     # A sintaxe é: <executavel_salome> -t <script_python>
-    comando = [
-        CAMINHO_EXECUTAVEL_SALOME,
-        "shell",
-        "--",
-        "python",
-        CAMINHO_SCRIPT_A_EXECUTAR
-    ]
+    # Usar uma lista é a forma mais segura de passar argumentos para o subprocess.
+    # 1. Correção da sintaxe do comando para o modo batch (-t)
+    comando = f'"{CAMINHO_EXECUTAVEL_SALOME}" -t "{CAMINHO_SCRIPT_A_EXECUTAR}"'
 
-    print(f"Executando comando: {' '.join(comando)}")
+    print(f"Executando comando: {comando}")
     print("Aguardando o processo do SALOME terminar. Isso pode levar um tempo...")
 
     try:
-        # Executa o comando. 'subprocess.run' espera o processo terminar.
-        # 'capture_output=True' captura a saída padrão e os erros.
-        # 'text=True' decodifica a saída como texto.
+        # 2. Adição do shell=True e passagem do comando como string (mais seguro para .bat no Windows)
         resultado = subprocess.run(
             comando,
             capture_output=True,
             text=True,
-            check=False # Usamos False para capturar o erro nós mesmos
+            check=False,
+            shell=True 
         )
 
         # Imprime a saída padrão do script (todos os 'print' do seu script SALOME)
@@ -825,5 +821,5 @@ editar_boundary(caminho_boundary)
 generate_all_fields(caminho_boundary, output_dir)
 rodar_sim(caminho=PASTA_DA_SIM)
 
-print('Programa Finalizado e Arquivos Gerados.')
+print('Programa Finalizado')
 
