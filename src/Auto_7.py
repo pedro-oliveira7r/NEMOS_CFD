@@ -34,7 +34,7 @@ class OpenFOAMCase:
 
     def gerar_arquivos_base(self, simulation_config=None):
         """
-        Gera arquivos do OpenFOAM exatamente como os originais fornecidos:
+        Gera arquivos do OpenFOAM:
         - constant/: g, thermophysicalProperties, turbulenceProperties
         - system/: controlDict, decomposeParDict, fvOptions, fvSchemes, fvSolution
         """
@@ -763,7 +763,7 @@ class BoundaryManager:
             'p_rgh': {
                 'class': 'volScalarField',
                 'dimensions': '[1 -1 -2 0 0 0 0]',
-                'internalField': p_internal,
+                'internalField': 'uniform 101325',
             },
             'T': {
                 'class': 'volScalarField',
