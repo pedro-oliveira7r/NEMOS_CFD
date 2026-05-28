@@ -1,0 +1,906 @@
+Command: C:\Users\pedro\AppData\Local\Programs\Python\Python313\python.exe C:\Users\pedro\Desktop\TCC1\Git\NEMOS_CFD\src\user_script_classroom.py
+Exit code: 0
+
+--- STDOUT ---
+Iniciando script dentro do WSL...
+Diretório de trabalho atual: /mnt/c/Users/pedro/Desktop/TCC1/TESTS/script_classroom
+Convertendo a Malha:
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2312                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _9a9aeb73-20260127 OPENFOAM=2312 patch=260127 version=2312
+Arch   : "LSB;label=32;scalar=64"
+Exec   : ideasUnvToFoam Mesh_1.unv
+Date   : May 27 2026
+Time   : 20:41:47
+Host   : pedro
+PID    : 1153
+I/O    : uncollated
+Case   : /mnt/c/Users/pedro/Desktop/TCC1/TESTS/script_classroom
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Processing tag:164
+Starting reading units at line 3.
+l:1
+units:"  SI: Meter (newton)"
+unitType:2
+Unit factors:
+    Length scale       : 1
+    Force scale        : 1
+    Temperature scale  : 1
+    Temperature offset : 273.15
+
+
+Processing tag:2420
+Skipping tag 2420 on line 9
+Skipping section at line 9.
+
+Processing tag:2411
+Starting reading points at line 20.
+Read 1352030 points.
+
+Processing tag:2412
+Starting reading cells at line 2704083.
+First occurrence of element type 11 for cell 1 at line 2704084
+First occurrence of element type 41 for cell 8514 at line 2729623
+First occurrence of element type 44 for cell 318680 at line 3349955
+First occurrence of element type 112 for cell 320795 at line 3354185
+First occurrence of element type 111 for cell 1860830 at line 6434255
+Read 4500804 cells and 312281 boundary faces.
+
+Processing tag:2467
+Starting reading patches at line 12355795.
+For group 1 named Person_1 trying to read 10072 patch face indices.
+For group 2 named Person_2 trying to read 9982 patch face indices.
+For group 3 named Person_3 trying to read 10146 patch face indices.
+For group 4 named Person_4 trying to read 10132 patch face indices.
+For group 5 named Dip_1 trying to read 38810 patch face indices.
+For group 6 named inlet_Dip_1 trying to read 718 patch face indices.
+For group 7 named Dip_2 trying to read 38408 patch face indices.
+For group 8 named inlet_Dip_2 trying to read 730 patch face indices.
+For group 9 named Dip_3 trying to read 38562 patch face indices.
+For group 10 named inlet_Dip_3 trying to read 730 patch face indices.
+For group 11 named Dip_4 trying to read 38197 patch face indices.
+For group 12 named inlet_Dip_4 trying to read 716 patch face indices.
+For group 13 named Table_1 trying to read 7460 patch face indices.
+For group 14 named Table_2 trying to read 7370 patch face indices.
+For group 15 named Table_3 trying to read 7400 patch face indices.
+For group 16 named Table_4 trying to read 7332 patch face indices.
+For group 17 named outlet trying to read 1380 patch face indices.
+For group 18 named wall trying to read 84136 patch face indices.
+
+Sorting boundary faces according to group (patch)
+0: Person_1 is patch
+1: Person_2 is patch
+2: Person_3 is patch
+3: Person_4 is patch
+4: Dip_1 is patch
+5: inlet_Dip_1 is patch
+6: Dip_2 is patch
+7: inlet_Dip_2 is patch
+8: Dip_3 is patch
+9: inlet_Dip_3 is patch
+10: Dip_4 is patch
+11: inlet_Dip_4 is patch
+12: Table_1 is patch
+13: Table_2 is patch
+14: Table_3 is patch
+15: Table_4 is patch
+16: outlet is patch
+17: wall is patch
+
+Constructing mesh with non-default patches of size:
+    Person_1	10072
+    Person_2	9982
+    Person_3	10146
+    Person_4	10132
+    Dip_1	38810
+    inlet_Dip_1	718
+    Dip_2	38408
+    inlet_Dip_2	730
+    Dip_3	38562
+    inlet_Dip_3	730
+    Dip_4	38197
+    inlet_Dip_4	716
+    Table_1	7460
+    Table_2	7370
+    Table_3	7400
+    Table_4	7332
+    outlet	1380
+    wall	84136
+
+End
+
+Verificando a Malha:
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2312                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _9a9aeb73-20260127 OPENFOAM=2312 patch=260127 version=2312
+Arch   : "LSB;label=32;scalar=64"
+Exec   : checkMesh
+Date   : May 27 2026
+Time   : 20:43:38
+Host   : pedro
+PID    : 1167
+I/O    : uncollated
+Case   : /mnt/c/Users/pedro/Desktop/TCC1/TESTS/script_classroom
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+--> FOAM Warning : 
+    From static Foam::instantList Foam::timeSelector::select0(Foam::Time&, const Foam::argList&)
+    in file db/Time/timeSelector.C at line 258
+    No time specified or available, selecting 'constant'
+Create mesh for time = constant
+
+Check mesh...
+
+Time = constant
+
+Mesh stats 
+    points:           1352030
+    faces:            9927766
+    internal faces:   9615485
+    cells:            4500804
+    faces per cell:   4.3421689
+    boundary patches: 18
+    point zones:      0
+    face zones:       0
+    cell zones:       0
+
+Overall number of cells of each type:
+    hexahedra:     0
+    prisms:        1540035
+    wedges:        0
+    pyramids:      0
+    tet wedges:    0
+    tetrahedra:    2960769
+    polyhedra:     0
+
+Checking topology...
+    Boundary definition OK.
+    Cell to face addressing OK.
+    Point usage OK.
+    Upper triangular ordering OK.
+    Face vertices OK.
+    Number of regions: 1 (OK).
+
+Checking patch topology for multiply connected surfaces...
+    Patch               Faces    Points     Surface topology
+    Person_1            10072    5066     ok (non-closed singly connected)  
+    Person_2            9982     5021     ok (non-closed singly connected)  
+    Person_3            10146    5103     ok (non-closed singly connected)  
+    Person_4            10132    5096     ok (non-closed singly connected)  
+    Dip_1               38810    19470    ok (non-closed singly connected)  
+    inlet_Dip_1         718      552      ok (non-closed singly connected)  
+    Dip_2               38408    19269    ok (non-closed singly connected)  
+    inlet_Dip_2         730      558      ok (non-closed singly connected)  
+    Dip_3               38562    19346    ok (non-closed singly connected)  
+    inlet_Dip_3         730      558      ok (non-closed singly connected)  
+    Dip_4               38197    19163    ok (non-closed singly connected)  
+    inlet_Dip_4         716      548      ok (non-closed singly connected)  
+    Table_1             7460     3732     ok (closed singly connected)      
+    Table_2             7370     3687     ok (closed singly connected)      
+    Table_3             7400     3702     ok (closed singly connected)      
+    Table_4             7332     3668     ok (closed singly connected)      
+    outlet              1380     1202     ok (non-closed singly connected)  
+    wall                84136    42386    ok (non-closed singly connected)  
+    ".*"                312281   157208   ok (closed singly connected)      
+
+
+Checking faceZone topology for multiply connected surfaces...
+    No faceZones found.
+
+Checking basic cellZone addressing...
+    No cellZones found.
+
+Checking basic pointZone addressing...
+    No pointZones found.
+
+Checking geometry...
+    Overall domain bounding box (-3.8857806e-16 0 0) (4.5 3 4)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (-2.4831402e-16 -5.7885204e-16 -2.7433397e-16) OK.
+    Max cell openness = 8.2950296e-16 OK.
+    Max aspect ratio = 37.002466 OK.
+    Minimum face area = 7.8475973e-07. Maximum face area = 0.008863978.  Face area magnitudes OK.
+    Min volume = 9.8151546e-10. Max volume = 0.00021852591.  Total volume = 53.545292.  Cell volumes OK.
+    Mesh non-orthogonality Max: 84.008532 average: 13.256093
+   *Number of severely non-orthogonal (> 70 degrees) faces: 1714.
+    Non-orthogonality check OK.
+  <<Writing 1714 non-orthogonal faces to set nonOrthoFaces
+    Face pyramids OK.
+    Max skewness = 3.3156613 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+End
+
+Iniciando script dentro do WSL...
+Diretório de trabalho atual: /mnt/c/Users/pedro/Desktop/TCC1/TESTS/script_classroom
+Decompondo os arquivos:
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2312                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _9a9aeb73-20260127 OPENFOAM=2312 patch=260127 version=2312
+Arch   : "LSB;label=32;scalar=64"
+Exec   : decomposePar
+Date   : May 27 2026
+Time   : 20:44:46
+Host   : pedro
+PID    : 1651
+I/O    : uncollated
+Case   : /mnt/c/Users/pedro/Desktop/TCC1/TESTS/script_classroom
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+
+
+Decomposing mesh
+
+Create mesh
+
+Calculating distribution of cells
+Decomposition method simple [4] (region region0)
+
+Finished decomposition in 7.51 s
+
+Calculating original mesh data
+
+Distributing cells to processors
+
+Distributing faces to processors
+
+Distributing points to processors
+
+Constructing processor meshes
+
+Processor 0
+    Number of cells = 1125201
+    Number of points = 362413
+    Number of faces shared with processor 1 = 24249
+    Number of processor patches = 1
+    Number of processor faces = 24249
+    Number of boundary faces = 87196
+
+Processor 1
+    Number of cells = 1125201
+    Number of points = 293974
+    Number of faces shared with processor 0 = 24249
+    Number of faces shared with processor 2 = 24444
+    Number of processor patches = 2
+    Number of processor faces = 48693
+    Number of boundary faces = 46446
+
+Processor 2
+    Number of cells = 1125201
+    Number of points = 362807
+    Number of faces shared with processor 1 = 24444
+    Number of faces shared with processor 3 = 23744
+    Number of processor patches = 2
+    Number of processor faces = 48188
+    Number of boundary faces = 82100
+
+Processor 3
+    Number of cells = 1125201
+    Number of points = 377050
+    Number of faces shared with processor 2 = 23744
+    Number of processor patches = 1
+    Number of processor faces = 23744
+    Number of boundary faces = 96539
+
+Number of processor faces = 72437
+Max number of cells = 1125201 (0% above average 1125201)
+Max number of processor patches = 2 (33.333333% above average 1.5)
+Max number of faces between processors = 48693 (34.442343% above average 36218.5)
+
+Time = 0
+
+Processor 0: field transfer
+Processor 1: field transfer
+Processor 2: field transfer
+Processor 3: field transfer
+
+End
+
+Rodando a simulação:
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2312                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _9a9aeb73-20260127 OPENFOAM=2312 patch=260127 version=2312
+Arch   : "LSB;label=32;scalar=64"
+Exec   : buoyantSimpleFoam -parallel
+Date   : May 27 2026
+Time   : 20:47:02
+Host   : pedro
+PID    : 1662
+I/O    : uncollated
+Case   : /mnt/c/Users/pedro/Desktop/TCC1/TESTS/script_classroom
+nProcs : 4
+Hosts  :
+(
+    (pedro 4)
+)
+Pstream initialized with:
+    floatTransfer      : false
+    nProcsSimpleSum    : 0
+    nonBlockingExchange: 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+
+SIMPLE: convergence criteria
+    field p_rgh	 tolerance 1e-06
+    field U	 tolerance 1e-06
+    field h	 tolerance 1e-06
+    field "(k|epsilon)"	 tolerance 1e-06
+
+Reading thermophysical properties
+
+Selecting thermodynamics package 
+{
+    type            heRhoThermo;
+    mixture         pureMixture;
+    transport       const;
+    thermo          hConst;
+    equationOfState Boussinesq;
+    specie          specie;
+    energy          sensibleEnthalpy;
+}
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Creating turbulence model
+
+Selecting turbulence model type RAS
+Selecting RAS turbulence model kEpsilon
+
+Reading g
+
+Reading hRef
+Calculating field g.h
+
+Reading field p_rgh
+
+No MRF models present
+
+Radiation model not active: radiationProperties not found
+Selecting radiationModel none
+Creating finite volume options from "system/fvOptions"
+
+Selecting finite volume options type limitTemperature
+    Source: limitTAir
+    - selecting all cells
+    - selected 4500804 cell(s) with volume 53.545292
+Selecting finite volume options type velocityDampingConstraint
+    Source: dampVelocity
+    - selecting all cells
+    - selected 4500804 cell(s) with volume 53.545292
+
+Starting time loop
+
+Time = 0.1
+
+velocityDampingConstraint dampVelocity damped 0 (0%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 1, Final residual = 0.0018452365, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 301
+limitTemperature limitTAir Unlimited Tmax 301
+GAMG:  Solving for p_rgh, Initial residual = 0.9607803, Final residual = 0.0054086917, No Iterations 5
+time step continuity errors : sum local = 0.00035063022, global = 1.4843156e-05, cumulative = 1.4843156e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.16097711, Final residual = 0.0026141322, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 1, Final residual = 0.03767285, No Iterations 1
+ExecutionTime = 27.04 s  ClockTime = 34 s
+
+Time = 0.2
+
+velocityDampingConstraint dampVelocity damped 0 (0%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.13062012, Final residual = 0.0016223155, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 298.9395
+limitTemperature limitTAir Unlimited Tmax 301.0055
+GAMG:  Solving for p_rgh, Initial residual = 0.14237091, Final residual = 0.0014171864, No Iterations 8
+time step continuity errors : sum local = 0.00061976821, global = 3.0609439e-06, cumulative = 1.79041e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.43569802, Final residual = 0.025026777, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.34545402, Final residual = 0.0098719758, No Iterations 1
+ExecutionTime = 41.69 s  ClockTime = 48 s
+
+Time = 0.3
+
+velocityDampingConstraint dampVelocity damped 87389 (1.94%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.020780254, Final residual = 0.0001895148, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 298.98996
+limitTemperature limitTAir Unlimited Tmax 301.82845
+GAMG:  Solving for p_rgh, Initial residual = 0.32089463, Final residual = 0.0026114853, No Iterations 9
+time step continuity errors : sum local = 0.00019710602, global = 7.613387e-06, cumulative = 2.5517487e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.19812403, Final residual = 0.013332864, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.24245476, Final residual = 0.0072345349, No Iterations 1
+ExecutionTime = 68.78 s  ClockTime = 87 s
+
+Time = 0.4
+
+velocityDampingConstraint dampVelocity damped 99639 (2.21%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.0077216389, Final residual = 8.3360621e-05, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 298.39211
+limitTemperature limitTAir Unlimited Tmax 302.43835
+GAMG:  Solving for p_rgh, Initial residual = 0.27009373, Final residual = 0.001708561, No Iterations 9
+time step continuity errors : sum local = 5.9772741e-05, global = 7.1757561e-07, cumulative = 2.6235063e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.13697209, Final residual = 0.0099253763, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.16271721, Final residual = 0.0034976881, No Iterations 1
+ExecutionTime = 82.61 s  ClockTime = 100 s
+
+Time = 0.5
+
+velocityDampingConstraint dampVelocity damped 29280 (0.65%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.0067749783, Final residual = 5.8549543e-05, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 297.87606
+limitTemperature limitTAir Unlimited Tmax 302.84041
+GAMG:  Solving for p_rgh, Initial residual = 0.21687611, Final residual = 0.0020638493, No Iterations 10
+time step continuity errors : sum local = 8.9663169e-05, global = -6.8936403e-08, cumulative = 2.6166126e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.058348157, Final residual = 0.0028692107, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.069980409, Final residual = 0.0058897094, No Iterations 1
+ExecutionTime = 98.46 s  ClockTime = 117 s
+
+Time = 0.6
+
+velocityDampingConstraint dampVelocity damped 13280 (0.3%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.0038474852, Final residual = 3.5804576e-05, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 297.2781
+limitTemperature limitTAir Unlimited Tmax 303.15068
+GAMG:  Solving for p_rgh, Initial residual = 0.19665949, Final residual = 0.0017255444, No Iterations 11
+time step continuity errors : sum local = 5.466619e-05, global = 2.3166852e-07, cumulative = 2.6397795e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.035101724, Final residual = 0.0017283726, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.025926529, Final residual = 0.0005826635, No Iterations 1
+ExecutionTime = 125.67 s  ClockTime = 162 s
+
+Time = 0.7
+
+velocityDampingConstraint dampVelocity damped 2475 (0.05%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.0017544778, Final residual = 2.0261254e-05, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 296.80627
+limitTemperature limitTAir Unlimited Tmax 303.4167
+GAMG:  Solving for p_rgh, Initial residual = 0.15539639, Final residual = 0.0012204118, No Iterations 12
+time step continuity errors : sum local = 2.7625709e-05, global = 1.4367403e-09, cumulative = 2.6399232e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0095810645, Final residual = 0.00052770704, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0093198677, Final residual = 0.00023170076, No Iterations 1
+ExecutionTime = 143.46 s  ClockTime = 181 s
+
+Time = 0.8
+
+velocityDampingConstraint dampVelocity damped 390 (0.01%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.0011685622, Final residual = 1.580631e-05, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 296.42828
+limitTemperature limitTAir Unlimited Tmax 303.63611
+GAMG:  Solving for p_rgh, Initial residual = 0.09587445, Final residual = 0.00068156382, No Iterations 9
+time step continuity errors : sum local = 1.6066148e-05, global = -7.1294436e-09, cumulative = 2.6392102e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0037190681, Final residual = 0.00020313274, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0072636619, Final residual = 0.00019276502, No Iterations 1
+ExecutionTime = 159 s  ClockTime = 195 s
+
+Time = 0.9
+
+velocityDampingConstraint dampVelocity damped 151 (0%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00085597093, Final residual = 1.2459701e-05, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 296.09968
+limitTemperature limitTAir Unlimited Tmax 303.81455
+GAMG:  Solving for p_rgh, Initial residual = 0.072427855, Final residual = 0.00069728448, No Iterations 9
+time step continuity errors : sum local = 1.5910916e-05, global = -4.0294248e-07, cumulative = 2.598916e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0027654583, Final residual = 0.00011374686, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0075292362, Final residual = 0.00020349108, No Iterations 1
+ExecutionTime = 182.98 s  ClockTime = 232 s
+
+Time = 1
+
+velocityDampingConstraint dampVelocity damped 45 (0%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00068066906, Final residual = 1.0177199e-05, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 295.83551
+limitTemperature limitTAir Unlimited Tmax 303.95932
+GAMG:  Solving for p_rgh, Initial residual = 0.053623634, Final residual = 0.00045883297, No Iterations 8
+time step continuity errors : sum local = 1.0033498e-05, global = 3.822497e-07, cumulative = 2.6371409e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0029726043, Final residual = 0.00014077406, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0081296653, Final residual = 0.00021898918, No Iterations 1
+ExecutionTime = 196.91 s  ClockTime = 247 s
+
+Time = 1.1
+
+velocityDampingConstraint dampVelocity damped 17 (0%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00056641812, Final residual = 8.573659e-06, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 295.61573
+limitTemperature limitTAir Unlimited Tmax 304.07695
+GAMG:  Solving for p_rgh, Initial residual = 0.041762263, Final residual = 0.00030607731, No Iterations 8
+time step continuity errors : sum local = 6.4897116e-06, global = -3.5952094e-08, cumulative = 2.6335457e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0036202188, Final residual = 0.00015454913, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0086150627, Final residual = 0.00022916501, No Iterations 1
+ExecutionTime = 209.05 s  ClockTime = 258 s
+
+Time = 1.2
+
+velocityDampingConstraint dampVelocity damped 9 (0%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00048570189, Final residual = 7.3936386e-06, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 295.28599
+limitTemperature limitTAir Unlimited Tmax 304.1694
+GAMG:  Solving for p_rgh, Initial residual = 0.036614899, Final residual = 0.0002276951, No Iterations 8
+time step continuity errors : sum local = 4.7111827e-06, global = 3.3021249e-08, cumulative = 2.6368479e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0039361987, Final residual = 0.00016019337, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0089392522, Final residual = 0.00022280536, No Iterations 1
+ExecutionTime = 230.89 s  ClockTime = 293 s
+
+Time = 1.3
+
+velocityDampingConstraint dampVelocity damped 1 (0%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00042543498, Final residual = 6.4938829e-06, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 295.01102
+limitTemperature limitTAir Unlimited Tmax 304.23758
+GAMG:  Solving for p_rgh, Initial residual = 0.034096613, Final residual = 0.00015113154, No Iterations 8
+time step continuity errors : sum local = 3.058295e-06, global = -1.3243204e-08, cumulative = 2.6355235e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0040265146, Final residual = 0.00016451012, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0092178582, Final residual = 0.00019912329, No Iterations 1
+ExecutionTime = 245 s  ClockTime = 308 s
+
+Time = 1.4
+
+velocityDampingConstraint dampVelocity damped 1 (0%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00037869961, Final residual = 5.7918591e-06, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 294.79156
+limitTemperature limitTAir Unlimited Tmax 304.29225
+GAMG:  Solving for p_rgh, Initial residual = 0.033675079, Final residual = 0.0002187424, No Iterations 7
+time step continuity errors : sum local = 4.3543044e-06, global = -5.5897548e-08, cumulative = 2.6299338e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0039939919, Final residual = 0.00016467976, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0096906547, Final residual = 0.00023928368, No Iterations 1
+ExecutionTime = 258.95 s  ClockTime = 321 s
+
+Time = 1.5
+
+velocityDampingConstraint dampVelocity damped 0 (0%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00034152585, Final residual = 5.2315469e-06, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 294.61737
+limitTemperature limitTAir Unlimited Tmax 304.33839
+GAMG:  Solving for p_rgh, Initial residual = 0.033597259, Final residual = 0.0002922179, No Iterations 7
+time step continuity errors : sum local = 5.7547264e-06, global = -8.9026434e-08, cumulative = 2.6210311e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0038477055, Final residual = 0.00015832868, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.010196637, Final residual = 0.00029033909, No Iterations 1
+ExecutionTime = 280.15 s  ClockTime = 354 s
+
+Time = 1.6
+
+velocityDampingConstraint dampVelocity damped 0 (0%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.0003116079, Final residual = 4.7682848e-06, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 294.47839
+limitTemperature limitTAir Unlimited Tmax 304.37725
+GAMG:  Solving for p_rgh, Initial residual = 0.03343708, Final residual = 0.00027356788, No Iterations 7
+time step continuity errors : sum local = 5.3666326e-06, global = 1.6090232e-08, cumulative = 2.6226402e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0036756933, Final residual = 0.00016053961, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.010548853, Final residual = 0.00031047536, No Iterations 1
+ExecutionTime = 292.83 s  ClockTime = 367 s
+
+Time = 1.7
+
+velocityDampingConstraint dampVelocity damped 0 (0%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.0002872522, Final residual = 4.3899119e-06, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 294.36812
+limitTemperature limitTAir Unlimited Tmax 304.41189
+GAMG:  Solving for p_rgh, Initial residual = 0.033088464, Final residual = 0.00025965692, No Iterations 7
+time step continuity errors : sum local = 5.0947005e-06, global = 1.1626754e-08, cumulative = 2.6238028e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0035307185, Final residual = 0.0001850035, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.010630912, Final residual = 0.0003191195, No Iterations 1
+ExecutionTime = 304.95 s  ClockTime = 378 s
+
+Time = 1.8
+
+velocityDampingConstraint dampVelocity damped 0 (0%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00026699216, Final residual = 4.0826908e-06, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 294.26656
+limitTemperature limitTAir Unlimited Tmax 304.44383
+GAMG:  Solving for p_rgh, Initial residual = 0.032762156, Final residual = 0.00030976301, No Iterations 5
+time step continuity errors : sum local = 6.0922731e-06, global = -1.4269382e-07, cumulative = 2.6095335e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0034343117, Final residual = 0.00021179409, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.01034743, Final residual = 0.00031290615, No Iterations 1
+ExecutionTime = 326.28 s  ClockTime = 412 s
+
+Time = 1.9
+
+velocityDampingConstraint dampVelocity damped 0 (0%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00024989225, Final residual = 3.8291529e-06, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 294.19754
+limitTemperature limitTAir Unlimited Tmax 304.47256
+GAMG:  Solving for p_rgh, Initial residual = 0.032438974, Final residual = 0.00030957598, No Iterations 5
+time step continuity errors : sum local = 6.1098247e-06, global = -9.7617866e-08, cumulative = 2.5997717e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0033461578, Final residual = 0.0002255859, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0097756606, Final residual = 0.00029143492, No Iterations 1
+ExecutionTime = 338.19 s  ClockTime = 425 s
+
+Time = 2
+
+velocityDampingConstraint dampVelocity damped 0 (0%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00023543681, Final residual = 3.6205345e-06, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 294.14794
+limitTemperature limitTAir Unlimited Tmax 304.49846
+GAMG:  Solving for p_rgh, Initial residual = 0.032237254, Final residual = 0.00027948497, No Iterations 5
+time step continuity errors : sum local = 5.5349098e-06, global = -6.8484046e-08, cumulative = 2.5929233e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0032452928, Final residual = 0.0002303847, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0090756293, Final residual = 0.00026279021, No Iterations 1
+ExecutionTime = 350.12 s  ClockTime = 436 s
+
+Time = 2.1
+
+velocityDampingConstraint dampVelocity damped 0 (0%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00022313046, Final residual = 3.4487136e-06, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 294.11445
+limitTemperature limitTAir Unlimited Tmax 304.52191
+GAMG:  Solving for p_rgh, Initial residual = 0.0318998, Final residual = 0.00023631786, No Iterations 5
+time step continuity errors : sum local = 4.6969062e-06, global = -6.8612473e-08, cumulative = 2.586062e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0031169185, Final residual = 0.00022878775, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0083705881, Final residual = 0.0002356074, No Iterations 1
+ExecutionTime = 373.03 s  ClockTime = 470 s
+
+Time = 2.2
+
+velocityDampingConstraint dampVelocity damped 3 (0%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00021272337, Final residual = 3.3097935e-06, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 294.09259
+limitTemperature limitTAir Unlimited Tmax 304.54324
+GAMG:  Solving for p_rgh, Initial residual = 0.031490895, Final residual = 0.00022407253, No Iterations 5
+time step continuity errors : sum local = 4.4689102e-06, global = -8.4027285e-08, cumulative = 2.5776593e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0029694312, Final residual = 0.00022255206, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0077131757, Final residual = 0.00021328459, No Iterations 1
+ExecutionTime = 384.2 s  ClockTime = 482 s
+
+Time = 2.3
+
+velocityDampingConstraint dampVelocity damped 43 (0%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00020419724, Final residual = 3.2030199e-06, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 294.07413
+limitTemperature limitTAir Unlimited Tmax 304.56272
+GAMG:  Solving for p_rgh, Initial residual = 0.030979615, Final residual = 0.00025875953, No Iterations 5
+time step continuity errors : sum local = 5.1797014e-06, global = -9.6644796e-08, cumulative = 2.5679948e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0028115404, Final residual = 0.00021320144, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.007135595, Final residual = 0.00019697484, No Iterations 1
+ExecutionTime = 394.84 s  ClockTime = 493 s
+
+Time = 2.4
+
+velocityDampingConstraint dampVelocity damped 117 (0%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00019748983, Final residual = 3.1297615e-06, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 294.05662
+limitTemperature limitTAir Unlimited Tmax 304.58055
+GAMG:  Solving for p_rgh, Initial residual = 0.030484751, Final residual = 0.00019731911, No Iterations 7
+time step continuity errors : sum local = 3.9655502e-06, global = -6.3108106e-08, cumulative = 2.561684e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0026554518, Final residual = 0.00020754272, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.006647461, Final residual = 0.00018838415, No Iterations 1
+ExecutionTime = 420.15 s  ClockTime = 533 s
+
+Time = 2.5
+
+velocityDampingConstraint dampVelocity damped 169 (0%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00019201568, Final residual = 3.0779569e-06, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 294.04324
+limitTemperature limitTAir Unlimited Tmax 304.59694
+GAMG:  Solving for p_rgh, Initial residual = 0.030303282, Final residual = 0.00029062267, No Iterations 5
+time step continuity errors : sum local = 5.8698188e-06, global = -1.6604351e-07, cumulative = 2.5450796e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0025226084, Final residual = 0.00021451664, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0062282339, Final residual = 0.00018729285, No Iterations 1
+ExecutionTime = 433.84 s  ClockTime = 547 s
+
+Time = 2.6
+
+velocityDampingConstraint dampVelocity damped 248 (0.01%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00018721159, Final residual = 3.0353297e-06, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 294.03301
+limitTemperature limitTAir Unlimited Tmax 304.61202
+GAMG:  Solving for p_rgh, Initial residual = 0.030924842, Final residual = 0.00023770113, No Iterations 6
+time step continuity errors : sum local = 4.8310493e-06, global = -3.2043816e-08, cumulative = 2.5418753e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0024260199, Final residual = 0.00021863409, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0058818882, Final residual = 0.00018863725, No Iterations 1
+ExecutionTime = 448.02 s  ClockTime = 560 s
+
+Time = 2.7
+
+velocityDampingConstraint dampVelocity damped 348 (0.01%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00018292335, Final residual = 2.9969448e-06, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 294.02521
+limitTemperature limitTAir Unlimited Tmax 304.62594
+GAMG:  Solving for p_rgh, Initial residual = 0.031962584, Final residual = 0.00023258151, No Iterations 6
+time step continuity errors : sum local = 4.7615229e-06, global = -3.6538313e-08, cumulative = 2.5382214e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0023259628, Final residual = 0.00021362991, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0055639647, Final residual = 0.00018492452, No Iterations 1
+ExecutionTime = 481.63 s  ClockTime = 622 s
+
+Time = 2.8
+
+velocityDampingConstraint dampVelocity damped 404 (0.01%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00017906071, Final residual = 2.9613552e-06, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 294.01925
+limitTemperature limitTAir Unlimited Tmax 304.63882
+GAMG:  Solving for p_rgh, Initial residual = 0.033663348, Final residual = 0.00032252577, No Iterations 5
+time step continuity errors : sum local = 6.6659408e-06, global = -3.5305841e-07, cumulative = 2.5029156e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0022303702, Final residual = 0.00020617224, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0052611981, Final residual = 0.00017764678, No Iterations 1
+ExecutionTime = 507.12 s  ClockTime = 649 s
+
+Time = 2.9
+
+velocityDampingConstraint dampVelocity damped 416 (0.01%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00017560601, Final residual = 2.9312661e-06, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 294.0147
+limitTemperature limitTAir Unlimited Tmax 304.65074
+GAMG:  Solving for p_rgh, Initial residual = 0.035575534, Final residual = 0.00032511997, No Iterations 6
+time step continuity errors : sum local = 6.7905325e-06, global = -4.1655721e-08, cumulative = 2.49875e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0021282319, Final residual = 0.00019723885, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0049662375, Final residual = 0.00016915004, No Iterations 1
+ExecutionTime = 529.36 s  ClockTime = 673 s
+
+Time = 3
+
+velocityDampingConstraint dampVelocity damped 420 (0.01%) of cells, with max limit 10
+DILUPBiCGStab:  Solving for h, Initial residual = 0.0001725305, Final residual = 2.90609e-06, No Iterations 1
+limitTemperature limitTAir Lower limited 0 (0%) of cells, with min limit 280
+limitTemperature limitTAir Upper limited 0 (0%) of cells, with max limit 310
+limitTemperature limitTAir Unlimited Tmin 294.01123
+limitTemperature limitTAir Unlimited Tmax 304.66179
+GAMG:  Solving for p_rgh, Initial residual = 0.03544421, Final residual = 0.00032137423, No Iterations 7
+time step continuity errors : sum local = 6.7713294e-06, global = -9.9213654e-08, cumulative = 2.4888287e-05
+rho min/max : 0.985 1.018
+DILUPBiCGStab:  Solving for epsilon, Initial residual = 0.0020058078, Final residual = 0.00018741837, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.004668, Final residual = 0.00015996383, No Iterations 1
+ExecutionTime = 563.62 s  ClockTime = 735 s
+
+End
+
+Finalising parallel run
+Arquivos gerados com sucesso em:
+  C:\Users\pedro\Desktop\TCC1\TESTS\script_classroom\constant
+  C:\Users\pedro\Desktop\TCC1\TESTS\script_classroom\system
+--- Iniciando o Executor SALOME em Modo Batch ---
+Executando comando: "c:\SALOME-9.15.0\run_salome.bat" -t "C:\Users\pedro\Desktop\TCC1\TESTS\script_classroom\machine_script.py"
+Aguardando o processo do SALOME terminar. Isso pode levar um tempo...
+
+--- Saída do Script SALOME (stdout) ---
+Nenhuma saída padrão.
+--------------------------------------
+
+Malha exportada com sucesso.
+Arquivo 'comandos_1.sh' gerado com sucesso.
+Executando o script: /mnt/c/Users/pedro/Desktop/TCC1/TESTS/script_classroom/comandos_1.sh
+Arquivo 'C:\Users\pedro\Desktop\TCC1\TESTS\script_classroom\constant\polyMesh\boundary' foi atualizado com sucesso!
+Arquivo 'U' gerado em 'C:\Users\pedro\Desktop\TCC1\TESTS\script_classroom\0/'.
+Arquivo 'alphat' gerado em 'C:\Users\pedro\Desktop\TCC1\TESTS\script_classroom\0/'.
+Arquivo 'epsilon' gerado em 'C:\Users\pedro\Desktop\TCC1\TESTS\script_classroom\0/'.
+Arquivo 'k' gerado em 'C:\Users\pedro\Desktop\TCC1\TESTS\script_classroom\0/'.
+Arquivo 'nut' gerado em 'C:\Users\pedro\Desktop\TCC1\TESTS\script_classroom\0/'.
+Arquivo 'p' gerado em 'C:\Users\pedro\Desktop\TCC1\TESTS\script_classroom\0/'.
+Arquivo 'p_rgh' gerado em 'C:\Users\pedro\Desktop\TCC1\TESTS\script_classroom\0/'.
+Arquivo 'T' gerado em 'C:\Users\pedro\Desktop\TCC1\TESTS\script_classroom\0/'.
+Arquivo 'comandos_2.sh' gerado com sucesso.
+Executando o script: /mnt/c/Users/pedro/Desktop/TCC1/TESTS/script_classroom/comandos_2.sh
+
+--- STDERR ---

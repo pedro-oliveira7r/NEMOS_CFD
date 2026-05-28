@@ -679,7 +679,7 @@ class BoundaryManager:
         """
         # Verifica se o arquivo existe
         if not os.path.exists(self.case.boundary_file):
-            print(f"❌ Erro: O arquivo '{self.case.boundary_file}' não foi encontrado.")
+            print(f"Erro: O arquivo '{self.case.boundary_file}' não foi encontrado.")
             return
 
         # 2. Lê todo o conteúdo do arquivo para a memória
@@ -718,7 +718,7 @@ class BoundaryManager:
         with open(self.case.boundary_file, 'w') as f:
             f.writelines(novas_linhas)
 
-        print(f"✅ Arquivo '{self.case.boundary_file}' foi atualizado com sucesso!")
+        print(f"Arquivo '{self.case.boundary_file}' foi atualizado com sucesso!")
 
         # Configurações dos campos (class, dimensions, internalField)
         cfg = self._get_simulation_config()
@@ -949,7 +949,7 @@ class BoundaryManager:
     def generate_all_fields(self):
         # Verifica se o arquivo boundary existe antes de prosseguir
         if not os.path.exists(self.case.boundary_file):
-            print(f"❌ Erro: Arquivo boundary não encontrado em '{self.case.boundary_file}'")
+            print(f"Erro: Arquivo boundary não encontrado em '{self.case.boundary_file}'")
             return
 
         os.makedirs(self.case.zero_dir, exist_ok=True)
@@ -959,7 +959,7 @@ class BoundaryManager:
             content = self._generate_field_file(field_name, config, patch_dict)
             with open(os.path.join(self.case.zero_dir, field_name), "w") as f:
                 f.write(content)
-            print(f"✔ Arquivo '{field_name}' gerado em '{self.case.zero_dir}/'.")
+            print(f"Arquivo '{field_name}' gerado em '{self.case.zero_dir}/'.")
 
 
 class OpenFOAMRunner:
