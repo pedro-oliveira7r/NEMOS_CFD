@@ -1,4 +1,4 @@
-import Auto_7 as nemos
+import Auto_8 as nemos
 
 sim = nemos.Simulation(
 	case_path=r"C:\Users\pedro\Desktop\TCC1\TESTS\script_base",
