@@ -148,8 +148,10 @@ class Simulation:
         for key, value in self._sim_kwargs.items():
             sim_kwargs.append(f"{key}={repr(value)}")
 
+        shared_mesh_path = self.case_path / "SIM_0" / "Mesh_1.unv"
+
         lines = [
-            "import Auto_7 as nemos",
+            "import Auto_8 as nemos",
             "",
             "sim = nemos.Simulation(",
         ]
@@ -160,6 +162,8 @@ class Simulation:
             kind = action[0]
             if kind == "init":
                 _, var_name, class_name, args, kwargs = action
+                if class_name == "Mesh" and index > 0:
+                    continue
                 args_str = self._format_args_kwargs(args, kwargs, index)
                 lines.append(f"{var_name} = nemos.{class_name}({args_str})")
                 continue
@@ -170,8 +174,16 @@ class Simulation:
                     self._object_classes_by_var.get(var_name) == "Mesh"
                     and method_name == "create_mesh"
                 ):
-                    kwargs = dict(kwargs)
-                    kwargs["caminho"] = str(case_path / "Mesh_1.unv")
+                    if index == 0:
+                        kwargs = dict(kwargs)
+                        kwargs["caminho"] = str(case_path / "Mesh_1.unv")
+                        args_str = self._format_args_kwargs(args, kwargs, index)
+                        lines.append(f"{var_name}.{method_name}({args_str})")
+                    else:
+                        lines.append(
+                            f"{var_name} = nemos.Simulation.Import_mesh({repr(str(shared_mesh_path))})"
+                        )
+                    continue
                 args_str = self._format_args_kwargs(args, kwargs, index)
                 lines.append(f"{var_name}.{method_name}({args_str})")
 
