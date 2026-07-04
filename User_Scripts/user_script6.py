@@ -29,7 +29,7 @@ simulation_config = {
     },
 }
 
-import nemos1_06 as nemos
+import GeoMesh.nemos1_06 as nemos
 a = nemos.Salome_Env()
 b = nemos.Room(salome_env=a, dx=3.0, dy=3.0, dz=3.0, T_Face=300, name = "Room")
 c = nemos.Person_seated(salome_env=a, x=2.025, z=1.5, theta=0, T_Face=304, name = "Person_1")

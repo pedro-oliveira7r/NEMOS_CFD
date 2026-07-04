@@ -1,4 +1,4 @@
-import Manager as nemos
+import Manager.Manager_1 as nemos
 
 # Caso Tipo 1: Apenas as condições de contorno variam
 
