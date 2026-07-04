@@ -1,4 +1,4 @@
-import Agent_1
+import Outros.Agent_1 as Agent_1
 
 case_path = r"C:\Users\pedro\Desktop\TCC1\TESTS"
 

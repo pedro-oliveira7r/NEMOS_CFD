@@ -1,4 +1,4 @@
-from simulation_analisys import Simulation, SimulationAnalysis, Regularization
+from Outros.simulation_analisys import Simulation, SimulationAnalysis, Regularization
 
 # caminho para a pasta do caso OpenFOAM (onde esta o caso.foam)
 case_dir = r"C:\Users\pedro\Desktop\TCC1\SIM_C2"
