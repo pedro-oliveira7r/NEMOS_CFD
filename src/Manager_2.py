@@ -112,6 +112,45 @@ class Simulation:
             return
         self._actions.append(("method", var_name, method_name, args, dict(kwargs)))
 
+    def _value_uses_sweep(self, value):
+        if isinstance(value, _RecordedObject):
+            return False
+
+        if isinstance(value, (list, tuple)):
+            if id(value) in self._sweep_list_ids:
+                return True
+            return any(self._value_uses_sweep(item) for item in value)
+
+        if isinstance(value, dict):
+            return any(self._value_uses_sweep(item) for item in value.values())
+
+        return False
+
+    def _args_kwargs_use_sweep(self, args, kwargs):
+        return any(self._value_uses_sweep(arg) for arg in args) or any(
+            self._value_uses_sweep(value) for value in kwargs.values()
+        )
+
+    def _mesh_uses_sweep(self):
+        for action in self._actions:
+            kind = action[0]
+            if kind == "init":
+                _, _, class_name, args, kwargs = action
+                if class_name == "Mesh" and self._args_kwargs_use_sweep(args, kwargs):
+                    return True
+                continue
+
+            if kind == "method":
+                _, var_name, method_name, args, kwargs = action
+                if (
+                    self._object_classes_by_var.get(var_name) == "Mesh"
+                    and method_name == "create_mesh"
+                    and self._args_kwargs_use_sweep(args, kwargs)
+                ):
+                    return True
+
+        return False
+
     def _format_value(self, value, index: int):
         if isinstance(value, _RecordedObject):
             return value._var_name
@@ -124,6 +163,9 @@ class Simulation:
             return f"[{inner}]"
 
         if isinstance(value, tuple):
+            list_name = self._sweep_list_ids.get(id(value))
+            if list_name is not None:
+                return self._format_value(self._sweep_lists[list_name][index], index)
             inner = ", ".join(self._format_value(v, index) for v in value)
             if len(value) == 1:
                 inner = inner + ","
@@ -149,9 +191,13 @@ class Simulation:
             sim_kwargs.append(f"{key}={repr(value)}")
 
         shared_mesh_path = self.case_path / "SIM_0" / "Mesh_1.unv"
+        mesh_uses_sweep = self._mesh_uses_sweep()
+        src_dir = Path(__file__).resolve().parent
 
         lines = [
-            "import Auto_8 as nemos",
+            "import sys",
+            f"sys.path.insert(0, {repr(str(src_dir))})",
+            "import Simulation as nemos",
             "",
             "sim = nemos.Simulation(",
         ]
@@ -162,7 +208,7 @@ class Simulation:
             kind = action[0]
             if kind == "init":
                 _, var_name, class_name, args, kwargs = action
-                if class_name == "Mesh" and index > 0:
+                if class_name == "Mesh" and index > 0 and not mesh_uses_sweep:
                     continue
                 args_str = self._format_args_kwargs(args, kwargs, index)
                 lines.append(f"{var_name} = nemos.{class_name}({args_str})")
@@ -174,7 +220,7 @@ class Simulation:
                     self._object_classes_by_var.get(var_name) == "Mesh"
                     and method_name == "create_mesh"
                 ):
-                    if index == 0:
+                    if index == 0 or mesh_uses_sweep:
                         kwargs = dict(kwargs)
                         kwargs["caminho"] = str(case_path / "Mesh_1.unv")
                         args_str = self._format_args_kwargs(args, kwargs, index)
@@ -191,8 +237,6 @@ class Simulation:
             [
                 "",
                 "sim.build_machine_script()",
-                "",
-                "case, mesher, boundary_manager, runner = nemos.setup_workflow(sim)",
                 "",
                 "case = nemos.run(sim)",
             ]
