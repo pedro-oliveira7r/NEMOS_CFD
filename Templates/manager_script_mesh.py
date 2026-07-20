@@ -1,4 +1,4 @@
-import Manager_2 as nemos
+import Manager as nemos
 
 # Caso Tipo 2: Teste de Refinamento de Malha
 

@@ -10,7 +10,21 @@ import salome
 import salome_notebook
 from salome.geom import geomBuilder
 from salome.smesh import smeshBuilder
+import pandas as pd
+import os
 
+_ACTIVE_SALOME_ENV = None
+
+
+def _set_active_salome_env(salome_env):
+    global _ACTIVE_SALOME_ENV
+    _ACTIVE_SALOME_ENV = salome_env
+
+
+def _get_active_salome_env():
+    if _ACTIVE_SALOME_ENV is None:
+        return Salome_Env()
+    return _ACTIVE_SALOME_ENV
 
 def salome_start():
     salome.salome_init()
@@ -43,11 +57,14 @@ class Salome_Env:
         self.OZ = self.geompy.MakeVectorDXDYDZ(0, 0, 1)
         self.boxList = []
         self.room = None
+        _set_active_salome_env(self)
 
 
 class Room:
 
-    def __init__(self, salome_env, dx=3.000, dy=3.000, dz=3.000, **kwargs):
+    def __init__(self, salome_env=None, dx=3.000, dy=3.000, dz=3.000, **kwargs):
+        if salome_env is None:
+            salome_env = _get_active_salome_env()
         self.salome_env = salome_env
         self.name = 'Room'
         self.H = dy
@@ -68,6 +85,7 @@ class Room:
         self.CilinderList = []
         self.PontaList = []
         salome_env.room = self
+        self.smesh_builder = smeshBuilder.New()
 
         geomObj_8 = salome_env.geompy.MakeMarker(0, 0, 0, 1, 0, 0, 0, 1, 0)
 
@@ -207,10 +225,12 @@ class Room:
             if salome.sg.hasDesktop():
                 salome.sg.updateObjBrowser()
 
-    def add_cilinder(self, salome_env, x=1.5, z=1.5, R_Tubo=0.05, R_Ponta=0.075,
+    def add_cilinder(self, salome_env=None, x=1.5, z=1.5, R_Tubo=0.05, R_Ponta=0.075,
                      H_Tubo=1.2, H_Ponta=0.085, name='Box', dip=None):
         geompy = self.salome_env.geompy
 
+        if salome_env is None:
+            salome_env = self.salome_env
         self.salome_env = salome_env
         if salome_env.room is None:
             raise RuntimeError("Nenhuma Room foi criada.")
@@ -245,25 +265,9 @@ class Room:
             salome.sg.updateObjBrowser()
 
     def add(self, obj_list):
-            # Auto-name objects by the variable name used in the user script.
-            # Example: `e = nemos.Dip_type_00(...)` -> obj.name == "e".
-            frame = inspect.currentframe()
-            try:
-                caller = frame.f_back
-                obj_ids = {id(o) for o in obj_list}
-                inferred = {}
-                # Prefer locals, then globals.
-                for scope in (caller.f_locals, caller.f_globals):
-                    for var_name, value in scope.items():
-                        if id(value) in obj_ids and isinstance(var_name, str) and var_name.isidentifier():
-                            inferred[id(value)] = var_name
-            finally:
-                del frame
-
             for obj in obj_list:
-                var_name = inferred.get(id(obj))
-                if var_name:
-                    obj.name = var_name
+                if not getattr(obj, "name", None):
+                    raise ValueError("Object name is required. Pass name=... when creating objects.")
 
             sal_obj_list = []
             for obj in obj_list:
@@ -279,6 +283,8 @@ class Room:
 
             if salome.sg.hasDesktop():
                 salome.sg.updateObjBrowser()
+
+            self.create_faces_groups()
 
     def create_faces_groups(self, group_list=None, group_name=None):
         # Extrair as faces de RoomCUT e DIP
@@ -307,11 +313,11 @@ class Room:
 
             self.faces_groups.append(group_faces)
 
-            if isinstance(obj, Dip):
+            if isinstance(obj, (Dip_type_00, Dip_type_01, Dip_type_02, Dip_type_03)):
                 self.faces_names_groups.append(("dip", obj.name))
-            elif isinstance(obj, Table):
+            elif isinstance(obj, (Table_retangular, Table_circular)):
                 self.faces_names_groups.append(("table", obj.name))
-            elif isinstance(obj, Person):
+            elif isinstance(obj, (Person_seated, Person_standing)):
                 self.faces_names_groups.append(("person", obj.name))
 
             # Iterar sobre as faces e verificar proximidade e área
@@ -320,7 +326,7 @@ class Room:
 
             for face_obj in faces_obj:
                 for face_room in faces_room:
-                    if isinstance(obj, Dip):  # INLET: Busca a face do inlet
+                    if isinstance(obj, (Dip_type_00, Dip_type_01, Dip_type_02, Dip_type_03)):  # INLET: Busca a face do inlet
                         center = self.salome_env.geompy.MakeCDG(face_room)
                         coords = self.salome_env.geompy.PointCoordinates(center)
                         
@@ -358,7 +364,7 @@ class Room:
                                     set(face_wall_ids) - set([face_id])
                                 )
 
-            if isinstance(obj, Dip):  # INLET: Busca a face do inlet
+            if isinstance(obj, (Dip_type_00, Dip_type_01, Dip_type_02, Dip_type_03)):  # INLET: Busca a face do inlet
                 face_inlet_id = self.salome_env.geompy.GetSubShapeID(
                     self.object, dip_face_max
                 )
@@ -436,6 +442,8 @@ class Room:
             self.object, group_wall, "wall"
         )
 
+        salome_update()
+
     def insert_ceiling_opening(self, x=1, z=1, d=0.025):
             
             center = self.salome_env.geompy.MakeVertex(x, self.H, z)
@@ -487,12 +495,17 @@ class Mesh:
         self.m3DMaxSize = m3DMaxSize
         self.m3DMinSize = m3DMinSize
         self.fineness = fineness
+        self.salome_env = room.salome_env
+        self.geom = self.salome_env.geompy
+        self.smesh_builder = smeshBuilder.New()
+        self.mesh = None
 
     def create_mesh(self, K_mesh=1, export=False, caminho=''):
         smesh = smeshBuilder.New()
+        self.smesh=smesh
         inicio = time.time()
-
-        Mesh_1 = smesh.Mesh(self.room.object, 'Mesh_1')
+        self.mesh = smesh.Mesh(self.room.object, "Mesh_1")
+        Mesh_1 = self.mesh
         NETGEN_1D_2D = Mesh_1.Triangle(algo=smeshBuilder.NETGEN_1D2D)
         NETGEN_2D_Parameters_1 = NETGEN_1D_2D.Parameters()
 
@@ -597,6 +610,9 @@ class Mesh:
                 Names.append(f_patch_name)
 
         isDone = Mesh_1.Compute()
+        if not isDone:
+            raise RuntimeError("Erro na geração da malha")
+        
 
         smesh.SetName(NETGEN_1D_2D.GetAlgorithm(), 'NETGEN 1D-2D')
         smesh.SetName(NETGEN_3D.GetAlgorithm(), 'NETGEN 3D')
@@ -616,23 +632,125 @@ class Mesh:
         if export == True:
             print('Exportando a malha para: ' + caminho)
             Mesh_1.ExportUNV(caminho, 0)
+            
+        for group, name in zip(Groups, Names):
+            smesh.SetName(group, name)
+        # 🔥 salvar grupos
+        self.groups = {}
+        for group, name in zip(Groups, Names):
+            self.groups[name] = group
+        
+        # 🔥 mapa ID → região (ESSENCIAL)
+        self.group_id_map = {}
+        
+        for name, group in self.groups.items():
+            try:
+                ids = group.GetListOfID()
+                for id_ in ids:
+                    self.group_id_map[id_] = name
+            except:
+                pass
+    def get_element_region(self, element_id):
+        return self.group_id_map.get(element_id, "unknown")
+    
+    
+    def check_quality(self, name_metric, element_type, filter_type, comparison, threshold, create_group=False,out_dir=""):
+    
+        # 🔹 filtro oficial (rápido)
+        fil = self.smesh.GetFilter(element_type, filter_type, comparison, threshold)
+        filtered_ids = set(self.mesh.GetIdsFromFilter(fil))
+    
+        # 🔹 todos os elementos
+        all_ids = self.mesh.GetElementsByType(element_type)
+    
+        # 🔥 FUNCTOR — inicializar com o mesh antes de usar
+        functor = self.smesh_builder.GetFunctor(filter_type)
+        functor.SetMesh(self.mesh.GetMesh())  # ← CORREÇÃO PRINCIPAL
+    
+        symbol = {
+            SMESH.FT_MoreThan: ">",
+            SMESH.FT_LessThan: "<",
+            SMESH.FT_EqualTo: "="
+        }
+        sym = symbol.get(comparison, "?")
+        label = "faces" if element_type == SMESH.FACE else "volumes"
+    
+        data = []
+        for elem_id in all_ids:
+            # 🔥 GetValue recebe APENAS o elem_id, não o mesh
+            try:
+                value = functor.GetValue(elem_id)  # ← CORREÇÃO
+            except Exception as e:
+                print(f"[WARN] GetValue falhou para elem {elem_id}: {e}")
+                value = None
+    
+            condition_ok = elem_id in filtered_ids
+            region = self.get_element_region(elem_id)
+    
+            data.append({
+                "id": elem_id,
+                "value": value,
+                "region": region,
+                "flag": condition_ok
+            })
+    
+        df = pd.DataFrame(data)
+    
+        # 🔹 salvar histórico
+        if not hasattr(self, "quality_df"):
+            self.quality_df = df
+        else:
+            self.quality_df = pd.concat([self.quality_df, df], ignore_index=True)
+    
+        # 🔹 prints padrão
+        print(f"Número de {label} com {name_metric} {sym} {threshold}: {len(filtered_ids)}")
+        try:
+            min_val, max_val = self.mesh.GetMinMax(filter_type)
+            print(f"Min = {min_val}, Max = {max_val}\n")
+        except:
+            print("Min/Max não disponível\n")
+    
+        # 🔹 criar grupo opcional
+        if create_group:
+            group_name = f"{name_metric}_{sym}_{threshold}"
+            grp = self.mesh.CreateEmptyGroup(element_type, group_name)
+            if filtered_ids:
+                grp.Add(list(filtered_ids))
+
+        file_path = os.path.join(out_dir, f"{name_metric}_df.csv")
+        
+        os.makedirs(out_dir, exist_ok=True)
+        
+        df.to_csv(file_path, index=False)
+        return df
 
 
 class Object:
 
-    def __init__(self, salome_env, **kwargs):
+    def __init__(self, salome_env=None, **kwargs):
+        name = kwargs.pop("name", None)
+        if not name:
+            raise ValueError("Object name is required. Pass name=... when creating objects.")
+
+        if salome_env is None:
+            salome_env = _get_active_salome_env()
 
         self.salome_env = salome_env
-        self.name = self.__class__.__name__
+        self.name = name
         self.faces = []
         self.object = None
 
 
-class Person(Object):
+class Person_seated(Object):
 
-    def __init__(self, salome_env, **kwargs):
+    def __init__(self, salome_env=None, h=1.700, thickness=0.200, width=0.225,
+                 fillet_radius=0.030, x=1, z=1.5, theta=0, **kwargs):
 
         super().__init__(salome_env, **kwargs)
+        self.seated(
+            h=h, thickness=thickness, width=width,
+            fillet_radius=fillet_radius, x=x, z=z, theta=theta
+        )
 
     def seated(self, h=1.700, thickness=0.200, width=0.225,
                  fillet_radius=0.030, x=1, z=1.5, theta=0):
@@ -674,14 +792,10 @@ class Person(Object):
         x43, z43 = d6, 0
         x86, z86 = d6, 0.2
 
-        x_37 = x37 * math.cos(theta) + z37 * math.sin(theta)
-        z_37 = -x37 * math.sin(theta) + z37 * math.cos(theta)
-        x_38 = x38 * math.cos(theta) + z38 * math.sin(theta)
-        z_38 = -x38 * math.sin(theta) + z38 * math.cos(theta)
-        x_40 = x40 * math.cos(theta) + z40 * math.sin(theta)
-        z_40 = -x40 * math.sin(theta) + z40 * math.cos(theta)
-        x_43 = x43 * math.cos(theta) + z43 * math.sin(theta)
-        z_43 = -x43 * math.sin(theta) + z43 * math.cos(theta)
+        x_37, z_37 = x37, z37
+        x_38, z_38 = x38, z38
+        x_40, z_40 = x40, z40
+        x_43, z_43 = x43, z43
 
         P37 = self.salome_env.geompy.MakeVertex(x_37, 0, z_37)
         P38 = self.salome_env.geompy.MakeVertexWithRef(P37, x_38, 0, z_38)
@@ -705,14 +819,10 @@ class Person(Object):
         x46, z46 = -(d1 / 2), 0
         x48, z48 = d1 / 4, 0
 
-        x_45 = x45 * math.cos(theta) + z45 * math.sin(theta)
-        z_45 = -x45 * math.sin(theta) + z45 * math.cos(theta)
-        x_46 = x46 * math.cos(theta) + z46 * math.sin(theta)
-        z_46 = -x46 * math.sin(theta) + z46 * math.cos(theta)
-        x_48 = x48 * math.cos(theta) + z48 * math.sin(theta)
-        z_48 = -x48 * math.sin(theta) + z48 * math.cos(theta)
-        x_86 = x86 * math.cos(theta) + z86 * math.sin(theta)
-        z_86 = -x86 * math.sin(theta) + z86 * math.cos(theta)
+        x_45, z_45 = x45, z45
+        x_46, z_46 = x46, z46
+        x_48, z_48 = x48, z48
+        x_86, z_86 = x86, z86
 
         P45 = self.salome_env.geompy.MakeVertexWithRef(P41, x_45, 0, z_45)
         P46 = self.salome_env.geompy.MakeVertexWithRef(P41, x_46, 0, z_46)
@@ -767,6 +877,7 @@ class Person(Object):
                 FUSE3, fillet_radius, self.salome_env.geompy.ShapeType["EDGE"],
                 edges_to_fillet
             )
+        self.salome_env.geompy.Rotate(FIL3, self.salome_env.OY, theta)
 
         self.object = self.salome_env.geompy.MakeTranslation(FIL3, x, 0, z)
         self.salome_env.geompy.addToStudy(self.object, self.name)
@@ -775,6 +886,14 @@ class Person(Object):
             salome.sg.updateObjBrowser()
 
         return self
+
+
+class Person_standing(Object):
+
+    def __init__(self, salome_env=None, x=1, z=1.5, theta=0, **kwargs):
+
+        super().__init__(salome_env, **kwargs)
+        self.standing(x=x, z=z, theta=theta)
 
     def standing(self, x=1, z=1.5, theta=0):
             
@@ -831,39 +950,18 @@ class Person(Object):
         return self
 
 
-class Person_seated(Person):
+class Dip_type_00(Object):
 
-    def __init__(self, salome_env, h=1.700, thickness=0.200, width=0.225,
-                 fillet_radius=0.030, x=1, z=1.5, theta=0, **kwargs):
-
-        super().__init__(salome_env, **kwargs)
-        self.seated(
-            h=h, thickness=thickness, width=width,
-            fillet_radius=fillet_radius, x=x, z=z, theta=theta
-        )
-
-
-class Person_standing(Person):
-
-    def __init__(self, salome_env, x=1, z=1.5, theta=0, **kwargs):
+    def __init__(self, salome_env=None, d=0.05, x=1, y=1.2, z=1.5, **kwargs):
 
         super().__init__(salome_env, **kwargs)
-        self.standing(x=x, z=z, theta=theta)
-
-
-class Dip(Object):
-
-    def __init__(self, salome_env, d=0.05, x=1, y=1.2, z=1.5, **kwargs):
-
-        super().__init__(salome_env, **kwargs)
-        self.room = salome_env.room
+        self.room = self.salome_env.room
         self.x = x
         self.y = y
         self.z = z
         self.d = d
         self.inlet_face = None
 
-        # --- GEOMETRIA COMUM ---
         geomObj_1 = self.salome_env.geompy.MakeMarker(0, 0, 0, 1, 0, 0, 0, 1, 0)
 
         sk = self.salome_env.geompy.Sketcher2D()
@@ -874,8 +972,7 @@ class Dip(Object):
         sk.close()
 
         Sketch_1 = sk.wire(geomObj_1)
-        
-        # Variáveis locais (usadas apenas aqui para construir a base)
+
         P1 = self.salome_env.geompy.MakeVertex(0, 0.070, 0)
         P2 = self.salome_env.geompy.MakeVertexWithRef(P1, 0, -0.005, 0)
         P3 = self.salome_env.geompy.MakeVertexWithRef(P1, 0, -0.070, 0)
@@ -888,11 +985,10 @@ class Dip(Object):
         self.L3 = self.salome_env.geompy.MakeLineTwoPnt(P3, P4)
 
         P8 = self.salome_env.geompy.MakeVertexWithRef(P1, 0, -3.000, 0)
-        
-        # 2. ATENÇÃO: Salvamos L4 e P9 com "self." porque precisaremos deles no type_00!
         self.L4 = self.salome_env.geompy.MakeLineTwoPnt(P1, P8)
         self.P9 = self.salome_env.geompy.MakeVertexOnLinesIntersection(L1, self.L4)
 
+        self.type_00()
 
     def type_00(self):
 
@@ -909,27 +1005,65 @@ class Dip(Object):
         L11 = self.salome_env.geompy.MakeLineTwoPnt(P21, P22)
 
         F3 = self.salome_env.geompy.MakeFaceWires([L8, L9, L10, L11], 1)
-        
-        # Acessamos self.L4 aqui
         REVOLUTION1_2 = self.salome_env.geompy.MakeRevolution(
             F3, self.L4, 360 * math.pi / 180.0
         )
-        
-        # Acessamos self.x, self.y, self.z, etc.
+
         self.object = self.salome_env.geompy.MakeTranslation(
             REVOLUTION1_2, self.x, self.room.H - 0.07 - self.y, self.z
         )
-        
+
         if self.name is not None:
             self.salome_env.geompy.addToStudy(self.object, self.name)
 
         if salome.sg.hasDesktop():
             salome.sg.updateObjBrowser()
-            
+
         return self
 
+
+class Dip_type_01(Object):
+
+    def __init__(self, salome_env=None, d=0.05, x=1, y=1.2, z=1.5, **kwargs):
+
+        super().__init__(salome_env, **kwargs)
+        self.room = self.salome_env.room
+        self.x = x
+        self.y = y
+        self.z = z
+        self.d = d
+        self.inlet_face = None
+
+        geomObj_1 = self.salome_env.geompy.MakeMarker(0, 0, 0, 1, 0, 0, 0, 1, 0)
+
+        sk = self.salome_env.geompy.Sketcher2D()
+        sk.addPoint(0.0000000, 0.0000000)
+        sk.addSegmentAbsolute(0.0000000, 3.000)
+        sk.addSegmentAbsolute(3.000, 3.000)
+        sk.addSegmentAbsolute(3.000, 0.0000000)
+        sk.close()
+
+        Sketch_1 = sk.wire(geomObj_1)
+
+        P1 = self.salome_env.geompy.MakeVertex(0, 0.070, 0)
+        P2 = self.salome_env.geompy.MakeVertexWithRef(P1, 0, -0.005, 0)
+        P3 = self.salome_env.geompy.MakeVertexWithRef(P1, 0, -0.070, 0)
+        P4 = self.salome_env.geompy.MakeVertexWithRef(P3, 3.000, 0, 0)
+        P5 = self.salome_env.geompy.MakeVertexWithRef(P2, 3.000, 0, 0)
+        P6 = self.salome_env.geompy.MakeVertexWithRef(P1, 3.000, 0, 0)
+
+        L1 = self.salome_env.geompy.MakeLineTwoPnt(P1, P6)
+        self.L2 = self.salome_env.geompy.MakeLineTwoPnt(P2, P5)
+        self.L3 = self.salome_env.geompy.MakeLineTwoPnt(P3, P4)
+
+        P8 = self.salome_env.geompy.MakeVertexWithRef(P1, 0, -3.000, 0)
+        self.L4 = self.salome_env.geompy.MakeLineTwoPnt(P1, P8)
+        self.P9 = self.salome_env.geompy.MakeVertexOnLinesIntersection(L1, self.L4)
+
+        self.type_01()
+
     def type_01(self):
-        
+
         P10 = self.salome_env.geompy.MakeVertexOnLinesIntersection(self.L2, self.L4)
         P11 = self.salome_env.geompy.MakeVertexOnLinesIntersection(self.L3, self.L4)
         P12 = self.salome_env.geompy.MakeVertexWithRef(P11, 0, 0.035, 0)
@@ -1010,8 +1144,48 @@ class Dip(Object):
 
         if salome.sg.hasDesktop():
             salome.sg.updateObjBrowser()
-            
+
         return self
+
+class Dip_type_02(Object):
+
+    def __init__(self, salome_env=None, d=0.05, x=1, y=1.2, z=1.5, **kwargs):
+
+        super().__init__(salome_env, **kwargs)
+        self.room = self.salome_env.room
+        self.x = x
+        self.y = y
+        self.z = z
+        self.d = d
+        self.inlet_face = None
+
+        geomObj_1 = self.salome_env.geompy.MakeMarker(0, 0, 0, 1, 0, 0, 0, 1, 0)
+
+        sk = self.salome_env.geompy.Sketcher2D()
+        sk.addPoint(0.0000000, 0.0000000)
+        sk.addSegmentAbsolute(0.0000000, 3.000)
+        sk.addSegmentAbsolute(3.000, 3.000)
+        sk.addSegmentAbsolute(3.000, 0.0000000)
+        sk.close()
+
+        Sketch_1 = sk.wire(geomObj_1)
+
+        P1 = self.salome_env.geompy.MakeVertex(0, 0.070, 0)
+        P2 = self.salome_env.geompy.MakeVertexWithRef(P1, 0, -0.005, 0)
+        P3 = self.salome_env.geompy.MakeVertexWithRef(P1, 0, -0.070, 0)
+        P4 = self.salome_env.geompy.MakeVertexWithRef(P3, 3.000, 0, 0)
+        P5 = self.salome_env.geompy.MakeVertexWithRef(P2, 3.000, 0, 0)
+        P6 = self.salome_env.geompy.MakeVertexWithRef(P1, 3.000, 0, 0)
+
+        L1 = self.salome_env.geompy.MakeLineTwoPnt(P1, P6)
+        self.L2 = self.salome_env.geompy.MakeLineTwoPnt(P2, P5)
+        self.L3 = self.salome_env.geompy.MakeLineTwoPnt(P3, P4)
+
+        P8 = self.salome_env.geompy.MakeVertexWithRef(P1, 0, -3.000, 0)
+        self.L4 = self.salome_env.geompy.MakeLineTwoPnt(P1, P8)
+        self.P9 = self.salome_env.geompy.MakeVertexOnLinesIntersection(L1, self.L4)
+
+        self.type_02()
 
     def type_02(self):
 
@@ -1120,15 +1294,55 @@ class Dip(Object):
         FS2 = self.salome_env.geompy.MakeFuseList(
             [TR2, REVOLUTION1_2], True, True
         )
-        # Mantida tradução 0,0,0 conforme lógica original
         self.object = self.salome_env.geompy.MakeTranslation(FS2, 0, 0, 0)
         if self.name is not None:
             self.salome_env.geompy.addToStudy(self.object, self.name)
 
         if salome.sg.hasDesktop():
             salome.sg.updateObjBrowser()
-            
+
         return self
+
+
+class Dip_type_03(Object):
+
+    def __init__(self, salome_env=None, d=0.05, x=1, y=1.2, z=1.5, **kwargs):
+
+        super().__init__(salome_env, **kwargs)
+        self.room = self.salome_env.room
+        self.x = x
+        self.y = y
+        self.z = z
+        self.d = d
+        self.inlet_face = None
+
+        geomObj_1 = self.salome_env.geompy.MakeMarker(0, 0, 0, 1, 0, 0, 0, 1, 0)
+
+        sk = self.salome_env.geompy.Sketcher2D()
+        sk.addPoint(0.0000000, 0.0000000)
+        sk.addSegmentAbsolute(0.0000000, 3.000)
+        sk.addSegmentAbsolute(3.000, 3.000)
+        sk.addSegmentAbsolute(3.000, 0.0000000)
+        sk.close()
+
+        Sketch_1 = sk.wire(geomObj_1)
+
+        P1 = self.salome_env.geompy.MakeVertex(0, 0.070, 0)
+        P2 = self.salome_env.geompy.MakeVertexWithRef(P1, 0, -0.005, 0)
+        P3 = self.salome_env.geompy.MakeVertexWithRef(P1, 0, -0.070, 0)
+        P4 = self.salome_env.geompy.MakeVertexWithRef(P3, 3.000, 0, 0)
+        P5 = self.salome_env.geompy.MakeVertexWithRef(P2, 3.000, 0, 0)
+        P6 = self.salome_env.geompy.MakeVertexWithRef(P1, 3.000, 0, 0)
+
+        L1 = self.salome_env.geompy.MakeLineTwoPnt(P1, P6)
+        self.L2 = self.salome_env.geompy.MakeLineTwoPnt(P2, P5)
+        self.L3 = self.salome_env.geompy.MakeLineTwoPnt(P3, P4)
+
+        P8 = self.salome_env.geompy.MakeVertexWithRef(P1, 0, -3.000, 0)
+        self.L4 = self.salome_env.geompy.MakeLineTwoPnt(P1, P8)
+        self.P9 = self.salome_env.geompy.MakeVertexOnLinesIntersection(L1, self.L4)
+
+        self.type_03()
 
     def type_03(self):
 
@@ -1203,65 +1417,31 @@ class Dip(Object):
 
         if salome.sg.hasDesktop():
             salome.sg.updateObjBrowser()
-            
+
         return self
 
 
-class Dip_type_00(Dip):
+class Table_retangular(Object):
 
-    def __init__(self, salome_env, d=0.05, x=1, y=1.2, z=1.5, **kwargs):
-
-        super().__init__(salome_env, d=d, x=x, y=y, z=z, **kwargs)
-        self.type_00()
-
-
-class Dip_type_01(Dip):
-
-    def __init__(self, salome_env, d=0.05, x=1, y=1.2, z=1.5, **kwargs):
-
-        super().__init__(salome_env, d=d, x=x, y=y, z=z, **kwargs)
-        self.type_01()
-
-
-class Dip_type_02(Dip):
-
-    def __init__(self, salome_env, d=0.05, x=1, y=1.2, z=1.5, **kwargs):
-
-        super().__init__(salome_env, d=d, x=x, y=y, z=z, **kwargs)
-        self.type_02()
-
-
-class Dip_type_03(Dip):
-
-    def __init__(self, salome_env, d=0.05, x=1, y=1.2, z=1.5, **kwargs):
-
-        super().__init__(salome_env, d=d, x=x, y=y, z=z, **kwargs)
-        self.type_03()
-
-
-class Table(Object):
-    def __init__(self, salome_env, **kwargs):
+    def __init__(self, salome_env=None, dx=0.6, dy=0.02, dz=0.6,
+                 x=1.5, y=0.6, z=1.5, **kwargs):
 
         super().__init__(salome_env, **kwargs)
+        self.retangular(dx=dx, dy=dy, dz=dz, x=x, y=y, z=z)
 
     def retangular(self, dx=0.6, dy=0.02, dz=0.6, x=1.5, y=0.6, z=1.5):
-        # Criação dos vértices
         P31 = self.salome_env.geompy.MakeVertex(dx / 2, 0, dz / 2)
         P32 = self.salome_env.geompy.MakeVertexWithRef(P31, 0, dy, 0)
         P33 = self.salome_env.geompy.MakeVertexWithRef(P32, -dx, 0, 0)
         P34 = self.salome_env.geompy.MakeVertexWithRef(P33, 0, -dy, 0)
 
-        # Definição das arestas
         L11 = self.salome_env.geompy.MakeLineTwoPnt(P31, P32)
         L12 = self.salome_env.geompy.MakeLineTwoPnt(P32, P33)
         L13 = self.salome_env.geompy.MakeLineTwoPnt(P33, P34)
         L14 = self.salome_env.geompy.MakeLineTwoPnt(P34, P31)
 
-        # Geração da face e extrusão
         F5 = self.salome_env.geompy.MakeFaceWires([L11, L12, L13, L14], 1)
         EXTRUSION2 = self.salome_env.geompy.MakePrismVecH(F5, self.salome_env.OZ, -dz)
-        
-        # Translação final
         self.object = self.salome_env.geompy.MakeTranslation(EXTRUSION2, x, y, z)
 
         if self.name is not None:
@@ -1269,18 +1449,23 @@ class Table(Object):
 
         if salome.sg.hasDesktop():
             salome.sg.updateObjBrowser()
-        
+
         return self
-    
+
+class Table_circular(Object):
+
+    def __init__(self, salome_env=None, raio=0.35, espessura=0.02,
+                 x=1.5, y=0.6, z=1.5, **kwargs):
+
+        super().__init__(salome_env, **kwargs)
+        self.circular(raio=raio, espessura=espessura, x=x, y=y, z=z)
+
     def circular(self, raio=0.35, espessura=0.02, x=1.5, y=0.6, z=1.5):
 
         P1 = self.salome_env.geompy.MakeVertex(0, 0, 0)
         C1 = self.salome_env.geompy.MakeCircle(P1, self.salome_env.OY, raio)
         F1 = self.salome_env.geompy.MakeFaceWires([C1], 1)
-        
         Extrusion_1 = self.salome_env.geompy.MakePrismVecH(F1, self.salome_env.OY, espessura)
-        
-        # Translação final
         self.object = self.salome_env.geompy.MakeTranslation(Extrusion_1, x, y, z)
 
         if self.name is not None:
@@ -1288,23 +1473,6 @@ class Table(Object):
 
         if salome.sg.hasDesktop():
             salome.sg.updateObjBrowser()
-        
+
         return self
 
-
-class Table_retangular(Table):
-
-    def __init__(self, salome_env, dx=0.6, dy=0.02, dz=0.6,
-                 x=1.5, y=0.6, z=1.5, **kwargs):
-
-        super().__init__(salome_env, **kwargs)
-        self.retangular(dx=dx, dy=dy, dz=dz, x=x, y=y, z=z)
-
-
-class Table_circular(Table):
-
-    def __init__(self, salome_env, raio=0.35, espessura=0.02,
-                 x=1.5, y=0.6, z=1.5, **kwargs):
-
-        super().__init__(salome_env, **kwargs)
-        self.circular(raio=raio, espessura=espessura, x=x, y=y, z=z)
