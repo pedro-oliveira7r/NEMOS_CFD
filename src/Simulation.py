@@ -1070,7 +1070,7 @@ class OpenFOAMRunner:
                     print("STDOUT:", stdout)
                 if stderr:
                     print("STDERR:", stderr)
-                return True
+                return self.mesh_process.returncode == 0
             else:
                 # Se wait=False, retorna imediatamente
                 print("Preparação de malha rodando em background. Use wait_mesh() para aguardar conclusão.")
@@ -1140,7 +1140,7 @@ class OpenFOAMRunner:
                     print("STDOUT:", stdout)
                 if stderr:
                     print("STDERR:", stderr)
-                return True
+                return self.simulation_process.returncode == 0
             else:
                 # Se wait=False, retorna imediatamente
                 print("Simulação rodando em background. Use wait_simulation() para aguardar conclusão.")
@@ -1588,6 +1588,32 @@ class Simulation:
             parts.append(f"{key}={self._format_value(value)}")
         return ", ".join(parts)
 
+    def _default_mesh_export_path(self):
+        if self.case_path is None:
+            return None
+        return str(Path(self.case_path) / "Mesh_1.unv")
+
+    def _create_mesh_exports_unv(self, args, kwargs):
+        if kwargs.get("export") is True:
+            return True
+        return len(args) >= 2 and args[1] is True
+
+    def _create_mesh_has_export_path(self, args, kwargs):
+        if len(args) >= 3 and args[2]:
+            return True
+        return bool(kwargs.get("caminho"))
+
+    def _with_default_mesh_export_path(self, args, kwargs):
+        kwargs = dict(kwargs)
+        if (
+            self._create_mesh_exports_unv(args, kwargs)
+            and not self._create_mesh_has_export_path(args, kwargs)
+        ):
+            export_path = self._default_mesh_export_path()
+            if export_path is not None:
+                kwargs["caminho"] = export_path
+        return kwargs
+
     def _register_object(self, obj, class_name: str, args, kwargs):
         if not self._recording_enabled:
             return None
@@ -1643,6 +1669,8 @@ class Simulation:
         var_name = self._object_var_names.get(obj)
         if not var_name:
             return
+        if obj._class_name == "Mesh" and method_name == "create_mesh":
+            kwargs = self._with_default_mesh_export_path(args, kwargs)
         args_str = self._format_args_kwargs(args, kwargs)
         self._record_line(f"{var_name}.{method_name}({args_str})")
 
@@ -1790,6 +1818,28 @@ class Simulation:
         args_clean = ", ".join(t for t in kept_tokens if t)
         return f"{indent}{var_name} = nemos.{class_name}({args_clean})"
 
+    def _inject_default_create_mesh_path(self, line: str):
+        export_path = self._default_mesh_export_path()
+        if export_path is None or ".create_mesh(" not in line:
+            return line
+
+        pattern = re.compile(r"^(\s*[A-Za-z_]\w*\.create_mesh\()(.*)(\)\s*)$")
+        match = pattern.match(line)
+        if not match:
+            return line
+
+        prefix, args_text, suffix = match.groups()
+        tokens = self._split_top_level_commas(args_text)
+        has_export = any(re.match(r"^\s*export\s*=\s*True\s*$", token) for token in tokens)
+        has_export = has_export or (len(tokens) >= 2 and tokens[1].strip() == "True")
+        has_caminho = any(re.match(r"^\s*caminho\s*=", token) for token in tokens)
+
+        if not has_export or has_caminho:
+            return line
+
+        tokens.append(f"caminho={repr(export_path)}")
+        return f"{prefix}{', '.join(tokens)}{suffix}"
+
     def _build_machine_script(self, source_text: str):
         sim_start, sim_end, _ = self._extract_assigned_dict(
             source_text, "simulation_config"
@@ -1805,6 +1855,7 @@ class Simulation:
         sanitized_lines = []
         for line in source_wo_sim.splitlines():
             sanitized_line = self._sanitize_object_line(line)
+            sanitized_line = self._inject_default_create_mesh_path(sanitized_line)
             sanitized_lines.append(sanitized_line)
 
         return "\n".join(sanitized_lines).strip() + "\n"
@@ -1972,7 +2023,11 @@ def run(simulation, salome_exe: str = DEFAULT_SALOME_EXE, script_path: str = Non
         simulation._ensure_imported_mesh()
     else:
         mesher.executar_batch()
-    runner.preparar_malha()
+    mesh_ok = runner.preparar_malha(wait=True)
+    if not mesh_ok:
+        raise RuntimeError("A preparacao da malha falhou. Verifique a saida do comandos_1.sh.")
+    if not case.boundary_file.exists():
+        raise FileNotFoundError(f"Arquivo boundary nao encontrado em '{case.boundary_file}'")
     boundary_manager.editar_boundary()
     boundary_manager.generate_all_fields()
     runner.rodar_simulacao()
@@ -2002,7 +2057,11 @@ if __name__ == "__main__":
     runner = OpenFOAMRunner(case, simulation=simulation)
 
     mesher.executar_batch()
-    runner.preparar_malha()
+    mesh_ok = runner.preparar_malha(wait=True)
+    if not mesh_ok:
+        raise RuntimeError("A preparacao da malha falhou. Verifique a saida do comandos_1.sh.")
+    if not case.boundary_file.exists():
+        raise FileNotFoundError(f"Arquivo boundary nao encontrado em '{case.boundary_file}'")
     boundary_manager.editar_boundary()
     boundary_manager.generate_all_fields()
     runner.rodar_simulacao()

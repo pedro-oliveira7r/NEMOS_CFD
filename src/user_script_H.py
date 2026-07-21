@@ -1,7 +1,7 @@
 import Simulation as nemos
 
 sim = nemos.Simulation(
-	case_path=r"C:\Users\pedro\Desktop\TCC1\TESTS\script_H",
+	case_path=r"C:\Users\pedro\Desktop\TCC1\script_H",
 	startTime=0,
 	endTime=3,
 	delta=0.1,
@@ -28,10 +28,6 @@ a.add([b, c, d, e, f])
 #a.add_cilinder(salome_env=a, dip=e)
 #a.add_cilinder(salome_env=a, dip=f)
 mesh = nemos.Mesh(a, m2DMaxSize=0.2, m2DMinSize=0.02, m3DMaxSize=0.075, m3DMinSize=0.001, fineness=3)
-mesh.create_mesh(export=True, caminho=r"C:\Users\pedro\Desktop\TCC1\TESTS\script_H\Mesh_1.unv")
-
-sim.build_machine_script()
-
-case, mesher, boundary_manager, runner = nemos.setup_workflow(sim)
+mesh.create_mesh(export=True)
 
 case = nemos.run(sim)

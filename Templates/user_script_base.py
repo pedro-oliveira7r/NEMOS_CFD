@@ -1,4 +1,4 @@
-import Simulation.Auto_8 as nemos
+import src.Simulation as nemos
 
 sim = nemos.Simulation(
 	case_path=r"C:\Users\pedro\Desktop\TCC1\TESTS\script_base",
@@ -26,14 +26,6 @@ a.add([b, c, d])
 #a.add_cilinder(salome_env=a, dip=e)
 #a.add_cilinder(salome_env=a, dip=f)
 mesh = nemos.Mesh(a, m2DMaxSize=0.2, m2DMinSize=0.02, m3DMaxSize=0.075, m3DMinSize=0.001, fineness=3)
-mesh.create_mesh(export=True, caminho=r"C:\Users\pedro\Desktop\TCC1\TESTS\script_base\Mesh_1.unv")
+mesh.create_mesh(export=True)
 
-sim.build_machine_script()
-
-case, mesher, boundary_manager, runner = nemos.setup_workflow(sim)
-
-mesher.executar_batch()
-runner.preparar_malha()
-boundary_manager.editar_boundary()
-boundary_manager.generate_all_fields()
-runner.rodar_simulacao()
+case = nemos.run(sim)

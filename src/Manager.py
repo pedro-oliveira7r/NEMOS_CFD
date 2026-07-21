@@ -221,8 +221,6 @@ class Simulation:
                     and method_name == "create_mesh"
                 ):
                     if index == 0 or mesh_uses_sweep:
-                        kwargs = dict(kwargs)
-                        kwargs["caminho"] = str(case_path / "Mesh_1.unv")
                         args_str = self._format_args_kwargs(args, kwargs, index)
                         lines.append(f"{var_name}.{method_name}({args_str})")
                     else:
@@ -235,8 +233,6 @@ class Simulation:
 
         lines.extend(
             [
-                "",
-                "sim.build_machine_script()",
                 "",
                 "case = nemos.run(sim)",
             ]
@@ -347,9 +343,9 @@ def main(scripts=None) -> int:
             break
 
     if exit_code == 0:
-        print("\nAll smoke tests passed.")
+        print("\nAll runs completed successfully.")
     else:
-        print("\nSmoke tests failed.")
+        print("\nSome runs failed.")
 
     return exit_code
 

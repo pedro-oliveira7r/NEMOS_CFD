@@ -1,4 +1,4 @@
-import Simulation.Auto_8 as nemos
+import src.Simulation as nemos
 
 sim = nemos.Simulation(
 	case_path=r"C:\Users\pedro\Desktop\TCC1\TESTS\script_H_new",
@@ -29,7 +29,5 @@ a.add([b, c, d, e, f])
 #a.add_cilinder(salome_env=a, dip=f)
 
 mesh = nemos.Simulation.Import_mesh(r"C:\Users\pedro\Desktop\TCC1\TESTS\script_H\Mesh_1.unv")
-
-case, mesher, boundary_manager, runner = nemos.setup_workflow(sim) 
 
 case = nemos.run(sim)
