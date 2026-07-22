@@ -1,4 +1,4 @@
-import src.Manager as nemos
+import Manager as nemos
 
 # Caso Tipo 2: Teste de Refinamento de Malha
 
@@ -6,7 +6,7 @@ sim = nemos.Simulation(
 	script_path=__file__,
 	case_path=r"C:\Users\pedro\Desktop\TCC1\Manager_Mesh_Test",
 	startTime=0,
-	endTime=3,
+	endTime=5,
 	delta=0.1,
 	writeInterval=3,
 	parallel="Y",

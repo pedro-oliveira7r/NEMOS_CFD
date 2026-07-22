@@ -4,12 +4,14 @@ import time
 import re
 import ast
 import copy
+import json
 from collections import defaultdict
 import subprocess
 from pathlib import Path
 
 _ACTIVE_SIMULATION = None
 DEFAULT_SALOME_EXE = r"c:\SALOME-9.15.0\run_salome.bat"
+STATE_FILE = ".nemos_state.json"
 
 
 def _set_active_simulation(simulation):
@@ -32,6 +34,30 @@ class OpenFOAMCase:
         self.system_dir = self.case_path / "system"
         
         self.boundary_file = self.polyMesh_dir / "boundary"
+
+    # ---- Detectores de estagio (para retomar de onde parou) ----
+    def mesh_geometry_ready(self) -> bool:
+        """True se a malha (Mesh_1.unv) ja foi gerada/importada."""
+        return (self.case_path / "Mesh_1.unv").exists()
+
+    def mesh_converted(self) -> bool:
+        """True se a malha ja foi convertida para o formato OpenFOAM."""
+        return self.boundary_file.exists()
+
+    def fields_ready(self) -> bool:
+        """True se os campos da pasta 0/ ja foram gerados."""
+        return (self.zero_dir / "T").exists() and (self.zero_dir / "U").exists()
+
+    def decomposed(self) -> bool:
+        """True se o caso ja foi decomposto para execucao paralela."""
+        return (self.case_path / "processor0").exists()
+
+    def done_marker(self) -> Path:
+        """Arquivo marcador escrito quando o caso termina com sucesso."""
+        return self.case_path / ".nemos_done"
+
+    def is_complete(self) -> bool:
+        return self.done_marker().exists()
 
     def gerar_arquivos_base(self, simulation_config=None):
         """
@@ -989,6 +1015,131 @@ class BoundaryManager:
             print(f"Arquivo '{field_name}' gerado em '{self.case.zero_dir}/'.")
 
 
+class ResidualPlotter:
+    """Faz o parsing do stdout do solver OpenFOAM e plota os residuais em tempo real.
+
+    Alimentado linha a linha (feed_line) enquanto o processo do solver roda.
+    Cada bloco "Time = X" fecha o timestep anterior, empurrando os residuais
+    pendentes para o histórico e redesenhando o gráfico (eixo Y log-scale).
+    """
+
+    _TIME_RE = re.compile(r"^Time\s*=\s*([0-9.eE+\-]+)\s*$")
+    _RESIDUAL_RE = re.compile(
+        r"Solving for (?P<field>[\w()|]+),\s*Initial residual = (?P<initial>[0-9.eE+\-]+)"
+    )
+
+    def __init__(self, title: str = "Residual convergence"):
+        self.history = defaultdict(list)
+        self._pending = {}
+        self._current_time = None
+        self._lines = {}
+        self.live = False
+        self._mpl_available = False
+
+        try:
+            import matplotlib.pyplot as plt
+        except ImportError:
+            return
+
+        try:
+            plt.ion()
+            self._plt = plt
+            self._fig, self._ax = plt.subplots()
+            self._ax.set_xlabel("Timestep")
+            self._ax.set_ylabel("Initial residual")
+            self._ax.set_yscale("log")
+            self._ax.set_title(title)
+            try:
+                self._fig.canvas.manager.set_window_title("NEMOS - Residuals")
+            except Exception:
+                pass
+            self._mpl_available = True
+            self.live = True
+        except Exception:
+            self.live = False
+
+    def feed_line(self, line: str):
+        stripped = line.rstrip("\n")
+
+        time_match = self._TIME_RE.match(stripped)
+        if time_match:
+            self._commit_pending()
+            self._current_time = float(time_match.group(1))
+            self._pending = {}
+            return
+
+        res_match = self._RESIDUAL_RE.search(stripped)
+        if res_match and self._current_time is not None:
+            # Se o mesmo campo for resolvido mais de uma vez no timestep
+            # (ex.: correctors), o ultimo valor prevalece.
+            self._pending[res_match.group("field")] = float(res_match.group("initial"))
+
+    def _commit_pending(self):
+        if self._current_time is None or not self._pending:
+            return
+        for field, value in self._pending.items():
+            self.history[field].append((self._current_time, value))
+        self._redraw()
+
+    def _redraw(self):
+        if not self.live:
+            return
+        try:
+            new_field = False
+            for field, points in self.history.items():
+                xs = [p[0] for p in points]
+                ys = [p[1] for p in points]
+                line = self._lines.get(field)
+                if line is None:
+                    (line,) = self._ax.plot(xs, ys, label=field)
+                    self._lines[field] = line
+                    new_field = True
+                else:
+                    line.set_data(xs, ys)
+            if new_field:
+                self._ax.legend(loc="upper right")
+            self._ax.relim()
+            self._ax.autoscale_view()
+            self._fig.canvas.draw_idle()
+            self._fig.canvas.flush_events()
+            self._plt.pause(0.001)
+        except Exception:
+            self.live = False
+
+    def finish(self, png_path: Path):
+        self._commit_pending()
+
+        if self.live:
+            try:
+                self._plt.close(self._fig)
+            except Exception:
+                pass
+
+        if not self.history:
+            return None
+
+        try:
+            from matplotlib.figure import Figure
+            from matplotlib.backends.backend_agg import FigureCanvasAgg
+
+            fig = Figure()
+            FigureCanvasAgg(fig)
+            ax = fig.add_subplot(111)
+            for field, points in self.history.items():
+                xs = [p[0] for p in points]
+                ys = [p[1] for p in points]
+                ax.plot(xs, ys, label=field)
+            ax.set_xlabel("Timestep")
+            ax.set_ylabel("Initial residual")
+            ax.set_yscale("log")
+            ax.set_title("Residual convergence")
+            ax.legend(loc="upper right")
+            fig.savefig(png_path)
+            return Path(png_path)
+        except Exception:
+            return None
+
+
 class OpenFOAMRunner:
     """Gerencia a execução dos comandos do OpenFOAM."""
     def __init__(self, case: OpenFOAMCase, simulation=None):
@@ -996,9 +1147,13 @@ class OpenFOAMRunner:
         self.simulation = simulation
 
         self.parallel_flag = True
+        self.plot_residuals = True
         self.mesh_process = None  # Track the mesh preparation process
         self.simulation_process = None  # Track the simulation process
-        
+        self.residual_history = None
+        self.residual_log_path = None
+        self.residual_plot_path = None
+
         if self.simulation is not None:
             try:
                 self.simulation.read_user_script()
@@ -1007,6 +1162,8 @@ class OpenFOAMRunner:
             cfg = getattr(self.simulation, "simulation_config", {}) or {}
             decompose_cfg = cfg.get("decomposeParDict", {}) or {}
             self.parallel_flag = str(decompose_cfg.get("parallel", "Y")).strip().upper().startswith("Y")
+            monitoring_cfg = cfg.get("monitoring", {}) or {}
+            self.plot_residuals = bool(monitoring_cfg.get("plot_residuals", True))
 
     def preparar_malha(self, script_name: str = 'comandos_1.sh', wait: bool = False):
         caminho_script_windows = self.case.case_path / script_name
@@ -1107,10 +1264,10 @@ class OpenFOAMRunner:
     echo "Diretório de trabalho atual: $(pwd)"
 
     # Executa comandos do OpenFOAM
-    {"" if not self.parallel_flag else "echo \"Decompondo os arquivos:\"\n    decomposePar\n"}
+    {"" if not self.parallel_flag else "if [ ! -d processor0 ]; then\n      echo \"Decompondo os arquivos:\"\n      decomposePar\n    else\n      echo \"Decomposicao ja existe, retomando da ultima iteracao.\"\n    fi\n"}
 
     echo "Rodando a simulação:"
-    {"buoyantSimpleFoam" if not self.parallel_flag else "mpirun -np 4 buoyantSimpleFoam -parallel"}
+    {"stdbuf -oL -eL buoyantSimpleFoam" if not self.parallel_flag else "stdbuf -oL -eL mpirun -np 4 buoyantSimpleFoam -parallel"}
 
     """
 
@@ -1119,6 +1276,9 @@ class OpenFOAMRunner:
 
         print(f"Arquivo '{script_name}' gerado com sucesso.")
         print(f"Executando o script: {caminho_script_wsl}")
+
+        if self.plot_residuals:
+            return self._rodar_simulacao_com_plot(caminho_script_wsl, wait)
 
         # Executa o script usando subprocess.Popen para execução não-bloqueante
         # subprocess.Popen retorna imediatamente, permitindo que o código continue
@@ -1131,7 +1291,7 @@ class OpenFOAMRunner:
                 text=True
             )
             print(f"Processo de simulação iniciado com PID: {self.simulation_process.pid}")
-            
+
             if wait:
                 # Se wait=True, aguarda a conclusão (comportamento similar ao os.system)
                 stdout, stderr = self.simulation_process.communicate()
@@ -1148,6 +1308,51 @@ class OpenFOAMRunner:
         except Exception as e:
             print(f"Erro ao executar o script: {e}")
             raise
+
+    def _rodar_simulacao_com_plot(self, caminho_script_wsl: str, wait: bool) -> bool:
+        """Executa o solver acompanhando o stdout linha a linha para plotar
+        os residuais em tempo real. Como isso exige drenar o pipe continuamente,
+        esta chamada é sempre sincrona (bloqueia ate o solver terminar),
+        independente do parametro `wait`.
+        """
+        if not wait:
+            print(
+                "Aviso: plot_residuals=True torna a execucao sincrona; "
+                "o parametro wait=False sera ignorado."
+            )
+
+        try:
+            self.simulation_process = subprocess.Popen(
+                f'wsl bash {caminho_script_wsl}',
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+            )
+        except Exception as e:
+            print(f"Erro ao executar o script: {e}")
+            raise
+
+        print(f"Processo de simulação iniciado com PID: {self.simulation_process.pid}")
+
+        self.residual_log_path = self.case.case_path / "log.simulation"
+        plotter = ResidualPlotter()
+
+        with open(self.residual_log_path, "w", encoding="utf-8") as log_file:
+            for line in self.simulation_process.stdout:
+                print(line, end="")
+                log_file.write(line)
+                plotter.feed_line(line)
+
+        self.simulation_process.wait()
+        returncode = self.simulation_process.returncode
+        print(f"Processo de simulação finalizado com código de retorno: {returncode}")
+
+        self.residual_plot_path = plotter.finish(self.case.case_path / "residuals.png")
+        self.residual_history = dict(plotter.history)
+
+        return returncode == 0
 
     def wait_mesh(self, timeout: int = None) -> bool:
         """
@@ -1277,6 +1482,10 @@ class Simulation:
                 "internalField": "uniform 1e-5",
             },
         },
+        # Real-time convergence monitoring.
+        "monitoring": {
+            "plot_residuals": True,
+        },
     }
 
     SIMULATION_INLINE_KEYS = {
@@ -1309,7 +1518,7 @@ class Simulation:
         self.machine_script = ""
         self._loaded = False
         self._recording_enabled = self.user_script_path is None
-        self._machine_lines = ["import nemos1_08 as nemos"]
+        self._machine_lines = ["import GeoMesh as nemos"]
         self._object_var_names = {}
         self._used_var_names = set()
         self._var_counter = 0
@@ -1384,6 +1593,7 @@ class Simulation:
         control = cfg.setdefault("controlDict", {})
         decompose = cfg.setdefault("decomposeParDict", {})
         fields = cfg.setdefault("fields", {})
+        monitoring = cfg.setdefault("monitoring", {})
 
         direct_maps = {
             "startTime": (control, "startTime"),
@@ -1392,6 +1602,7 @@ class Simulation:
             "deltaT": (control, "deltaT"),
             "writeInterval": (control, "writeInterval"),
             "parallel": (decompose, "parallel"),
+            "plot_residuals": (monitoring, "plot_residuals"),
         }
 
         field_aliases = {
@@ -1418,7 +1629,7 @@ class Simulation:
                 fields.setdefault(field_name, {})[field_key] = value
                 continue
 
-            if key in ("controlDict", "decomposeParDict", "fields") and isinstance(value, dict):
+            if key in ("controlDict", "decomposeParDict", "fields", "monitoring") and isinstance(value, dict):
                 cfg[key] = self._merge_dicts(cfg.get(key, {}), value)
 
         return self._normalize_simulation_config(cfg)
@@ -1472,6 +1683,8 @@ class Simulation:
         fields.setdefault("p", {})
         fields.setdefault("k", {})
         fields.setdefault("epsilon", {})
+
+        cfg.setdefault("monitoring", {}).setdefault("plot_residuals", True)
 
         return cfg
 
@@ -1916,6 +2129,44 @@ class Simulation:
         output_file.write_text(script, encoding="utf-8")
         return output_file
 
+    def save_state(self, path: str = None):
+        """Persiste a configuracao/metadados do caso para permitir retomar
+        a simulacao apenas apontando para a pasta do caso (ver `resume`)."""
+        if self.case_path is None:
+            return None
+        if not self._loaded:
+            self.read_user_script()
+        state_path = Path(path) if path else Path(self.case_path) / STATE_FILE
+        data = {
+            "simulation_config": self.simulation_config,
+            "object_simulation": self.object_simulation,
+            "object_types": self.object_types,
+            "object_classes": self.object_classes,
+        }
+        os.makedirs(self.case_path, exist_ok=True)
+        state_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        return state_path
+
+    @classmethod
+    def load_state(cls, case_path: str):
+        """Reconstroi uma Simulation a partir do estado salvo em `case_path`."""
+        case_path = Path(case_path)
+        state_path = case_path / STATE_FILE
+        if not state_path.exists():
+            raise FileNotFoundError(
+                f"Estado nao encontrado: {state_path}. "
+                "Rode a simulacao original ao menos uma vez antes de retomar."
+            )
+        data = json.loads(state_path.read_text(encoding="utf-8"))
+        # user_script_path=None -> modo de gravacao; nao le nenhum script.
+        sim = cls(case_path=str(case_path))
+        sim.simulation_config = data.get("simulation_config", sim.simulation_config)
+        sim.object_simulation = data.get("object_simulation", {})
+        sim.object_types = data.get("object_types", {})
+        sim.object_classes = data.get("object_classes", {})
+        sim._loaded = True
+        return sim
+
 
 class _RecordedObject:
     def __init__(self, class_name: str, *args, **kwargs):
@@ -2013,26 +2264,75 @@ def setup_workflow(simulation, salome_exe: str = DEFAULT_SALOME_EXE, script_path
 
 
 def run(simulation, salome_exe: str = DEFAULT_SALOME_EXE, script_path: str = None):
+    """Executa o fluxo completo do caso.
+
+    O fluxo e idempotente: cada estagio so roda se seu artefato ainda nao
+    existe na pasta do caso, de modo que rodar de novo apos uma interrupcao
+    retoma de onde parou (ver detectores em OpenFOAMCase e a funcao `resume`).
+    """
     case, mesher, boundary_manager, runner = setup_workflow(
         simulation,
         salome_exe=salome_exe,
         script_path=script_path,
     )
 
-    if simulation is not None and getattr(simulation, "mesh_import_path", None):
+    # Guarda o estado do caso para permitir retomar so com a pasta do caso.
+    if simulation is not None:
+        simulation.save_state()
+
+    # --- Estagio: geracao/importacao da malha (SALOME) ---
+    if case.mesh_geometry_ready():
+        print("[resume] Malha (Mesh_1.unv) ja existe, pulando SALOME.")
+    elif simulation is not None and getattr(simulation, "mesh_import_path", None):
         simulation._ensure_imported_mesh()
     else:
         mesher.executar_batch()
-    mesh_ok = runner.preparar_malha(wait=True)
-    if not mesh_ok:
-        raise RuntimeError("A preparacao da malha falhou. Verifique a saida do comandos_1.sh.")
+
+    # --- Estagio: conversao da malha (ideasUnvToFoam + checkMesh) ---
+    if case.mesh_converted():
+        print("[resume] Malha ja convertida (polyMesh), pulando conversao.")
+    else:
+        mesh_ok = runner.preparar_malha(wait=True)
+        if not mesh_ok:
+            raise RuntimeError("A preparacao da malha falhou. Verifique a saida do comandos_1.sh.")
     if not case.boundary_file.exists():
         raise FileNotFoundError(f"Arquivo boundary nao encontrado em '{case.boundary_file}'")
-    boundary_manager.editar_boundary()
-    boundary_manager.generate_all_fields()
-    runner.rodar_simulacao()
+
+    # --- Estagio: condicoes de contorno e campos da pasta 0/ ---
+    if case.fields_ready():
+        print("[resume] Campos da pasta 0/ ja existem, pulando geracao.")
+    else:
+        boundary_manager.editar_boundary()
+        boundary_manager.generate_all_fields()
+
+    # --- Estagio: solver (decomposePar guardado no bash; solver retoma
+    # da ultima iteracao via 'startFrom latestTime' no controlDict) ---
+    solver_ok = runner.rodar_simulacao()
+
+    case.residual_log_path = runner.residual_log_path
+    case.residual_plot_path = runner.residual_plot_path
+    case.residual_history = runner.residual_history
+
+    if solver_ok:
+        case.done_marker().write_text("ok\n", encoding="utf-8")
 
     return case
+
+
+def resume(case_path, salome_exe: str = DEFAULT_SALOME_EXE):
+    """Retoma uma simulacao individual apontando apenas para a pasta do caso.
+
+    Reconstroi a Simulation a partir do estado salvo (.nemos_state.json) e
+    reexecuta o fluxo idempotente. Requer que a malha geometrica ja exista
+    (Mesh_1.unv) — o caso comum de interrupcao durante o solver. Para
+    interrupcoes antes da malha, rode novamente o script de geometria original.
+    """
+    case_path = Path(case_path)
+    if (case_path / ".nemos_done").exists():
+        print(f"[resume] Caso ja concluido: {case_path}")
+        return None
+    simulation = Simulation.load_state(case_path)
+    return run(simulation, salome_exe=salome_exe)
 
 
 if __name__ == "__main__":

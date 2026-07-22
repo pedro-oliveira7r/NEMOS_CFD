@@ -1,5 +1,6 @@
 import ast
 import inspect
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -348,6 +349,58 @@ def main(scripts=None) -> int:
         print("\nSome runs failed.")
 
     return exit_code
+
+def _sim_is_complete(sim_dir: Path) -> bool:
+    """True se a simulacao daquela pasta terminou (marcador escrito pelo Simulation.run)."""
+    return (Path(sim_dir) / ".nemos_done").exists()
+
+
+def resume(case_root) -> int:
+    """Retoma um lote (varredura) de onde parou.
+
+    Reexecuta apenas os SIM_i ainda nao concluidos, reaproveitando os
+    scripts ja gerados em case_root/scripts. Cada script chama o fluxo
+    idempotente do Simulation, entao um SIM interrompido continua de onde parou.
+    """
+    case_root = Path(case_root)
+    scripts_dir = case_root / "scripts"
+    if not scripts_dir.exists():
+        print(f"Nenhuma pasta 'scripts' encontrada em {case_root}.")
+        return 2
+
+    def _script_index(path: Path) -> int:
+        match = re.search(r"script_(\d+)\.py$", path.name)
+        return int(match.group(1)) if match else 0
+
+    script_paths = sorted(scripts_dir.glob("script_*.py"), key=_script_index)
+    if not script_paths:
+        print(f"Nenhum script_*.py encontrado em {scripts_dir}.")
+        return 2
+
+    print(
+        "\nResume summary:\n"
+        f"- Case root: {case_root}\n"
+        f"- Scripts encontrados: {len(script_paths)}"
+    )
+
+    exit_code = 0
+    for script_path in script_paths:
+        sim_dir = case_root / f"SIM_{_script_index(script_path)}"
+        if _sim_is_complete(sim_dir):
+            print(f"[resume] {sim_dir.name} ja concluido, pulando.")
+            continue
+        result = run_script(script_path, cwd=case_root)
+        if result != 0:
+            exit_code = result
+            break
+
+    if exit_code == 0:
+        print("\nAll remaining runs completed successfully.")
+    else:
+        print("\nSome runs failed.")
+
+    return exit_code
+
 
 def _set_active_simulation(simulation):
     global _ACTIVE_SIMULATION
