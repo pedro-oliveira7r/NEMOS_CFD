@@ -40,6 +40,7 @@ Fineness_List = [3, 3, 3, 4, 4] # 3 - Fine, 4 - Very Fine
 
 mesh = nemos.Mesh(a, m2DMaxSize=Max2D_List, m2DMinSize=Min2D_List, m3DMaxSize=Max3D_List, m3DMinSize=Min3D_List, fineness=Fineness_List)
 mesh.create_mesh(export=True)
+mesh.check_quality("AspectRatio", element_type="FACE", comparison=">", threshold=5)
 
 scripts = sim.build_machine_script()
 nemos.main(scripts)

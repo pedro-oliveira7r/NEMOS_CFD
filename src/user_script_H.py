@@ -1,9 +1,9 @@
 import Simulation as nemos
 
 sim = nemos.Simulation(
-	case_path=r"C:\Users\pedro\Desktop\TCC1\script_H",
+	case_path=r"C:\Users\pedro\Desktop\TCC1\script_H_resume",
 	startTime=0,
-	endTime=3,
+	endTime=20,
 	delta=0.1,
 	writeInterval=3,
 	parallel="Y",
@@ -29,5 +29,6 @@ a.add([b, c, d, e, f])
 #a.add_cilinder(salome_env=a, dip=f)
 mesh = nemos.Mesh(a, m2DMaxSize=0.2, m2DMinSize=0.02, m3DMaxSize=0.075, m3DMinSize=0.001, fineness=3)
 mesh.create_mesh(export=True)
+mesh.check_quality("AspectRatio", element_type="FACE", comparison=">", threshold=5)
 
 case = nemos.run(sim)

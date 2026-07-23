@@ -13,6 +13,43 @@ _ACTIVE_SIMULATION = None
 DEFAULT_SALOME_EXE = r"c:\SALOME-9.15.0\run_salome.bat"
 STATE_FILE = ".nemos_state.json"
 
+# Traducao das strings amigaveis de Mesh.check_quality (usadas nos scripts do
+# usuario) para as constantes SMESH que so existem dentro do SALOME.
+_ELEMENT_TYPE_MAP = {
+    "FACE": "SMESH.FACE",
+    "VOLUME": "SMESH.VOLUME",
+}
+
+_COMPARISON_MAP = {
+    ">": "SMESH.FT_MoreThan",
+    "<": "SMESH.FT_LessThan",
+    "=": "SMESH.FT_EqualTo",
+    "==": "SMESH.FT_EqualTo",
+}
+
+# Bloco inserido no inicio do machine script (roda dentro do SALOME) para gerar
+# um resumo .txt legivel a partir do DataFrame retornado por Mesh.check_quality.
+_QUALITY_SUMMARY_HELPER = [
+    "import SMESH",
+    "def _nemos_quality_summary(df, name_metric, out_dir):",
+    "    import os",
+    "    path = os.path.join(out_dir, str(name_metric) + '_summary.txt')",
+    "    lines = []",
+    "    lines.append('Metric: ' + str(name_metric))",
+    "    lines.append('Elements flagged: %d / %d' % (int(df['flag'].sum()), len(df)))",
+    "    vals = df['value'].dropna()",
+    "    if len(vals):",
+    "        lines.append('Value min / max: %s / %s' % (vals.min(), vals.max()))",
+    "    flagged = df[df['flag']]",
+    "    if len(flagged):",
+    "        lines.append('')",
+    "        lines.append('Flagged elements per region:')",
+    "        for region, count in flagged['region'].value_counts().items():",
+    "            lines.append('  %s: %d' % (region, count))",
+    "    with open(path, 'w') as f:",
+    "        f.write('\\n'.join(lines) + '\\n')",
+]
+
 
 def _set_active_simulation(simulation):
     global _ACTIVE_SIMULATION
@@ -1523,6 +1560,7 @@ class Simulation:
         self._used_var_names = set()
         self._var_counter = 0
         self._salome_env_recorded = False
+        self._quality_helper_recorded = False
 
         if kwargs:
             self.simulation_config = self._apply_simulation_kwargs(kwargs)
@@ -1882,10 +1920,73 @@ class Simulation:
         var_name = self._object_var_names.get(obj)
         if not var_name:
             return
+        if obj._class_name == "Mesh" and method_name == "check_quality":
+            self._record_check_quality(var_name, args, kwargs)
+            return
         if obj._class_name == "Mesh" and method_name == "create_mesh":
             kwargs = self._with_default_mesh_export_path(args, kwargs)
         args_str = self._format_args_kwargs(args, kwargs)
         self._record_line(f"{var_name}.{method_name}({args_str})")
+
+    def _ensure_quality_helper(self):
+        """Insere (uma vez) 'import SMESH' + o helper de resumo logo apos o
+        cabecalho 'import GeoMesh as nemos' do machine script."""
+        if self._quality_helper_recorded:
+            return
+        self._machine_lines[1:1] = _QUALITY_SUMMARY_HELPER
+        self._quality_helper_recorded = True
+
+    def _record_check_quality(self, var_name: str, args, kwargs):
+        """Traduz Mesh.check_quality(strings amigaveis) para a chamada com
+        constantes SMESH, injeta out_dir = pasta do caso e emite tambem a
+        geracao do resumo .txt. Espelha a injecao de caminho de create_mesh."""
+        args = list(args)
+        kwargs = dict(kwargs)
+
+        def _take(pos, key, default=None):
+            if key in kwargs:
+                return kwargs[key]
+            if len(args) > pos:
+                return args[pos]
+            return default
+
+        # Ordem posicional segue a assinatura de GeoMesh.Mesh.check_quality:
+        # (name_metric, element_type, filter_type, comparison, threshold, create_group)
+        name_metric = _take(0, "name_metric")
+        element_type = _take(1, "element_type", "FACE")
+        comparison = _take(3, "comparison", ">")
+        threshold = _take(4, "threshold")
+        create_group = _take(5, "create_group", False)
+
+        if name_metric is None or threshold is None:
+            # Dados insuficientes: grava a chamada crua para nao mascarar o erro.
+            args_str = self._format_args_kwargs(tuple(args), kwargs)
+            self._record_line(f"{var_name}.check_quality({args_str})")
+            return
+
+        element_token = _ELEMENT_TYPE_MAP.get(str(element_type).strip().upper(), "SMESH.FACE")
+        comparison_token = _COMPARISON_MAP.get(str(comparison).strip(), "SMESH.FT_MoreThan")
+        filter_token = "SMESH.FT_" + str(name_metric)
+        out_dir = str(self.case_path) if self.case_path is not None else None
+
+        self._ensure_quality_helper()
+
+        call_parts = [
+            repr(str(name_metric)),
+            element_token,
+            filter_token,
+            comparison_token,
+            repr(threshold),
+        ]
+        if create_group:
+            call_parts.append(f"create_group={repr(bool(create_group))}")
+        if out_dir is not None:
+            call_parts.append(f"out_dir={repr(out_dir)}")
+
+        self._record_line(f"_nemos_q = {var_name}.check_quality({', '.join(call_parts)})")
+        self._record_line(
+            f"_nemos_quality_summary(_nemos_q, {repr(str(name_metric))}, {repr(out_dir or '')})"
+        )
 
     def _record_line(self, line: str):
         if not self._recording_enabled:

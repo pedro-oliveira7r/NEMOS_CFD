@@ -1,7 +1,7 @@
 import Simulation as nemos
 
 # Retoma uma simulacao individual de onde parou.
-# Basta apontar para a pasta do caso ja iniciado e rodar este script.
+# Basta usar a pasta do caso ja iniciado e rodar este script.
 #
 # Retoma cada estagio ja concluido automaticamente (malha, conversao,
 # campos, decomposicao) e continua o solver a partir da ultima iteracao.
@@ -13,4 +13,4 @@ import Simulation as nemos
 # Para forcar uma reexecucao limpa, apague o marcador .nemos_done (e, se
 # quiser, Mesh_1.unv / a pasta 0/ / as pastas processor*).
 
-nemos.resume(r"C:\Users\pedro\Desktop\TCC1\script_H")
+nemos.resume(r"C:\Users\pedro\Desktop\TCC1\script_H_resume")

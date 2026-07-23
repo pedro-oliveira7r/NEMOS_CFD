@@ -219,6 +219,18 @@ class Simulation:
                 _, var_name, method_name, args, kwargs = action
                 if (
                     self._object_classes_by_var.get(var_name) == "Mesh"
+                    and method_name == "check_quality"
+                ):
+                    # check_quality opera sobre a malha SALOME, que so existe
+                    # onde create_mesh roda. Nos SIM que importam a malha
+                    # compartilhada (index>0 sem varredura de malha) o 'mesh'
+                    # vira um Path, entao pulamos a verificacao.
+                    if index == 0 or mesh_uses_sweep:
+                        args_str = self._format_args_kwargs(args, kwargs, index)
+                        lines.append(f"{var_name}.{method_name}({args_str})")
+                    continue
+                if (
+                    self._object_classes_by_var.get(var_name) == "Mesh"
                     and method_name == "create_mesh"
                 ):
                     if index == 0 or mesh_uses_sweep:

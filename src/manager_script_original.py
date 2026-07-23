@@ -39,6 +39,7 @@ a.add([b, c, d, e, f])
 #a.add_cilinder(salome_env=a, dip=f)
 mesh = nemos.Mesh(a, m2DMaxSize=0.2, m2DMinSize=0.02, m3DMaxSize=0.075, m3DMinSize=0.001, fineness=3)
 mesh.create_mesh(export=True)
+mesh.check_quality("AspectRatio", element_type="FACE", comparison=">", threshold=5)
 
 scripts = sim.build_machine_script()
 nemos.main(scripts)
