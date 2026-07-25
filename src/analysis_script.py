@@ -2,11 +2,6 @@
 analysis_script_H.py
 ====================
 
-Script de pos-processamento para um caso CFD ja concluido pelo NEMOS
-(`Simulation.py` / `Manager.py`). Esta para o `NEMOS_SimulationAnalysis`
-o mesmo que `user_script_H.py` esta para o `Simulation`: um exemplo unico
-que exercita **todos** os recursos do modulo.
-
 Pre-requisitos
 --------------
 1. O caso precisa ter terminado (existe `.nemos_done` na pasta do caso).
@@ -25,9 +20,7 @@ Uso
 """
 
 import os
-
 import NEMOS_SimulationAnalysis as nemos
-
 
 # =========================================================
 # 0. CONFIGURACAO
@@ -48,15 +41,6 @@ SHOW_INTERACTIVE = False
 
 os.makedirs(IMG_DIR, exist_ok=True)
 os.makedirs(DATA_DIR, exist_ok=True)
-
-# O LoadSimulation exige <case>/caso.foam; o pipeline do NEMOS nao gera
-# esse arquivo, entao ele e criado aqui (arquivo vazio, padrao ParaView).
-foam_file = os.path.join(CASE_PATH, "caso.foam")
-
-if not os.path.exists(foam_file):
-    open(foam_file, "w").close()
-    print(f"caso.foam criado em: {foam_file}")
-
 
 # =========================================================
 # 1. LoadSimulation - leitura do caso
@@ -116,7 +100,6 @@ CLIM_T = (float(T_field.min()), float(T_field.max()))
 # =========================================================
 
 analysis = nemos.SimulationAnalysis(sim)
-
 
 # ---------------------------------------------------------
 # 2.1 plot() - corte no plano + PNG (2400x1800, colormap jet)
@@ -178,85 +161,6 @@ print("Esfera r=0.20 m, U (componentes agregadas):")
 analysis.get_point_value(center, geometric_type="sphere",
                          interpolation_radius=0.20, field="U")
 
-
-# ---------------------------------------------------------
-# 2.3 Probes (postProcessing) - historico temporal
-# ---------------------------------------------------------
-# Requer um functionObject `probes` no controlDict, por exemplo:
-#
-#   functions
-#   {
-#       probes
-#       {
-#           type            probes;
-#           libs            ("libsampling.so");
-#           writeControl    timeStep;
-#           writeInterval   1;
-#           fields          (T U p);
-#           probeLocations  ( (1.5 1.1 1.5) (0.9 1.1 1.5) );
-#       }
-#   }
-#
-# O pipeline do NEMOS nao escreve esse bloco - adicione manualmente ao
-# system/controlDict antes de rodar o solver, se quiser este historico.
-
-probe_dir = os.path.join(CASE_PATH, "postProcessing", PROBE_NAME)
-
-if os.path.isdir(probe_dir):
-
-    print("\n===== PROBES =====")
-
-    # Leitura crua: (times, values, labels). Aceita caminho relativo a
-    # <case>/postProcessing/ ou caminho absoluto.
-    times, values, labels = sim._read_field_probe(PROBE_NAME, "T")
-    print("Amostras lidas:", len(times), "| labels:", labels)
-
-    # Mesma leitura ja em DataFrame
-    df_raw, labels = sim._read_field_probe(PROBE_NAME, "T",
-                                           return_type="dataframe")
-    print(df_raw.head())
-
-    # get_probe_data: reorganiza por probe e aplica magnitude/RMS
-    times, T_probe, labels = analysis.get_probe_data(PROBE_NAME, "T")
-    print("Shape T por probe:", T_probe.shape)
-
-    # Vetor: (n_times, n_probes, 3) -> com magnitude=True vira (n_times, n_probes)
-    times, U_mag, labels = analysis.get_probe_data(PROBE_NAME, "U",
-                                                   magnitude=True)
-    print("Shape |U| por probe:", U_mag.shape)
-
-    # Direto em DataFrame (uma coluna por probe)
-    df_probe = analysis.get_probe_data(PROBE_NAME, "U", magnitude=True,
-                                       return_dataframe=True)
-    df_probe.to_csv(os.path.join(DATA_DIR, "probe_U_mag.csv"), index=False)
-    print("probe_U_mag.csv salvo.")
-
-    # Exportacao direta para Excel.
-    # (Na versao atual, probe_to_excel chama self._read_field_probe, que
-    #  pertence ao LoadSimulation e nao ao SimulationAnalysis - por isso o
-    #  fallback equivalente abaixo.)
-    excel_path = os.path.join(DATA_DIR, "probe_T.xlsx")
-
-    try:
-        analysis.probe_to_excel(PROBE_NAME, "T", output_excel=excel_path)
-
-    except Exception as exc:
-        print(f"probe_to_excel indisponivel ({exc.__class__.__name__}: {exc})")
-        df_fallback, _ = sim._read_field_probe(PROBE_NAME, "T",
-                                               return_type="dataframe")
-        df_fallback.to_excel(excel_path, index=False)
-        print(f"Arquivo salvo em: {excel_path}")
-
-    # Graficos matplotlib (bloqueiam ate a janela ser fechada)
-    if SHOW_INTERACTIVE:
-        analysis.plot_probe(PROBE_NAME, "T")                    # escalar
-        analysis.plot_probe(PROBE_NAME, "U", magnitude=True)    # |U|
-        analysis.plot_probe(PROBE_NAME, "U", magnitude=False)   # Ux, Uy, Uz
-
-else:
-    print(f"\n[probes] '{probe_dir}' nao existe - etapa de probes ignorada.")
-
-
 # =========================================================
 # 3. Regularization - malha estruturada + exportacao
 # =========================================================
@@ -266,7 +170,6 @@ else:
 # e sao descartados do DataFrame.
 
 reg = nemos.Regularization(sim)
-
 
 # ---------------------------------------------------------
 # 3.1 reg2D - grade 2D num plano

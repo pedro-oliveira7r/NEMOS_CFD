@@ -519,6 +519,12 @@ class OpenFOAMCase:
             with open(os.path.join(pasta_system, nome), "w") as f:
                 f.write(conteudo)
 
+        # ---------------- Arquivo .foam ----------------
+        # Arquivo vazio usado para apontar o ParaView e os scripts de
+        # analise (NEMOS_SimulationAnalysis / NEMOS_MeshAnalysis) para o caso.
+        caminho_foam = os.path.join(self.case_path, "caso.foam")
+        open(caminho_foam, "w").close()
+
         print(f"Arquivos gerados com sucesso em:\n  {pasta_constant}\n  {pasta_system}")
 
 
