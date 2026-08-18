@@ -1,8 +1,13 @@
 # NEMOS_CFD — Architecture & Context
 
-> Reusable context for future chats. Describes how the `Simulation` and `Manager`
-> modules automate real-scale OpenFOAM CFD simulations. Reflects the code as of the
-> resume/idempotency update (July 2026). Paths and class names below are current.
+> **Internal design reference for contributors.** Describes how the `Simulation`
+> and `Manager` modules automate real-scale OpenFOAM CFD simulations. Reflects the
+> code as of the resume/idempotency update (July 2026); paths and class names are
+> current.
+>
+> If you only want to *use* NEMOS, start with the [README](README.md) and
+> [docs/workflow.md](docs/workflow.md) instead — this document assumes you are
+> changing the library.
 
 ---
 
@@ -169,12 +174,18 @@ Manager turns one templated script into **N simulations**, one per index of the 
 
 ## 5. Entry-point scripts & the resume scripts
 
-- `src/user_script_H.py` — example single run (recording mode): define `Simulation(...)`, build
+All runnable scripts live in `examples/`; each inserts `src/` on `sys.path` itself,
+so they run from any working directory. `src/` holds only the five library modules.
+
+- `examples/01_single_run.py` — single run (recording mode): define `Simulation(...)`, build
   Room/People/Dips/Table/Mesh, `mesh.create_mesh(export=True)`, then `nemos.run(sim)`.
-- `src/manager_script_original.py` — example sweep varying **boundary conditions only**.
-- `src/manager_script_mesh.py` — example sweep varying **mesh refinement**.
-- **`src/simulation_resume.py`** (new) — `nemos.resume(r"...case folder")` for one simulation.
-- **`src/manager_resume.py`** (new) — `nemos.resume(r"...case root")` for a sweep.
+- `examples/02_classroom.py` — a larger room; floor openings, `Dip_type_00`, rectangular tables.
+- `examples/03_sweep_conditions.py` — sweep varying **boundary conditions only**.
+- `examples/04_sweep_mesh.py` — sweep varying **mesh refinement**.
+- `examples/05_import_mesh.py` — reuses an existing `Mesh_1.unv` via `Simulation.Import_mesh`.
+- `examples/06_analysis.py`, `examples/07_analysis_full.py` — post-processing (see §8).
+- `examples/resume_simulation.py` — `nemos.resume(r"...case folder")` for one simulation.
+- `examples/resume_sweep.py` — `nemos.resume(r"...case root")` for a sweep.
 
 To force a clean redo, delete the relevant artifacts (`.nemos_done`, and optionally
 `Mesh_1.unv` / `0/` / `processor*`).
@@ -193,6 +204,7 @@ To force a clean redo, delete the relevant artifacts (`.nemos_done`, and optiona
   machine_script.py    the recorded SALOME geometry/mesh script
   comandos_1.sh        WSL mesh-prep script
   comandos_2.sh        WSL solver script
+  caso.foam            empty marker file for ParaView / PyVista readers
   log.simulation       solver stdout
   residuals.png        residual convergence plot
   .nemos_state.json    saved config/metadata (enables resume-by-folder)
@@ -217,4 +229,39 @@ For a sweep, the root also holds `SIM_0..N/` (each like above), `scripts/script_
 - `plot_residuals=True` (default) makes the solver run **synchronously** (needed to drain stdout).
 - `startFrom latestTime` in `controlDict` is what lets the solver resume natively — the resume
   feature relies on it plus the guarded `decomposePar`.
-- Some `.pyc` files are tracked in this repo's `src/__pycache__/`.
+- **Y is the vertical axis.** `Room(dy=...)` is the height; `x`/`z` are the floor plane.
+- `src/GeoMesh.py` must be copied into SALOME's `site-packages` after every edit — the
+  repository copy and the installed copy are unrelated files. See
+  [docs/installation.md](docs/installation.md).
+
+---
+
+## 8. The analysis modules
+
+Two post-processing modules sit outside the `run()` pipeline entirely. They read a
+*finished* case from disk and know nothing about `Simulation`, the recording
+mechanism, or SALOME.
+
+| Module | Depends on | Purpose |
+|---|---|---|
+| `src/NEMOS_SimulationAnalysis.py` | pyvista, numpy, pandas, matplotlib | Flow-field post-processing: slices, point sampling, probe histories, structured-grid export |
+| `src/NEMOS_MeshAnalysis.py` | pyvista, numpy, pandas, scipy | Mesh-focused analysis; uses `scipy.spatial.cKDTree` for nearest-neighbour queries |
+
+Both expose a `LoadSimulation(sim_path, time_step=None)` class built on
+`pv.OpenFOAMReader`, and both require **`<case>/caso.foam`** — an empty marker
+file, ParaView's convention for opening a case directory. `OpenFOAMCase` writes it
+during setup ([Simulation.py:525](src/Simulation.py#L525)); older cases predate
+that and need it created by hand.
+
+Three things to know before touching them:
+
+- **Parallel runs must be reconstructed first.** Without `reconstructPar` only
+  `processor*/` folders exist and the reader sees no time past 0. This is not
+  detected — it presents as a case that appears to have no results.
+- **`SimulationAnalysis` and `Regularization` capture the mesh at construction.**
+  `LoadSimulation.set_time()` after that has no effect on them; re-instantiate.
+- `get_point_value()` **prints** its statistics dict and returns `None`.
+
+`NEMOS_SimulationAnalysis` is exercised end to end by
+`examples/07_analysis_full.py`, which is the closest thing the repository has to a
+test for it.

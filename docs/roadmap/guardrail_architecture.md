@@ -1,9 +1,17 @@
 # NEMOS_CFD — Validation & Guardrail Architecture
 
-> **Status:** design proposal — not yet implemented.
-> **Date:** 2026-07-25.
-> **Companion document:** [ARCHITECTURE.md](../ARCHITECTURE.md) describes how the pipeline
-> works today. This document describes how it should defend itself.
+> ## ⚠️ Roadmap document — none of this is implemented
+>
+> This is a **design proposal**, drafted 2026-07-25. Nothing described below exists
+> in the code today: there is no validation module, no gates, no error codes, and
+> no honest-verdict classification. Do not read any of it as behaviour you can
+> rely on, and do not file bugs against it.
+>
+> For how the pipeline actually works today, see
+> [ARCHITECTURE.md](../../ARCHITECTURE.md) and [../workflow.md](../workflow.md).
+> The failure inventory in section 0 *is* accurate — it documents real, current
+> weaknesses, and the short version of it appears under "Known limitations" in the
+> [README](../../README.md).
 
 ---
 
@@ -18,24 +26,24 @@ beginner that is the worst possible failure mode: the tool signals success.
 Concretely, today:
 
 - A typo in a `Simulation(...)` kwarg (`endtime=20`) is **silently discarded** —
-  [Simulation.py:1665-1678](../src/Simulation.py#L1665-L1678) skips any key it does not
+  [Simulation.py:1665-1678](../../src/Simulation.py#L1665-L1678) skips any key it does not
   recognise, so the case runs with `endTime=3500` instead of 20.
 - A typo in a geometry kwarg (`Thickness=0.15`) is **silently swallowed** by `**kwargs` in
-  [GeoMesh.py:730-741](../src/GeoMesh.py#L730-L741), which pops only `name`.
+  [GeoMesh.py:730-741](../../src/GeoMesh.py#L730-L741), which pops only `name`.
 - A patch whose name maps to no known type keeps `type patch;`
-  ([Simulation.py:800-806](../src/Simulation.py#L800-L806)) and then receives `zeroGradient`
-  on **every** field via the fallback at [Simulation.py:1034](../src/Simulation.py#L1034) —
+  ([Simulation.py:800-806](../../src/Simulation.py#L800-L806)) and then receives `zeroGradient`
+  on **every** field via the fallback at [Simulation.py:1034](../../src/Simulation.py#L1034) —
   a wall silently becomes a frictionless, adiabatic, free-slip surface.
 - `metabolic_heat_W`, `emissivity`, `species_source`, `supply_T_C`, `supply_velocity_m_s`,
   `flow_profile` and `material` are all accepted as inline keys
-  ([Simulation.py:1534-1546](../src/Simulation.py#L1534-L1546)) but **never read** by
+  ([Simulation.py:1534-1546](../../src/Simulation.py#L1534-L1546)) but **never read** by
   `BoundaryManager`. Only `T_Face`, `T_Flow` and `V_Flow` do anything.
 - `.nemos_done` is written on **solver exit code 0**
-  ([Simulation.py:2423-2424](../src/Simulation.py#L2423-L2424)), not on convergence. A run
+  ([Simulation.py:2423-2424](../../src/Simulation.py#L2423-L2424)), not on convergence. A run
   that hits `endTime` with residuals at 1e-1 is marked "finished successfully".
 - Re-running an edited script into the same `case_path` reuses the **stale mesh and stale
   `0/` fields** — the resume detectors at
-  [Simulation.py:76-97](../src/Simulation.py#L76-L97) only ask "does the artifact exist",
+  [Simulation.py:76-97](../../src/Simulation.py#L76-L97) only ask "does the artifact exist",
   never "does it match the current script".
 
 The goal is a **guardrail layer** that turns each of these into a clear, actionable message
@@ -53,10 +61,9 @@ run honestly.
 
 ### Scope
 
-Covers `src/GeoMesh.py`, `src/Simulation.py`, `src/Manager.py` and the entry scripts
-(`user_script_*.py`, `manager_script_*.py`). Explicitly **out of scope**: `examples/`,
-`Outros/`, `Templates/`, `src/NEMOS_MeshAnalysis.py`, `src/NEMOS_SimulationAnalysis.py` —
-the two analysis modules are a separate effort.
+Covers `src/GeoMesh.py`, `src/Simulation.py` and `src/Manager.py`. Explicitly
+**out of scope**: `examples/`, `experimental/`, `src/NEMOS_MeshAnalysis.py` and
+`src/NEMOS_SimulationAnalysis.py` — the two analysis modules are a separate effort.
 
 ---
 
@@ -69,64 +76,64 @@ Sections 2–6 traces back to an `F`-number here.
 
 | # | Failure | Evidence | Today's symptom |
 |---|---|---|---|
-| F1 | Unknown `Simulation(...)` kwarg dropped | [Simulation.py:1665](../src/Simulation.py#L1665) | Defaults used; `endTime=3500` |
-| F2 | Unknown geometry kwarg dropped | [GeoMesh.py:730](../src/GeoMesh.py#L730) | Parameter has no effect |
-| F3 | Unmapped patch → `zeroGradient` on all fields | [Simulation.py:800](../src/Simulation.py#L800), [1034](../src/Simulation.py#L1034) | Slip/adiabatic wall |
-| F4 | Inline BC keys accepted but unimplemented | [Simulation.py:1534](../src/Simulation.py#L1534) | User believes a heat source exists |
-| F5 | `.nemos_done` means "exit 0", not "converged" | [Simulation.py:2423](../src/Simulation.py#L2423) | Unconverged case looks finished |
-| F6 | Stale mesh / stale `0/` reused after a script edit | [Simulation.py:76-97](../src/Simulation.py#L76-L97) | Yesterday's physics, today's parameters |
-| F7 | `fvOptions` clamps `T` to [280, 310] and \|U\| to 10 | [Simulation.py:328-347](../src/Simulation.py#L328-L347) | BCs outside the clamp are silently limited |
-| F8 | `p` from config (e.g. 101322) vs `p_rgh` hardcoded 101325 | [Simulation.py:857](../src/Simulation.py#L857) vs [862](../src/Simulation.py#L862) | Spurious initial transient |
-| F9 | Inlet `k`/`epsilon` hardcoded regardless of `V_Flow` | [Simulation.py:893](../src/Simulation.py#L893), [902](../src/Simulation.py#L902) | Turbulence inconsistent with the jet |
-| F10 | `fields_ready()` checks only `0/T` and `0/U` | [Simulation.py:84-86](../src/Simulation.py#L84-L86) | Half-written `0/` accepted; solver fails on `p_rgh` |
+| F1 | Unknown `Simulation(...)` kwarg dropped | [Simulation.py:1665](../../src/Simulation.py#L1665) | Defaults used; `endTime=3500` |
+| F2 | Unknown geometry kwarg dropped | [GeoMesh.py:730](../../src/GeoMesh.py#L730) | Parameter has no effect |
+| F3 | Unmapped patch → `zeroGradient` on all fields | [Simulation.py:800](../../src/Simulation.py#L800), [1034](../../src/Simulation.py#L1034) | Slip/adiabatic wall |
+| F4 | Inline BC keys accepted but unimplemented | [Simulation.py:1534](../../src/Simulation.py#L1534) | User believes a heat source exists |
+| F5 | `.nemos_done` means "exit 0", not "converged" | [Simulation.py:2423](../../src/Simulation.py#L2423) | Unconverged case looks finished |
+| F6 | Stale mesh / stale `0/` reused after a script edit | [Simulation.py:76-97](../../src/Simulation.py#L76-L97) | Yesterday's physics, today's parameters |
+| F7 | `fvOptions` clamps `T` to [280, 310] and \|U\| to 10 | [Simulation.py:328-347](../../src/Simulation.py#L328-L347) | BCs outside the clamp are silently limited |
+| F8 | `p` from config (e.g. 101322) vs `p_rgh` hardcoded 101325 | [Simulation.py:857](../../src/Simulation.py#L857) vs [862](../../src/Simulation.py#L862) | Spurious initial transient |
+| F9 | Inlet `k`/`epsilon` hardcoded regardless of `V_Flow` | [Simulation.py:893](../../src/Simulation.py#L893), [902](../../src/Simulation.py#L902) | Turbulence inconsistent with the jet |
+| F10 | `fields_ready()` checks only `0/T` and `0/U` | [Simulation.py:84-86](../../src/Simulation.py#L84-L86) | Half-written `0/` accepted; solver fails on `p_rgh` |
 
 ### 0.2 Confusing-crash failures
 
 | # | Failure | Evidence | Today's symptom |
 |---|---|---|---|
-| F11 | `case_path` not on `C:` — the WSL translation replaces only the literal `C:` | [Simulation.py:1213-1218](../src/Simulation.py#L1213-L1218) | Bash `cd` fails, script continues (no `set -e`), garbage downstream |
+| F11 | `case_path` not on `C:` — the WSL translation replaces only the literal `C:` | [Simulation.py:1213-1218](../../src/Simulation.py#L1213-L1218) | Bash `cd` fails, script continues (no `set -e`), garbage downstream |
 | F12 | Lowercase `c:\...` in `case_path` is not converted either | same | Same as F11 |
-| F13 | Spaces in `case_path` — `wsl bash {path}` is unquoted | [Simulation.py:1257](../src/Simulation.py#L1257) | Cryptic bash error |
-| F14 | Missing SALOME exe only prints and `return`s — no raise | [Simulation.py:569-572](../src/Simulation.py#L569-L572) | Failure surfaces two stages later |
-| F15 | `Dip` created before `Room` → `salome_env.room` is `None` | [GeoMesh.py:1030](../src/GeoMesh.py#L1030), [1140](../src/GeoMesh.py#L1140) | `AttributeError` inside the SALOME batch |
-| F16 | Dip axis matches no room face → `dip_face_max` stays `None` | [GeoMesh.py:367-370](../src/GeoMesh.py#L367-L370) | `GetSubShapeID(None)` error inside SALOME |
-| F17 | `insert_*_opening` called **after** `add()` re-partitions the room | [GeoMesh.py:454-457](../src/GeoMesh.py#L454-L457) vs [287](../src/GeoMesh.py#L287) | Face groups reference a dead shape; patches wrong or missing |
-| F18 | WSL `nproc` < 4 while `mpirun -np 4` is hardcoded | [Simulation.py:1313](../src/Simulation.py#L1313), [300](../src/Simulation.py#L300) | "not enough slots available" |
-| F19 | `plot_residuals=False` → `Popen(PIPE)` with `wait=False`; nobody drains the pipe | [Simulation.py:1329-1350](../src/Simulation.py#L1329-L1350), called from [2417](../src/Simulation.py#L2417) | Solver **deadlocks** at ~64 KB of output; no `.nemos_done` ever |
-| F20 | `comandos_*.sh` have no `set -e`; the return code is the last command's | [Simulation.py:1219](../src/Simulation.py#L1219) | A failed `ideasUnvToFoam` can be masked by a passing `checkMesh` on an old mesh |
+| F13 | Spaces in `case_path` — `wsl bash {path}` is unquoted | [Simulation.py:1257](../../src/Simulation.py#L1257) | Cryptic bash error |
+| F14 | Missing SALOME exe only prints and `return`s — no raise | [Simulation.py:569-572](../../src/Simulation.py#L569-L572) | Failure surfaces two stages later |
+| F15 | `Dip` created before `Room` → `salome_env.room` is `None` | [GeoMesh.py:1030](../../src/GeoMesh.py#L1030), [1140](../../src/GeoMesh.py#L1140) | `AttributeError` inside the SALOME batch |
+| F16 | Dip axis matches no room face → `dip_face_max` stays `None` | [GeoMesh.py:367-370](../../src/GeoMesh.py#L367-L370) | `GetSubShapeID(None)` error inside SALOME |
+| F17 | `insert_*_opening` called **after** `add()` re-partitions the room | [GeoMesh.py:454-457](../../src/GeoMesh.py#L454-L457) vs [287](../../src/GeoMesh.py#L287) | Face groups reference a dead shape; patches wrong or missing |
+| F18 | WSL `nproc` < 4 while `mpirun -np 4` is hardcoded | [Simulation.py:1313](../../src/Simulation.py#L1313), [300](../../src/Simulation.py#L300) | "not enough slots available" |
+| F19 | `plot_residuals=False` → `Popen(PIPE)` with `wait=False`; nobody drains the pipe | [Simulation.py:1329-1350](../../src/Simulation.py#L1329-L1350), called from [2417](../../src/Simulation.py#L2417) | Solver **deadlocks** at ~64 KB of output; no `.nemos_done` ever |
+| F20 | `comandos_*.sh` have no `set -e`; the return code is the last command's | [Simulation.py:1219](../../src/Simulation.py#L1219) | A failed `ideasUnvToFoam` can be masked by a passing `checkMesh` on an old mesh |
 
 ### 0.3 Geometry / meshing failures
 
 | # | Failure | Evidence |
 |---|---|---|
 | F21 | Object partly or wholly outside the room; objects overlapping each other | no check anywhere |
-| F22 | Two dips sharing the same `(x, z)` — inlet detection uses a `1e-6` match on both coordinates | [GeoMesh.py:333-339](../src/GeoMesh.py#L333-L339) |
-| F23 | Total ceiling-opening area > 20 % of the ceiling → the **whole ceiling** becomes one `outlet` patch, because the remaining ceiling face drops below `Room.area = 0.8·(two smallest dims)` | [GeoMesh.py:73](../src/GeoMesh.py#L73), [404-425](../src/GeoMesh.py#L404-L425) |
-| F24 | `insert_ceiling_opening(d=...)` passes `d` to `MakeCircle` as a **radius**, not a diameter | [GeoMesh.py:450](../src/GeoMesh.py#L450) |
-| F25 | Duplicate object names, names `_parse_boundary_file` cannot handle (spaces, dashes), or reserved names (`wall`, `outlet`, `inlet_*`, `defaultFaces`) | [Simulation.py:942](../src/Simulation.py#L942) |
-| F26 | `m2DMinSize > m2DMaxSize`, `fineness` out of range, cell-count explosion | [GeoMesh.py:482-497](../src/GeoMesh.py#L482-L497) |
-| F27 | Viscous-layer stack (0.030 m on walls) thicker than the gap between two bodies | [GeoMesh.py:578](../src/GeoMesh.py#L578) |
+| F22 | Two dips sharing the same `(x, z)` — inlet detection uses a `1e-6` match on both coordinates | [GeoMesh.py:333-339](../../src/GeoMesh.py#L333-L339) |
+| F23 | Total ceiling-opening area > 20 % of the ceiling → the **whole ceiling** becomes one `outlet` patch, because the remaining ceiling face drops below `Room.area = 0.8·(two smallest dims)` | [GeoMesh.py:73](../../src/GeoMesh.py#L73), [404-425](../../src/GeoMesh.py#L404-L425) |
+| F24 | `insert_ceiling_opening(d=...)` passes `d` to `MakeCircle` as a **radius**, not a diameter | [GeoMesh.py:450](../../src/GeoMesh.py#L450) |
+| F25 | Duplicate object names, names `_parse_boundary_file` cannot handle (spaces, dashes), or reserved names (`wall`, `outlet`, `inlet_*`, `defaultFaces`) | [Simulation.py:942](../../src/Simulation.py#L942) |
+| F26 | `m2DMinSize > m2DMaxSize`, `fineness` out of range, cell-count explosion | [GeoMesh.py:482-497](../../src/GeoMesh.py#L482-L497) |
+| F27 | Viscous-layer stack (0.030 m on walls) thicker than the gap between two bodies | [GeoMesh.py:578](../../src/GeoMesh.py#L578) |
 | F28 | Mesh exported in millimetres → bounding box 3000 × 3000 × 3000 | detectable only from `checkMesh` |
 
 ### 0.4 Sweep (Manager) failures
 
 | # | Failure | Evidence |
 |---|---|---|
-| F29 | A list built by comprehension or defined inside a function is **not** recognised as a sweep list — only a top-level `ast.Assign` of a `List`/`Tuple` is scanned — so the literal list is embedded in every SIM | [Manager.py:37-45](../src/Manager.py#L37-L45) |
-| F30 | A bad parameter in `SIM_4` is discovered only after `SIM_0..3` have run for hours | [Manager.py:348-356](../src/Manager.py#L348-L356) |
-| F31 | Reusing a `case_path` for a shorter sweep leaves stale `SIM_i` that `resume()` re-runs | [Manager.py:387](../src/Manager.py#L387) |
-| F32 | Sign inconsistency across a sweep — the repo's own example has `V_Flow=1.2` on `Dip_1` and `-1.2` on `Dip_2` | [manager_script_mesh.py:22-23](../src/manager_script_mesh.py#L22-L23) |
+| F29 | A list built by comprehension or defined inside a function is **not** recognised as a sweep list — only a top-level `ast.Assign` of a `List`/`Tuple` is scanned — so the literal list is embedded in every SIM | [Manager.py:37-45](../../src/Manager.py#L37-L45) |
+| F30 | A bad parameter in `SIM_4` is discovered only after `SIM_0..3` have run for hours | [Manager.py:348-356](../../src/Manager.py#L348-L356) |
+| F31 | Reusing a `case_path` for a shorter sweep leaves stale `SIM_i` that `resume()` re-runs | [Manager.py:387](../../src/Manager.py#L387) |
+| F32 | Sign inconsistency across a sweep — the repo's own example has `V_Flow=1.2` on `Dip_1` and `-1.2` on `Dip_2` | [manager_script_mesh.py:22-23](../../examples/04_sweep_mesh.py#L22-L23) |
 
 ### 0.5 Solver-setup failures a beginner cannot see
 
 | # | Failure | Evidence |
 |---|---|---|
-| F33 | `ddtSchemes default steadyState` → "time" is the **iteration count**. `endTime=20, delta=0.1` is **200 iterations**, which will not meet `residualControl 1e-6` | [Simulation.py:370](../src/Simulation.py#L370), [460-466](../src/Simulation.py#L460-L466), [user_script_H.py:6-7](../src/user_script_H.py#L6-L7) |
-| F34 | `startFrom latestTime` makes the written `startTime` inert | [Simulation.py:253-255](../src/Simulation.py#L253-L255) |
-| F35 | `writeInterval=3` over 200 iterations = 66 full 3D field dumps | [user_script_H.py:8](../src/user_script_H.py#L8) |
-| F36 | Boussinesq `T0 300`, `rho0 1`, `mu 1e-5` — `rho0` is ~15 % below air at 300 K, so reported pressures and any balance in kg/s or W inherit that scaling; a `T` far from `T0` invalidates the linearisation | [Simulation.py:174-196](../src/Simulation.py#L174-L196) |
+| F33 | `ddtSchemes default steadyState` → "time" is the **iteration count**. `endTime=20, delta=0.1` is **200 iterations**, which will not meet `residualControl 1e-6` | [Simulation.py:370](../../src/Simulation.py#L370), [460-466](../../src/Simulation.py#L460-L466), [user_script_H.py:6-7](../../examples/01_single_run.py#L6-L7) |
+| F34 | `startFrom latestTime` makes the written `startTime` inert | [Simulation.py:253-255](../../src/Simulation.py#L253-L255) |
+| F35 | `writeInterval=3` over 200 iterations = 66 full 3D field dumps | [user_script_H.py:8](../../examples/01_single_run.py#L8) |
+| F36 | Boussinesq `T0 300`, `rho0 1`, `mu 1e-5` — `rho0` is ~15 % below air at 300 K, so reported pressures and any balance in kg/s or W inherit that scaling; a `T` far from `T0` invalidates the linearisation | [Simulation.py:174-196](../../src/Simulation.py#L174-L196) |
 | F37 | The inlet Reynolds number can fall in the laminar range while `kEpsilon` + wall functions are used | — |
-| F38 | No outlet opening at all while dips inject mass → no steady solution exists | [GeoMesh.py:404-425](../src/GeoMesh.py#L404-L425) |
+| F38 | No outlet opening at all while dips inject mass → no steady solution exists | [GeoMesh.py:404-425](../../src/GeoMesh.py#L404-L425) |
 
 ---
 
@@ -172,7 +179,7 @@ Aborting: fix the 2 errors above, or pass validate="warn" to continue anyway.
 
 ### 1.2 Four gates, mapped onto the existing stages of `run()`
 
-`run()` at [Simulation.py:2373](../src/Simulation.py#L2373) already has clean stage
+`run()` at [Simulation.py:2373](../../src/Simulation.py#L2373) already has clean stage
 boundaries. The gates slot between them; **no stage is restructured**.
 
 ```
@@ -195,18 +202,18 @@ one second instead of forty minutes of NETGEN plus two hours of solver.
 
 | Gate | File / function | Edit |
 |---|---|---|
-| A0 | `Simulation.__init__` [Simulation.py:1548](../src/Simulation.py#L1548) | Accept `validate=`; call `check_simulation_kwargs(kwargs)` **before** `_apply_simulation_kwargs`, while the raw keys are still visible |
-| A | `Simulation._register_object` [Simulation.py:1874](../src/Simulation.py#L1874) | Append `(class_name, geometry_kwargs, inline_sim, order_index)` to a new `self._events` list. Both halves are already separated here by the inline-key pop |
-| A | `Simulation._record_method` [Simulation.py:1923](../src/Simulation.py#L1923) | Append method events — this is what makes the **call-order** check (F17) possible |
-| A | `setup_workflow` [Simulation.py:2352](../src/Simulation.py#L2352) | Run `preflight()` after `read_user_script()`, before `gerar_arquivos_base` |
-| A | `OpenFOAMCase` [Simulation.py:64](../src/Simulation.py#L64) | Add `fingerprint()` + `check_stale()`; extend `fields_ready()` to all eight fields (F10) |
-| B | `OpenFOAMRunner.preparar_malha` [Simulation.py:1211](../src/Simulation.py#L1211) | `set -o pipefail`, per-command exit-code checks, and `tee` into `log.ideasUnvToFoam` / `log.checkMesh` so the logs survive a crash and a resume |
+| A0 | `Simulation.__init__` [Simulation.py:1548](../../src/Simulation.py#L1548) | Accept `validate=`; call `check_simulation_kwargs(kwargs)` **before** `_apply_simulation_kwargs`, while the raw keys are still visible |
+| A | `Simulation._register_object` [Simulation.py:1874](../../src/Simulation.py#L1874) | Append `(class_name, geometry_kwargs, inline_sim, order_index)` to a new `self._events` list. Both halves are already separated here by the inline-key pop |
+| A | `Simulation._record_method` [Simulation.py:1923](../../src/Simulation.py#L1923) | Append method events — this is what makes the **call-order** check (F17) possible |
+| A | `setup_workflow` [Simulation.py:2352](../../src/Simulation.py#L2352) | Run `preflight()` after `read_user_script()`, before `gerar_arquivos_base` |
+| A | `OpenFOAMCase` [Simulation.py:64](../../src/Simulation.py#L64) | Add `fingerprint()` + `check_stale()`; extend `fields_ready()` to all eight fields (F10) |
+| B | `OpenFOAMRunner.preparar_malha` [Simulation.py:1211](../../src/Simulation.py#L1211) | `set -o pipefail`, per-command exit-code checks, and `tee` into `log.ideasUnvToFoam` / `log.checkMesh` so the logs survive a crash and a resume |
 | B | new `Validation.parse_check_mesh(text)` | Pure text → issues |
-| B2 | `BoundaryManager.editar_boundary` [Simulation.py:767](../src/Simulation.py#L767) | Return the `{patch: type}` map instead of `None`; collect unmapped patches |
-| C | `OpenFOAMRunner._rodar_simulacao_com_plot` [Simulation.py:1355](../src/Simulation.py#L1355) | Feed each line to `LogMonitor` next to the existing `plotter.feed_line` — the streaming loop already exists |
-| C | `OpenFOAMRunner.rodar_simulacao` [Simulation.py:1282](../src/Simulation.py#L1282) | Redirect solver output **inside the bash script** (`> log.simulation 2>&1`) instead of through a `PIPE`; this removes the F19 deadlock and makes both code paths monitorable |
-| D | `run()` [Simulation.py:2417-2424](../src/Simulation.py#L2417-L2424) | `postflight()`; write `.nemos_status.json`; write `.nemos_done` **only** on a genuinely complete run |
-| Sweep | `Manager.Simulation.build_machine_script` [Manager.py:256](../src/Manager.py#L256) | Sweep-structure checks + the preflight-all-SIMs pass (§6) |
+| B2 | `BoundaryManager.editar_boundary` [Simulation.py:767](../../src/Simulation.py#L767) | Return the `{patch: type}` map instead of `None`; collect unmapped patches |
+| C | `OpenFOAMRunner._rodar_simulacao_com_plot` [Simulation.py:1355](../../src/Simulation.py#L1355) | Feed each line to `LogMonitor` next to the existing `plotter.feed_line` — the streaming loop already exists |
+| C | `OpenFOAMRunner.rodar_simulacao` [Simulation.py:1282](../../src/Simulation.py#L1282) | Redirect solver output **inside the bash script** (`> log.simulation 2>&1`) instead of through a `PIPE`; this removes the F19 deadlock and makes both code paths monitorable |
+| D | `run()` [Simulation.py:2417-2424](../../src/Simulation.py#L2417-L2424) | `postflight()`; write `.nemos_status.json`; write `.nemos_done` **only** on a genuinely complete run |
+| Sweep | `Manager.Simulation.build_machine_script` [Manager.py:256](../../src/Manager.py#L256) | Sweep-structure checks + the preflight-all-SIMs pass (§6) |
 
 ### 1.4 Policy resolution
 
@@ -263,12 +270,12 @@ constructors in `GeoMesh.py`. Roughly 80 lines, no SALOME needed.
 
 | Class | Conservative extent | Source |
 |---|---|---|
-| `Room` | `[0,dx] × [0,dy] × [0,dz]` | [GeoMesh.py:93-102](../src/GeoMesh.py#L93-L102) |
-| `Person_seated` | vertical `[0, h]`; horizontal disc of radius `√((0.25h + thickness/2)² + width²)` centred on `(x,z)` — rotation-invariant, so `theta` needs no special case. Depth is `2·width`, because the profile is extruded both ways | [GeoMesh.py:762-882](../src/GeoMesh.py#L762-L882) |
-| `Person_standing` | fixed dimensions; read them off `standing()` | [GeoMesh.py:898](../src/GeoMesh.py#L898) |
-| `Dip_type_00..03` | cylinder of radius `≈ d` at `(x,z)`, spanning `y ∈ [H − 0.07 − y_param, H − 0.07]` — i.e. it **hangs from the ceiling** | [GeoMesh.py:1139-1141](../src/GeoMesh.py#L1139-L1141) |
-| `Table_retangular` | `dx × dy × dz` box centred on `(x,z)` at height `y` | [GeoMesh.py:1432-1445](../src/GeoMesh.py#L1432-L1445) |
-| `Table_circular` | disc of radius `raio`, thickness `espessura`, at height `y` | [GeoMesh.py:1463-1469](../src/GeoMesh.py#L1463-L1469) |
+| `Room` | `[0,dx] × [0,dy] × [0,dz]` | [GeoMesh.py:93-102](../../src/GeoMesh.py#L93-L102) |
+| `Person_seated` | vertical `[0, h]`; horizontal disc of radius `√((0.25h + thickness/2)² + width²)` centred on `(x,z)` — rotation-invariant, so `theta` needs no special case. Depth is `2·width`, because the profile is extruded both ways | [GeoMesh.py:762-882](../../src/GeoMesh.py#L762-L882) |
+| `Person_standing` | fixed dimensions; read them off `standing()` | [GeoMesh.py:898](../../src/GeoMesh.py#L898) |
+| `Dip_type_00..03` | cylinder of radius `≈ d` at `(x,z)`, spanning `y ∈ [H − 0.07 − y_param, H − 0.07]` — i.e. it **hangs from the ceiling** | [GeoMesh.py:1139-1141](../../src/GeoMesh.py#L1139-L1141) |
+| `Table_retangular` | `dx × dy × dz` box centred on `(x,z)` at height `y` | [GeoMesh.py:1432-1445](../../src/GeoMesh.py#L1432-L1445) |
+| `Table_circular` | disc of radius `raio`, thickness `espessura`, at height `y` | [GeoMesh.py:1463-1469](../../src/GeoMesh.py#L1463-L1469) |
 
 | Code | Check | Sev |
 |---|---|---|
@@ -296,7 +303,7 @@ constructors in `GeoMesh.py`. Roughly 80 lines, no SALOME needed.
 | E-MSH-03 | `Mesh(room, ...)` receives the `Room`, and `create_mesh` is called exactly once | ERROR |
 | W-MSH-04 | Estimated cell count `≈ 6√2·V/h³` with `h = m3DMaxSize`; warn above ~3 M cells, with the RAM and wall-clock estimate | WARN |
 | W-MSH-05 | `m3DMaxSize` resolves the smallest feature — at least 3 cells across a dip diameter — unless a local size already covers it (dips get 0.005, persons 0.02, walls 0.05) | WARN |
-| W-MSH-06 | The `check_quality` metric is a real `SMESH.FT_*` functor, and `element_type`/`comparison` are in `_ELEMENT_TYPE_MAP` / `_COMPARISON_MAP`, since an unmapped value silently degrades to `SMESH.FACE` / `FT_MoreThan` ([Simulation.py:1973-1974](../src/Simulation.py#L1973-L1974)) | WARN |
+| W-MSH-06 | The `check_quality` metric is a real `SMESH.FT_*` functor, and `element_type`/`comparison` are in `_ELEMENT_TYPE_MAP` / `_COMPARISON_MAP`, since an unmapped value silently degrades to `SMESH.FACE` / `FT_MoreThan` ([Simulation.py:1973-1974](../../src/Simulation.py#L1973-L1974)) | WARN |
 
 ### 2.5 Physics consistency (`*-PHY-*`) — advisory, never blocking
 
@@ -395,7 +402,7 @@ Parsed from `constant/polyMesh/boundary` and cross-checked against `object_types
 | E-BND-04 | An `outlet` patch exists with `nFaces > 0` | ERROR |
 | E-BND-05 | No patch has `nFaces == 0` — an empty inlet means zero supply air with no error message | ERROR |
 | E-BND-06 | No `defaultFaces` patch with `nFaces > 0` (faces that reached no SALOME group) | ERROR |
-| W-BND-07 | `_parse_boundary_file`'s `(\w+)\s*\{\s*type\s+(\w+);` regex matched every block — a name or key order it cannot parse must not fail silently ([Simulation.py:942](../src/Simulation.py#L942)) | WARN |
+| W-BND-07 | `_parse_boundary_file`'s `(\w+)\s*\{\s*type\s+(\w+);` regex matched every block — a name or key order it cannot parse must not fail silently ([Simulation.py:942](../../src/Simulation.py#L942)) | WARN |
 | W-BND-08 | Real inlet/outlet areas from the mesh vs the Gate A estimates; re-run `W-PHY-05`/`W-PHY-06` with exact numbers | WARN |
 
 ### 3.4 Field coverage (`*-FLD-*`), after `generate_all_fields`
@@ -420,7 +427,7 @@ Parsed from `constant/polyMesh/boundary` and cross-checked against `object_types
    This removes the F19 pipe deadlock, makes `plot_residuals=False` monitorable, and leaves a
    complete log after a crash.
 2. **Add a `functions {}` block to the generated `controlDict`**, written by
-   `gerar_arquivos_base` ([Simulation.py:235](../src/Simulation.py#L235)) alongside the
+   `gerar_arquivos_base` ([Simulation.py:235](../../src/Simulation.py#L235)) alongside the
    existing keys:
 
 | Function object | Purpose | Consumed by |
@@ -439,7 +446,7 @@ survives — and that file is what Gate D reads on a resumed or interrupted run.
 ### 4.2 `LogMonitor` (`*-RUN-*`) — streaming, one line at a time
 
 Sits beside `plotter.feed_line` in the existing loop
-([Simulation.py:1386-1389](../src/Simulation.py#L1386-L1389)).
+([Simulation.py:1386-1389](../../src/Simulation.py#L1386-L1389)).
 
 **Fatal patterns → abort immediately when `validate="strict"`** (kill the process; a diverged
 run only wastes hours):
@@ -468,7 +475,7 @@ run only wastes hours):
 ### 4.3 The Courant number, honestly
 
 The generated `fvSchemes` sets `ddtSchemes { default steadyState; }`
-([Simulation.py:370](../src/Simulation.py#L370)) and the solver is `buoyantSimpleFoam`. **A
+([Simulation.py:370](../../src/Simulation.py#L370)) and the solver is `buoyantSimpleFoam`. **A
 steady SIMPLE run has no time step and prints no Courant number**, so a literal
 Courant-number check can never fire on the cases NEMOS generates today. Rather than ship a
 dead check, this design specifies three things:
@@ -512,7 +519,7 @@ and it is trivially plottable in a report.
 
 `.nemos_done` is written **only** for `CONVERGED`, and additionally for `MAX_ITERATIONS` when
 the user explicitly opts in. This matters for sweeps: `Manager.resume()` skips any `SIM_i`
-that has a `.nemos_done` marker ([Manager.py:400-403](../src/Manager.py#L400-L403)), so today
+that has a `.nemos_done` marker ([Manager.py:400-403](../../src/Manager.py#L400-L403)), so today
 an unconverged SIM is skipped permanently. `MAX_ITERATIONS` must print:
 
 ```
@@ -565,7 +572,7 @@ from §4.1.
 
 | Code | Check | Sev |
 |---|---|---|
-| E-SWP-01 | Sweep lists equal length and non-empty — **already implemented** at [Manager.py:59-72](../src/Manager.py#L59-L72); reuse it, do not duplicate | ERROR |
+| E-SWP-01 | Sweep lists equal length and non-empty — **already implemented** at [Manager.py:59-72](../../src/Manager.py#L59-L72); reuse it, do not duplicate | ERROR |
 | E-SWP-02 | A list-valued kwarg reached a recording proxy but was **not** recognised as a sweep list (built by comprehension, or defined inside a function). Today it is embedded literally into all N scripts and every SIM is identical (F29) | ERROR |
 | E-SWP-03 | `script_path=__file__` was passed; without it `_load_list_names` returns an empty set | ERROR |
 | E-SWP-04 | `SIM_i` directories exist beyond the current sweep length → a stale sweep in this folder (F31) | ERROR |
@@ -622,12 +629,12 @@ so:
    These fixtures must be captured from a real run first: the parsers in §3.1 and §4.2 are the
    only part of this design whose string patterns need calibration against actual output
    before they can be trusted.
-2. **Negative-path scripts** — small variants of [user_script_H.py](../src/user_script_H.py),
+2. **Negative-path scripts** — small variants of [user_script_H.py](../../examples/01_single_run.py),
    each rigged to trip exactly one check, asserting the code fires and that nothing expensive
    ran: `endtime=20` (E-CFG-01), `Thickness=0.15` (E-GEO-02), a person at `x=5.0` in a 3 m
    room (E-GEO-04), openings after `add()` (E-GEO-07), `T_Face=320` (W-PHY-01),
    `case_path="D:\..."` (E-ENV-05), openings with `d=0.5` (E-GEO-11).
-3. **Golden-path regression** — [user_script_H.py](../src/user_script_H.py) unchanged must
+3. **Golden-path regression** — [user_script_H.py](../../examples/01_single_run.py) unchanged must
    pass Gate A with zero errors and exactly the expected warnings (`W-CFG-06` on 200
    iterations, `W-PHY-09` on hardcoded inlet turbulence). This is the test that the guardrails
    do not block real work.
@@ -635,7 +642,7 @@ so:
 5. **End-to-end**, once, on a deliberately coarse mesh with ~300 iterations: confirm Gate B
    parses the real `checkMesh` output, Gate C writes `monitor.csv`, Gate D reports a
    `MAX_ITERATIONS` verdict with a real mass balance, and `.nemos_done` is **not** written.
-6. **Sweep**, once: [manager_script_original.py](../src/manager_script_original.py) with one
+6. **Sweep**, once: [manager_script_original.py](../../examples/03_sweep_conditions.py) with one
    deliberately bad index, confirming it aborts before `SIM_0` starts.
 7. **Stale case**: run a case, edit `Room(dy=...)`, re-run, and confirm `E-STATE-01` fires with
    the correct artifact list and that nothing was deleted.
@@ -650,7 +657,7 @@ Recorded explicitly so that nobody implements them as though they were verified 
    the *total* stack thickness. Confirm against the SALOME 9.15 API; if it is the first-layer
    thickness, the wall stack is ~0.22 m and the gap check changes materially.
 2. **Dip inlet area `≈ π·d²`** — inferred from the `F3` revolution profile at
-   [GeoMesh.py:1089-1118](../src/GeoMesh.py#L1089-L1118). This only affects the Gate A
+   [GeoMesh.py:1089-1118](../../src/GeoMesh.py#L1089-L1118). This only affects the Gate A
    *estimates* (`W-PHY-05`, `W-PHY-06`); Gate B measures the real area.
 3. **Exact log strings** for `bounding`, `limitTemperature` and `SIMPLE solution converged in`
    in OpenFOAM v2312 — must be calibrated against a captured log (Verification item 1).
@@ -659,7 +666,7 @@ Recorded explicitly so that nobody implements them as though they were verified 
 4. **`patchFlowRate` sign convention**, and whether it reports mass or volume flow for
    `buoyantSimpleFoam` — this determines the `E-BAL-01` formula.
 5. **The 20 % opening-area threshold** in `E-GEO-11` follows from `Room.area = 0.8·(two
-   smallest dims)` at [GeoMesh.py:73](../src/GeoMesh.py#L73). Confirm with one deliberate
+   smallest dims)` at [GeoMesh.py:73](../../src/GeoMesh.py#L73). Confirm with one deliberate
    over-opening test that the ceiling really does collapse into a single `outlet` patch.
 6. **`rho0 = 1`** is flagged as a consistency note (`I-PHY-10`), not corrected. If it is a
    deliberate normalisation, this document should say so; if it is an oversight, fixing it is a

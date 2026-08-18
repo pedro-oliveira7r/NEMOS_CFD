@@ -1,16 +1,33 @@
+"""
+Resume a single interrupted simulation
+======================================
+
+Point this at the folder of a case that was already started and it picks up
+where it stopped. Every completed stage (mesh, conversion, fields,
+decomposition) is detected from its artifact and skipped, and the solver
+continues from the last written timestep.
+
+Requires `Mesh_1.unv` to already exist -- the common case, since interruptions
+usually happen during the solver. For an interruption BEFORE meshing, re-run
+the original geometry script instead (those are idempotent too).
+
+To force a clean redo, delete the `.nemos_done` marker -- and, if you want the
+earlier stages rebuilt as well, `Mesh_1.unv`, the `0/` folder and the
+`processor*` folders.
+
+Usage
+-----
+    python examples/resume_simulation.py
+"""
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
 import Simulation as nemos
 
-# Retoma uma simulacao individual de onde parou.
-# Basta usar a pasta do caso ja iniciado e rodar este script.
-#
-# Retoma cada estagio ja concluido automaticamente (malha, conversao,
-# campos, decomposicao) e continua o solver a partir da ultima iteracao.
-#
-# Requer que a malha (Mesh_1.unv) ja tenha sido gerada — o caso comum de
-# interrupcao durante o solver. Para interrupcoes antes da malha, rode
-# novamente o script de geometria original (ele tambem retoma sozinho).
-#
-# Para forcar uma reexecucao limpa, apague o marcador .nemos_done (e, se
-# quiser, Mesh_1.unv / a pasta 0/ / as pastas processor*).
+# EDIT THIS: the folder of the case you want to resume.
+CASE_PATH = Path(__file__).resolve().parents[1] / "cases" / "01_single_run"
 
-nemos.resume(r"C:\Users\pedro\Desktop\TCC1\script_H_resume")
+nemos.resume(str(CASE_PATH))

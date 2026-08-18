@@ -1,10 +1,34 @@
+"""
+03 - Parameter sweep: boundary conditions
+=========================================
+
+Runs FIVE simulations in sequence, varying only the boundary conditions. The
+geometry and the mesh parameters are identical across all of them, so Manager
+meshes once in SIM_0 and every later SIM imports that mesh -- a large saving.
+
+Any top-level list in this script is treated as a sweep parameter: simulation
+i uses element i of every list. All sweep lists must therefore have the SAME
+length (5 here) and must not be empty.
+
+Demonstrates : Manager, sweep lists, the shared-mesh optimisation
+Runtime      : 5 simulations back to back -- expect hours
+Produces     : cases/03_sweep_conditions/SIM_0 .. SIM_4, plus scripts/ and logs/
+
+NOTE the different import: sweeps use Manager, not Simulation.
+"""
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
 import Manager as nemos
 
-# Caso Tipo 1: Apenas as condições de contorno variam
+CASE_PATH = Path(__file__).resolve().parents[1] / "cases" / "03_sweep_conditions"
 
 sim = nemos.Simulation(
 	script_path=__file__,
-	case_path=r"C:\Users\pedro\Desktop\TCC1\Manager_Condition_Test",
+	case_path=str(CASE_PATH),
 	startTime=0,
 	endTime=5,
 	delta=0.1,
@@ -16,12 +40,15 @@ sim = nemos.Simulation(
 	epsilon_internalField="uniform 1e-5"
 )
 
+# --- Sweep parameters: one value per simulation, all lists the same length ---
 T_Room_Face = [299, 300, 301, 302, 303]
 T_Flow = [291, 293, 294, 295, 296]
 V_Flow = [-1.0, -1.1, -1.3, -1.4, -1.5]
 T_Person_Face = [304, 305, 306, 307, 308]
 T_Table_Face = [300, 301, 302, 303, 304]
 
+# A sweep list may be used anywhere a scalar would be; mixing the two is fine
+# (Person_2 and Dip_2 below keep constant values while their siblings vary).
 a = nemos.Room(dx=3.0, dy=3.0, dz=3.0, T_Face=T_Room_Face, name = "Room")
 b = nemos.Person_seated(x=2.025, z=1.5, theta=0, thickness=0.15, T_Face=T_Person_Face, name = "Person_1")
 c = nemos.Person_seated(x=0.975, z=1.5, theta=180, thickness=0.15, T_Face=305, name = "Person_2")

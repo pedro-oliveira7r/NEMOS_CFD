@@ -1,10 +1,31 @@
+"""
+04 - Parameter sweep: mesh refinement
+=====================================
+
+A mesh-independence study. Same room and same boundary conditions in all five
+simulations; only the mesh parameters change.
+
+Because the sweep lists feed the Mesh() call, the shared-mesh optimisation does
+NOT apply here -- every SIM builds its own mesh in SALOME. This is the slowest
+example in the repository.
+
+Demonstrates : sweeping mesh parameters, fineness levels
+Runtime      : 5 meshes + 5 solver runs -- expect many hours
+Produces     : cases/04_sweep_mesh/SIM_0 .. SIM_4
+"""
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
 import Manager as nemos
 
-# Caso Tipo 2: Teste de Refinamento de Malha
+CASE_PATH = Path(__file__).resolve().parents[1] / "cases" / "04_sweep_mesh"
 
 sim = nemos.Simulation(
 	script_path=__file__,
-	case_path=r"C:\Users\pedro\Desktop\TCC1\Manager_Mesh_Test",
+	case_path=str(CASE_PATH),
 	startTime=0,
 	endTime=5,
 	delta=0.1,
@@ -32,6 +53,7 @@ a.add([b, c, d, e, f])
 #a.add_cilinder(salome_env=a, dip=e)
 #a.add_cilinder(salome_env=a, dip=f)
 
+# --- Sweep parameters: progressively finer meshes ---------------------------
 Max2D_List = [0.25, 0.25, 0.2, 0.2, 0.15]
 Min2D_List = [0.05, 0.05, 0.04, 0.04, 0.03]
 Max3D_List = [0.075, 0.065, 0.05, 0.05, 0.04]

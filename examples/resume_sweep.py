@@ -1,13 +1,31 @@
+"""
+Resume an interrupted parameter sweep
+=====================================
+
+Point this at the ROOT folder of a sweep -- the one containing SIM_0, SIM_1,
+... and the `scripts/` folder -- and it continues the batch.
+
+Every SIM_i carrying a `.nemos_done` marker is skipped; the rest are re-run
+from the scripts already generated in `scripts/`. Because each per-SIM script
+calls the idempotent `Simulation.run`, an interrupted SIM continues from where
+it stopped rather than restarting.
+
+To force one finished SIM_i to run again, delete the `.nemos_done` marker
+inside that SIM_i folder.
+
+Usage
+-----
+    python examples/resume_sweep.py
+"""
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
 import Manager as nemos
 
-# Retoma um lote (varredura) de onde parou.
-# Basta apontar para a pasta raiz do caso (a que contem SIM_0, SIM_1, ...
-# e a pasta scripts/) e rodar este script.
-#
-# Os SIM_i ja concluidos sao pulados e os incompletos continuam de onde
-# pararam (reaproveitando os scripts ja gerados em scripts/).
-#
-# Para forcar a reexecucao de um SIM_i concluido, apague o marcador
-# .nemos_done dentro da pasta SIM_i correspondente.
+# EDIT THIS: the root folder of the sweep you want to resume.
+CASE_ROOT = Path(__file__).resolve().parents[1] / "cases" / "03_sweep_conditions"
 
-nemos.resume(r"C:\Users\pedro\Desktop\TCC1\Manager_Condition_Test")
+nemos.resume(str(CASE_ROOT))

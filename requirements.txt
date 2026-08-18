@@ -1,0 +1,29 @@
+# NEMOS_CFD -- host-side Python dependencies
+#
+# Install with:
+#     pip install -r requirements.txt
+#
+# Notes
+# -----
+# * The core driver modules (src/Simulation.py, src/Manager.py) use only the
+#   Python standard library. Nothing below is needed just to build a case and
+#   run the solver, with one exception: matplotlib, which Simulation.py imports
+#   lazily inside ResidualPlotter and therefore requires only when
+#   plot_residuals=True (the default).
+#
+# * src/GeoMesh.py runs inside SALOME's own embedded Python, NOT in the
+#   interpreter these packages are installed into. It imports pandas, which
+#   SALOME 9.15.0 already ships (pandas 1.5.3, numpy 1.21.6) -- nothing extra to
+#   install there. See docs/installation.md.
+
+# Residual plotting (Simulation.py) and analysis plots.
+matplotlib>=3.5
+
+# Post-processing: NEMOS_SimulationAnalysis.py, NEMOS_MeshAnalysis.py
+numpy>=1.21
+pandas>=1.3
+pyvista>=0.38
+scipy>=1.7
+
+# Excel export (LoadSimulation.probe_to_excel and other .xlsx writers).
+openpyxl>=3.0

@@ -2440,37 +2440,3 @@ def resume(case_path, salome_exe: str = DEFAULT_SALOME_EXE):
         return None
     simulation = Simulation.load_state(case_path)
     return run(simulation, salome_exe=salome_exe)
-
-
-if __name__ == "__main__":
-    # Fluxo legado de execução direta do Auto_6.
-    case = OpenFOAMCase(r"C:\Users\pedro\Desktop\TCC1\Sim_000")
-
-    user_script_path = case.case_path / "user_script.py"
-    simulation = None
-    if user_script_path.exists():
-        simulation = Simulation(str(user_script_path))
-        simulation.read_user_script()
-        simulation.write_machine_script(str(case.case_path / "machine_script.py"))
-        # Gera arquivos base já parametrizados.
-        case.gerar_arquivos_base(simulation.simulation_config)
-
-    mesher = SalomeMesher(
-        r"c:\SALOME-9.15.0\run_salome.bat",
-        str(case.case_path / "machine_script.py"),
-        simulation=simulation,
-    )
-    boundary_manager = BoundaryManager(case, simulation=simulation)
-    runner = OpenFOAMRunner(case, simulation=simulation)
-
-    mesher.executar_batch()
-    mesh_ok = runner.preparar_malha(wait=True)
-    if not mesh_ok:
-        raise RuntimeError("A preparacao da malha falhou. Verifique a saida do comandos_1.sh.")
-    if not case.boundary_file.exists():
-        raise FileNotFoundError(f"Arquivo boundary nao encontrado em '{case.boundary_file}'")
-    boundary_manager.editar_boundary()
-    boundary_manager.generate_all_fields()
-    runner.rodar_simulacao()
-
-    print('Programa Finalizado')

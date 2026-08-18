@@ -1,0 +1,60 @@
+name: Feature request
+description: Suggest a capability, geometry type, or improvement
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening: several known gaps are already documented under
+        "Known limitations" in the [README](../blob/main/README.md), and a
+        validation layer is already designed in
+        [docs/roadmap/](../blob/main/docs/roadmap/). Adding your use case to an
+        existing issue is often more useful than a new one.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: |
+        Describe the simulation or workflow you are trying to set up, not just
+        the feature. Knowing the actual CFD problem usually changes the answer.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like NEMOS to do?
+      description: If you can sketch the script you wish you could write, do.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part does this touch?
+      options:
+        - "Geometry (new object type, new room feature)"
+        - "Meshing"
+        - "Boundary conditions / physics"
+        - "Solver or case setup"
+        - "Parameter sweeps (Manager)"
+        - "Post-processing / analysis"
+        - "Documentation"
+        - "Portability (Linux, other OpenFOAM versions, non-fixed core count)"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Current workaround
+      description: How are you managing today — editing dictionaries by hand, patching the source, something else?
+
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Would you be able to help implement it?
+      options:
+        - label: I could work on this with some guidance

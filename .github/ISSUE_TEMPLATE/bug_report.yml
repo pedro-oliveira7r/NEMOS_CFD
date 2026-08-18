@@ -1,0 +1,128 @@
+name: Bug report
+description: Something in the pipeline fails or produces the wrong result
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        NEMOS coordinates Python, SALOME, WSL and OpenFOAM. Almost every report
+        that cannot be acted on is missing the version information below, so
+        please fill it in even if it seems irrelevant.
+
+  - type: checkboxes
+    id: baseline
+    attributes:
+      label: Baseline check
+      description: This separates a NEMOS bug from an environment that is not set up.
+      options:
+        - label: I have read [docs/installation.md](../blob/main/docs/installation.md), including copying `GeoMesh.py` into SALOME's `site-packages`
+          required: true
+        - label: I re-copied `GeoMesh.py` into SALOME after my most recent change to it (or I did not change it)
+          required: true
+
+  - type: dropdown
+    id: baseline_runs
+    attributes:
+      label: Does `python examples/01_single_run.py` work on this machine?
+      options:
+        - "Yes — the unmodified example runs to completion"
+        - "No — the unmodified example fails too"
+        - "Not tried"
+        - "N/A — the bug is in the docs or in analysis only"
+    validations:
+      required: true
+
+  - type: textarea
+    id: what_happened
+    attributes:
+      label: What happened
+      description: What you expected, and what you got instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: |
+        The script you ran, ideally trimmed to the smallest version that still
+        fails. If you modified an example, say which one and how.
+      render: python
+    validations:
+      required: true
+
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Which stage failed
+      description: See [docs/workflow.md](../blob/main/docs/workflow.md) for the stage list.
+      options:
+        - "1 — Setup / case creation"
+        - "2 — Geometry and meshing (SALOME)"
+        - "3 — Mesh conversion (ideasUnvToFoam)"
+        - "4 — Boundary conditions and 0/ fields"
+        - "5 — Solver (buoyantSimpleFoam)"
+        - "6 — Post-processing / analysis"
+        - "Not sure"
+    validations:
+      required: true
+
+  - type: textarea
+    id: output
+    attributes:
+      label: Full output
+      description: |
+        The complete traceback, **plus** the SALOME or WSL output printed above
+        it — that is usually where the real error is. Attach `log.simulation`
+        from the case folder if the solver was involved.
+      render: shell
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Windows version
+      placeholder: "Windows 11 23H2"
+    validations:
+      required: true
+
+  - type: input
+    id: python
+    attributes:
+      label: Python version (host)
+      description: Output of `python --version`
+      placeholder: "3.13.1"
+    validations:
+      required: true
+
+  - type: input
+    id: salome
+    attributes:
+      label: SALOME version and install path
+      placeholder: "9.15.0 at C:\\SALOME-9.15.0"
+    validations:
+      required: true
+
+  - type: input
+    id: openfoam
+    attributes:
+      label: OpenFOAM version and WSL distro
+      placeholder: "v2312 (ESI) on Ubuntu-24.04, WSL2"
+    validations:
+      required: true
+
+  - type: input
+    id: nemos
+    attributes:
+      label: NEMOS commit
+      description: Output of `git rev-parse --short HEAD`
+      placeholder: "d3a09d1"
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Screenshots of the mesh, `residuals.png`, `checkMesh` output — whatever seems relevant.

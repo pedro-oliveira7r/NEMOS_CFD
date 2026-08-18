@@ -1,7 +1,34 @@
+"""
+01 - Single simulation run
+==========================
+
+The smallest complete NEMOS pipeline: define a 3x3x3 m room with two seated
+people, two air diffusers and a circular table, mesh it in SALOME, build the
+OpenFOAM case and run the solver.
+
+Demonstrates : Simulation (recording mode), Room, Person_seated, Dip_type_01,
+               Table_circular, ceiling openings, Mesh, mesh quality check
+Runtime      : ~15-40 min (meshing dominates; endTime=20 iterations)
+Produces     : cases/01_single_run/ with Mesh_1.unv, 0/, constant/, system/,
+               residuals.png, log.simulation and a .nemos_done marker
+
+Re-running this script is safe: every stage is skipped if its artifact already
+exists, and the solver continues from the last written timestep.
+"""
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
 import Simulation as nemos
 
+# Where the OpenFOAM case is written. Change this to any absolute path you
+# like -- it must be on a Windows drive reachable from WSL (C:, D:, ...).
+CASE_PATH = Path(__file__).resolve().parents[1] / "cases" / "01_single_run"
+
 sim = nemos.Simulation(
-	case_path=r"C:\Users\pedro\Desktop\TCC1\script_H_resume",
+	case_path=str(CASE_PATH),
 	startTime=0,
 	endTime=20,
 	delta=0.1,

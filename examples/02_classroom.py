@@ -1,7 +1,28 @@
-import src.Simulation as nemos
+"""
+02 - Classroom
+==============
+
+A larger, more populated room: 4.5 x 3.0 x 4.0 m with four seated people, four
+Dip_type_00 diffusers and four rectangular tables. Unlike example 01 it also
+uses floor openings alongside the ceiling ones.
+
+Demonstrates : Dip_type_00, Table_retangular, insert_floor_opening,
+               a room with many objects
+Runtime      : longer than 01 -- more geometry means a heavier mesh
+Produces     : cases/02_classroom/
+"""
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+import Simulation as nemos
+
+CASE_PATH = Path(__file__).resolve().parents[1] / "cases" / "02_classroom"
 
 sim = nemos.Simulation(
-	case_path=r"C:\Users\pedro\Desktop\TCC1\TESTS\script_classroom",
+	case_path=str(CASE_PATH),
 	startTime=0,
 	endTime=3,
 	delta=0.1,

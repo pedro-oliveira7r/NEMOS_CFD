@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Installation and setup problems
+    url: https://github.com/pedro-oliveira7r/NEMOS_CFD/blob/main/docs/installation.md
+    about: Most "it does not run" reports are environment issues. The troubleshooting table at the bottom covers the common ones — check it before opening an issue.
+  - name: How the pipeline works
+    url: https://github.com/pedro-oliveira7r/NEMOS_CFD/blob/main/docs/workflow.md
+    about: What happens between nemos.run(sim) and a solved case, why a stage was skipped, and how resuming works.
+  - name: API reference
+    url: https://github.com/pedro-oliveira7r/NEMOS_CFD/blob/main/docs/api-reference.md
+    about: Exact class signatures and keyword arguments. Note that misspelled keywords are silently ignored.
+  - name: Questions and ideas
+    url: https://github.com/pedro-oliveira7r/NEMOS_CFD/discussions
+    about: For usage questions and open-ended discussion rather than bug reports.

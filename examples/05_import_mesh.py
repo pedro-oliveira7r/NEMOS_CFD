@@ -1,7 +1,39 @@
-import src.Simulation as nemos
+"""
+05 - Reusing an existing mesh
+=============================
+
+Same geometry as example 01, but instead of meshing in SALOME it imports a
+`Mesh_1.unv` produced by an earlier run. Meshing is by far the slowest stage,
+so this is how you iterate on boundary conditions or solver settings without
+paying for it every time.
+
+The geometry objects are still declared: their `name=` values are what the
+patch names in the imported mesh are matched against, and their inline values
+(T_Face, T_Flow, V_Flow) still drive the boundary conditions. The geometry
+must therefore match the mesh you are importing.
+
+Demonstrates : Simulation.Import_mesh
+Runtime      : solver only -- minutes to hours, no meshing
+Produces     : cases/05_import_mesh/
+
+Prerequisite : run example 01 first, or edit MESH_PATH below.
+"""
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+import Simulation as nemos
+
+CASE_PATH = Path(__file__).resolve().parents[1] / "cases" / "05_import_mesh"
+
+# EDIT THIS if your mesh lives elsewhere. It must be a SALOME .unv file whose
+# patch names match the object names declared below.
+MESH_PATH = Path(__file__).resolve().parents[1] / "cases" / "01_single_run" / "Mesh_1.unv"
 
 sim = nemos.Simulation(
-	case_path=r"C:\Users\pedro\Desktop\TCC1\TESTS\script_H_new",
+	case_path=str(CASE_PATH),
 	startTime=0,
 	endTime=3,
 	delta=0.1,
@@ -28,6 +60,8 @@ a.add([b, c, d, e, f])
 #a.add_cilinder(salome_env=a, dip=e)
 #a.add_cilinder(salome_env=a, dip=f)
 
-mesh = nemos.Simulation.Import_mesh(r"C:\Users\pedro\Desktop\TCC1\TESTS\script_H\Mesh_1.unv")
+# Replaces the Mesh(...) + create_mesh(...) pair used in example 01: the .unv
+# is copied into the case folder instead of being built by SALOME.
+mesh = nemos.Simulation.Import_mesh(str(MESH_PATH))
 
 case = nemos.run(sim)
