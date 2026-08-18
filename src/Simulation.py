@@ -1,5 +1,6 @@
 import os
 import shutil
+import sys
 import time
 import re
 import ast
@@ -8,6 +9,24 @@ import json
 from collections import defaultdict
 import subprocess
 from pathlib import Path
+
+# Os modulos de validacao sao irmaos deste arquivo. Quando o NEMOS e importado
+# como 'src.Simulation' (a partir da raiz do repositorio, como fazem os scripts
+# de Templates/), a pasta src/ nao esta no sys.path e os imports irmaos abaixo
+# falhariam. Por isso ela e garantida aqui antes deles.
+_SRC_DIR = str(Path(__file__).resolve().parent)
+if _SRC_DIR not in sys.path:
+    sys.path.insert(0, _SRC_DIR)
+
+import Validation as _validation
+from Validation import NemosValidationError  # noqa: F401  (re-exported for users)
+from validation_core import (
+    DECOMPOSE_SUBDOMAINS,
+    GeometryModel,
+    MethodRecord,
+    ObjectRecord,
+    OPENFOAM_BASHRC,
+)
 
 _ACTIVE_SIMULATION = None
 DEFAULT_SALOME_EXE = r"c:\SALOME-9.15.0\run_salome.bat"
@@ -81,9 +100,20 @@ class OpenFOAMCase:
         """True se a malha ja foi convertida para o formato OpenFOAM."""
         return self.boundary_file.exists()
 
+    #: Todos os campos que generate_all_fields precisa escrever.
+    REQUIRED_FIELDS = ("U", "T", "p", "p_rgh", "k", "epsilon", "nut", "alphat")
+
+    def missing_fields(self) -> list:
+        """Campos da pasta 0/ que ainda nao existem."""
+        return [name for name in self.REQUIRED_FIELDS if not (self.zero_dir / name).exists()]
+
     def fields_ready(self) -> bool:
-        """True se os campos da pasta 0/ ja foram gerados."""
-        return (self.zero_dir / "T").exists() and (self.zero_dir / "U").exists()
+        """True se TODOS os campos da pasta 0/ ja foram gerados.
+
+        Checar apenas T e U deixava passar uma pasta 0/ escrita pela metade:
+        o estagio era pulado e o solver falhava depois procurando p_rgh.
+        """
+        return not self.missing_fields()
 
     def decomposed(self) -> bool:
         """True se o caso ja foi decomposto para execucao paralela."""
@@ -1196,12 +1226,15 @@ class OpenFOAMRunner:
         self.residual_history = None
         self.residual_log_path = None
         self.residual_plot_path = None
+        self.monitor = None  # LogMonitor do Gate C, preenchido ao rodar o solver
+        self.validate = _validation.POLICY_STRICT
 
         if self.simulation is not None:
             try:
                 self.simulation.read_user_script()
             except Exception:
                 pass
+            self.validate = getattr(self.simulation, "validate", _validation.POLICY_STRICT)
             cfg = getattr(self.simulation, "simulation_config", {}) or {}
             decompose_cfg = cfg.get("decomposeParDict", {}) or {}
             self.parallel_flag = str(decompose_cfg.get("parallel", "Y")).strip().upper().startswith("Y")
@@ -1216,33 +1249,62 @@ class OpenFOAMRunner:
         caso_dir = str(self.case.case_path)\
             .replace('\\', '/')\
             .replace('C:', '/mnt/c')
+        # Cada comando tem o codigo de saida checado explicitamente: sem isso o
+        # script devolvia o status do ultimo comando, entao um ideasUnvToFoam
+        # quebrado podia ser mascarado por um checkMesh que passou numa malha
+        # antiga. Os logs sao gravados em arquivo para o Gate B poder le-los
+        # depois (inclusive apos uma interrupcao).
         conteudo = f"""#!/bin/bash
+# Gerado pelo NEMOS - preparacao da malha ('{script_name}')
+set -o pipefail
 
-    # Este é o conteúdo do arquivo '{script_name}'
+echo "Iniciando script dentro do WSL..."
 
-    echo "Iniciando script dentro do WSL..."
+if [ ! -f "{OPENFOAM_BASHRC}" ]; then
+  echo "ERRO: ambiente do OpenFOAM nao encontrado em {OPENFOAM_BASHRC}"
+  echo "Instale o OpenFOAM no WSL ou ajuste o caminho em validation_core.OPENFOAM_BASHRC."
+  exit 90
+fi
+source "{OPENFOAM_BASHRC}" >/dev/null 2>&1
 
-    # Carrega as variáveis de ambiente do OpenFOAM
-    # Usar 'source' ou '.' é a forma padrão aqui dentro do script
-    source /usr/lib/openfoam/openfoam2312/etc/bashrc
-    #source "\\\\wsl.localhost\\Ubuntu-24.04\\usr\\lib\\openfoam\\openfoam2312\\etc\\bashrc"
+if ! command -v ideasUnvToFoam >/dev/null 2>&1; then
+  echo "ERRO: ideasUnvToFoam nao esta no PATH depois de carregar o ambiente do OpenFOAM."
+  exit 93
+fi
 
-    # Navega para o diretório de um caso de exemplo
-    # (Adapte este caminho para o seu caso real)
-    CASO_DIR={caso_dir}
+CASO_DIR="{caso_dir}"
+if ! cd "$CASO_DIR"; then
+  echo "ERRO: pasta do caso nao encontrada dentro do WSL: $CASO_DIR"
+  echo "Apenas caminhos no drive C: sao convertidos para /mnt/c pelo NEMOS."
+  exit 91
+fi
 
-    cd $CASO_DIR
+echo "Diretorio de trabalho atual: $(pwd)"
 
-    echo "Diretório de trabalho atual: $(pwd)"
+if [ ! -f Mesh_1.unv ]; then
+  echo "ERRO: Mesh_1.unv nao existe em $CASO_DIR - a malha nao foi gerada."
+  exit 92
+fi
 
-    # Executa comandos do OpenFOAM
-    echo "Convertendo a Malha:"
-    ideasUnvToFoam Mesh_1.unv
+echo "Convertendo a Malha:"
+ideasUnvToFoam Mesh_1.unv 2>&1 | tee log.ideasUnvToFoam
+status=${{PIPESTATUS[0]}}
+if [ "$status" -ne 0 ]; then
+  echo "ERRO: ideasUnvToFoam falhou (codigo $status). Veja log.ideasUnvToFoam"
+  exit "$status"
+fi
 
-    echo "Verificando a Malha:"
-    checkMesh
+echo "Verificando a Malha:"
+checkMesh 2>&1 | tee log.checkMesh
+status=${{PIPESTATUS[0]}}
+if [ "$status" -ne 0 ]; then
+  echo "AVISO: checkMesh terminou com codigo $status. Veja log.checkMesh"
+fi
 
-    """
+# A conversao deu certo; a qualidade da malha e julgada pelo Gate B a partir
+# de log.checkMesh, entao um aviso do checkMesh nao derruba o estagio.
+exit 0
+"""
 
         with open(caminho_script_windows, "w", newline='\n') as arquivo:
             arquivo.write(conteudo)
@@ -1287,32 +1349,66 @@ class OpenFOAMRunner:
         caso_dir = str(self.case.case_path)\
             .replace('\\', '/')\
             .replace('C:', '/mnt/c')
+        solver_cmd = (
+            f"stdbuf -oL -eL mpirun -np {DECOMPOSE_SUBDOMAINS} buoyantSimpleFoam -parallel"
+            if self.parallel_flag
+            else "stdbuf -oL -eL buoyantSimpleFoam"
+        )
+        # Com plot_residuals=True o Python drena o stdout linha a linha e grava
+        # log.simulation ele mesmo. Sem isso, redirecionamos para arquivo aqui
+        # dentro: caso contrario o pipe do Popen enche (~64 KB) e o solver fica
+        # travado para sempre sem que ninguem perceba.
+        redirect = "" if self.plot_residuals else " > log.simulation 2>&1"
+
+        if self.parallel_flag:
+            decompose_block = """if [ ! -d processor0 ]; then
+  echo "Decompondo os arquivos:"
+  decomposePar
+  if [ $? -ne 0 ]; then
+    echo "ERRO: decomposePar falhou. Verifique system/decomposeParDict e a malha."
+    exit 94
+  fi
+else
+  echo "Decomposicao ja existe, retomando da ultima iteracao."
+fi"""
+        else:
+            decompose_block = "# Execucao serial: decomposePar nao e usado."
+
         conteudo = f"""#!/bin/bash
+# Gerado pelo NEMOS - solver ('{script_name}')
+set -o pipefail
 
-    # Este é o conteúdo do arquivo '{script_name}'
+echo "Iniciando script dentro do WSL..."
 
-    echo "Iniciando script dentro do WSL..."
+if [ ! -f "{OPENFOAM_BASHRC}" ]; then
+  echo "ERRO: ambiente do OpenFOAM nao encontrado em {OPENFOAM_BASHRC}"
+  exit 90
+fi
+source "{OPENFOAM_BASHRC}" >/dev/null 2>&1
 
-    # Carrega as variáveis de ambiente do OpenFOAM
-    # Usar 'source' ou '.' é a forma padrão aqui dentro do script
-    source /usr/lib/openfoam/openfoam2312/etc/bashrc
-    #source "\\\\wsl.localhost\\Ubuntu-24.04\\usr\\lib\\openfoam\\openfoam2312\\etc\\bashrc"
+if ! command -v buoyantSimpleFoam >/dev/null 2>&1; then
+  echo "ERRO: buoyantSimpleFoam nao esta no PATH depois de carregar o ambiente do OpenFOAM."
+  exit 93
+fi
 
-    # Navega para o diretório de um caso de exemplo
-    # (Adapte este caminho para o seu caso real)
-    CASO_DIR={caso_dir}
+CASO_DIR="{caso_dir}"
+if ! cd "$CASO_DIR"; then
+  echo "ERRO: pasta do caso nao encontrada dentro do WSL: $CASO_DIR"
+  exit 91
+fi
 
-    cd $CASO_DIR
+echo "Diretorio de trabalho atual: $(pwd)"
 
-    echo "Diretório de trabalho atual: $(pwd)"
+{decompose_block}
 
-    # Executa comandos do OpenFOAM
-    {"" if not self.parallel_flag else "if [ ! -d processor0 ]; then\n      echo \"Decompondo os arquivos:\"\n      decomposePar\n    else\n      echo \"Decomposicao ja existe, retomando da ultima iteracao.\"\n    fi\n"}
-
-    echo "Rodando a simulação:"
-    {"stdbuf -oL -eL buoyantSimpleFoam" if not self.parallel_flag else "stdbuf -oL -eL mpirun -np 4 buoyantSimpleFoam -parallel"}
-
-    """
+echo "Rodando a simulacao:"
+{solver_cmd}{redirect}
+status=$?
+if [ "$status" -ne 0 ]; then
+  echo "ERRO: o solver terminou com codigo $status."
+fi
+exit "$status"
+"""
 
         with open(caminho_script_windows, "w", newline='\n') as arquivo:
             arquivo.write(conteudo)
@@ -1381,6 +1477,13 @@ class OpenFOAMRunner:
 
         self.residual_log_path = self.case.case_path / "log.simulation"
         plotter = ResidualPlotter()
+        # Gate C: o mesmo laco que alimenta o grafico alimenta o monitor.
+        self.monitor = _validation.LogMonitor()
+        abort_on_fatal = self.validate in (
+            _validation.POLICY_STRICT,
+            _validation.POLICY_PREFLIGHT_ONLY,
+        )
+        aborted = False
 
         with open(self.residual_log_path, "w", encoding="utf-8") as log_file:
             for line in self.simulation_process.stdout:
@@ -1388,14 +1491,42 @@ class OpenFOAMRunner:
                 log_file.write(line)
                 plotter.feed_line(line)
 
+                # Observacao: como este laco bloqueia esperando a proxima linha,
+                # uma parada total so e percebida quando algo volta a ser escrito.
+                # check_stall() detecta o intervalo retroativamente.
+                for issue in self.monitor.feed_line(line):
+                    print(issue.render())
+                for issue in self.monitor.check_stall():
+                    print(issue.render())
+
+                # Mata o solver so quando isso realmente economiza tempo, ou
+                # seja, em divergencia. Num FOAM FATAL ERROR o processo ja esta
+                # morrendo, e cortar aqui perderia justamente as linhas seguintes
+                # em que o OpenFOAM diz qual arquivo ou chave faltou.
+                if self.monitor.should_abort and abort_on_fatal:
+                    print(
+                        "\nNEMOS: stopping the solver - the solution has diverged and "
+                        "will not recover, so continuing would only burn machine time.\n"
+                        'Pass validate="warn" to let the solver run on regardless.'
+                    )
+                    self.kill_simulation()
+                    aborted = True
+                    break
+
         self.simulation_process.wait()
         returncode = self.simulation_process.returncode
         print(f"Processo de simulação finalizado com código de retorno: {returncode}")
 
+        self.monitor.finish(returncode=returncode)
+        try:
+            self.monitor.write_csv(self.case.case_path / "monitor.csv")
+        except OSError:
+            pass
+
         self.residual_plot_path = plotter.finish(self.case.case_path / "residuals.png")
         self.residual_history = dict(plotter.history)
 
-        return returncode == 0
+        return returncode == 0 and not aborted
 
     def wait_mesh(self, timeout: int = None) -> bool:
         """
@@ -1528,6 +1659,10 @@ class Simulation:
         # Real-time convergence monitoring.
         "monitoring": {
             "plot_residuals": True,
+            # Se True, um caso que atingiu endTime sem convergir ainda recebe
+            # o marcador .nemos_done. O padrao e False: um resultado nao
+            # convergido nao deve se passar por concluido.
+            "accept_unconverged": False,
         },
     }
 
@@ -1545,7 +1680,23 @@ class Simulation:
         "emissivity",
     }
 
-    def __init__(self, user_script_path: str = None, case_path: str = None, **kwargs):
+    def __init__(self, user_script_path: str = None, case_path: str = None,
+                 validate: str = None, **kwargs):
+        # Politica de validacao: "strict" (padrao, aborta em ERROR), "warn"
+        # (so avisa), "off" (desliga) ou "preflight-only" (so o Gate A).
+        # Resolvida a partir do kwarg, senao da variavel NEMOS_VALIDATE.
+        self.validate = _validation.resolve_policy(validate)
+        # Guardados crus para o E-CFG-01: depois de _apply_simulation_kwargs
+        # as chaves desconhecidas ja teriam sido descartadas em silencio.
+        self._raw_kwargs = dict(kwargs)
+        # Eventos de geometria em ordem de chamada, para o Gate A.
+        self._events = []
+        self._event_counter = 0
+        # True quando reconstruido por load_state: nao existe script novo para
+        # comparar, entao a deteccao de caso desatualizado nao se aplica.
+        self._loaded_from_state = False
+        self._state_fingerprints = None
+
         self.user_script_path = Path(user_script_path) if user_script_path else None
         self.case_path = Path(case_path) if case_path else None
         self.simulation_config = copy.deepcopy(self.DEFAULT_SIMULATION_CONFIG)
@@ -1568,11 +1719,28 @@ class Simulation:
         self._salome_env_recorded = False
         self._quality_helper_recorded = False
 
+        # --- Gate A0: erros de digitacao nos kwargs, na hora ---
+        # Roda antes de qualquer geometria para que a mensagem aponte para a
+        # chamada do construtor, e nao para um estagio tres passos adiante.
+        self._guard_kwargs()
+
         if kwargs:
             self.simulation_config = self._apply_simulation_kwargs(kwargs)
             self._loaded = True
 
         _set_active_simulation(self)
+
+    def _guard_kwargs(self):
+        """Gate A0 - kwargs desconhecidos (E-CFG-01).
+
+        _apply_simulation_kwargs ignora silenciosamente qualquer chave que nao
+        reconhece, entao 'endtime=20' rodaria o caso com endTime=3500.
+        """
+        if self.validate == _validation.POLICY_OFF or not self._raw_kwargs:
+            return
+        report = _validation.ValidationReport("NEMOS configuration check")
+        report.extend(_validation.check_kwargs(self._raw_kwargs))
+        report.enforce(self.validate)
 
     @staticmethod
     def Import_mesh(mesh_path: str):
@@ -1589,7 +1757,26 @@ class Simulation:
         if mesh_file.name != "Mesh_1.unv":
             raise ValueError("O arquivo de malha deve se chamar 'Mesh_1.unv'")
         if not mesh_file.exists():
-            raise FileNotFoundError(f"Arquivo de malha nao encontrado: {mesh_file}")
+            # Numa varredura com malha compartilhada, SIM_1..N importam a malha
+            # que o SIM_0 ainda vai construir. No preflight nada e executado,
+            # entao a ausencia do arquivo e esperada: falhar aqui impediria o
+            # Gate A de validar justamente os SIM que mais precisam ser
+            # checados antes de horas de fila (E-SWP-05).
+            policy = _validation.resolve_policy(getattr(sim, "validate", None))
+            if policy == _validation.POLICY_PREFLIGHT_ONLY:
+                print(
+                    f"[preflight-only] Shared mesh not built yet ({mesh_file}); "
+                    "continuing so this configuration can still be validated."
+                )
+                sim.mesh_import_path = mesh_file
+                return mesh_file
+            raise FileNotFoundError(
+                f"Arquivo de malha nao encontrado: {mesh_file}\n"
+                "Numa varredura com malha compartilhada apenas o SIM_0 constroi a "
+                "malha e os demais a importam, entao o SIM_0 precisa ter terminado "
+                "primeiro. Rode o lote pelo Manager (nemos.main) em vez de executar "
+                "um script_i.py isolado."
+            )
 
         sim.mesh_import_path = mesh_file
         return mesh_file
@@ -1647,6 +1834,7 @@ class Simulation:
             "writeInterval": (control, "writeInterval"),
             "parallel": (decompose, "parallel"),
             "plot_residuals": (monitoring, "plot_residuals"),
+            "accept_unconverged": (monitoring, "accept_unconverged"),
         }
 
         field_aliases = {
@@ -1728,7 +1916,9 @@ class Simulation:
         fields.setdefault("k", {})
         fields.setdefault("epsilon", {})
 
-        cfg.setdefault("monitoring", {}).setdefault("plot_residuals", True)
+        monitoring = cfg.setdefault("monitoring", {})
+        monitoring.setdefault("plot_residuals", True)
+        monitoring.setdefault("accept_unconverged", False)
 
         return cfg
 
@@ -1918,6 +2108,23 @@ class Simulation:
         args_str = self._format_args_kwargs(args, kwargs)
         self._record_line(f"{var_name} = nemos.{class_name}({args_str})")
         self._object_var_names[obj] = var_name
+
+        # Nome estavel para o Gate A resolver referencias em a.add([b, c, ...]).
+        # Precisa ser um atributo real: _RecordedObject.__getattr__ transforma
+        # qualquer atributo ausente num gravador de metodo.
+        obj._nemos_name = object_key or var_name
+
+        self._event_counter += 1
+        self._events.append(
+            ObjectRecord(
+                name=object_key or var_name,
+                class_name=class_name,
+                kwargs=dict(kwargs),
+                inline=dict(self.object_simulation.get(object_key, {})),
+                order=self._event_counter,
+                args=tuple(args),
+            )
+        )
         return var_name
 
     def _record_method(self, obj, method_name: str, args, kwargs):
@@ -1926,6 +2133,21 @@ class Simulation:
         var_name = self._object_var_names.get(obj)
         if not var_name:
             return
+
+        # Registrado antes dos desvios abaixo (check_quality retorna cedo), para
+        # que a ordem das chamadas chegue completa ao Gate A (E-GEO-07).
+        self._event_counter += 1
+        self._events.append(
+            MethodRecord(
+                target=getattr(obj, "_nemos_name", var_name),
+                class_name=obj._class_name,
+                method=method_name,
+                args=tuple(args),
+                kwargs=dict(kwargs),
+                order=self._event_counter,
+            )
+        )
+
         if obj._class_name == "Mesh" and method_name == "check_quality":
             self._record_check_quality(var_name, args, kwargs)
             return
@@ -2236,6 +2458,42 @@ class Simulation:
         output_file.write_text(script, encoding="utf-8")
         return output_file
 
+    def geometry_model(self) -> GeometryModel:
+        """Geometria registrada, em ordem de chamada, para o Gate A.
+
+        Vazio no modo de leitura (user_script_path), em que nao ha gravacao;
+        nesse caso as checagens de geometria sao puladas.
+        """
+        model = GeometryModel()
+        for event in self._events:
+            if isinstance(event, ObjectRecord):
+                model.objects.append(event)
+            elif isinstance(event, MethodRecord):
+                model.methods.append(event)
+        return model
+
+    def fingerprints(self, machine_script: str = None) -> dict:
+        """Hashes que identificam de que script este caso foi construido.
+
+        Usados pelo Gate A para detectar uma pasta de caso que nao corresponde
+        mais ao script (ver docs/guardrail_architecture.md secao 2.6).
+        """
+        if self._loaded_from_state and self._state_fingerprints:
+            # Preserva os hashes gravados: recalcular apagaria o geometry_hash
+            # original com o de um machine script vazio.
+            return dict(self._state_fingerprints)
+        if machine_script is None:
+            machine_script = self.generate_machine_script()
+        cfg = self.simulation_config or {}
+        return _validation.compute_fingerprints(
+            machine_script,
+            self.object_simulation,
+            self.object_types,
+            cfg.get("fields", {}),
+            cfg.get("controlDict", {}),
+            cfg.get("decomposeParDict", {}),
+        )
+
     def save_state(self, path: str = None):
         """Persiste a configuracao/metadados do caso para permitir retomar
         a simulacao apenas apontando para a pasta do caso (ver `resume`)."""
@@ -2249,6 +2507,7 @@ class Simulation:
             "object_simulation": self.object_simulation,
             "object_types": self.object_types,
             "object_classes": self.object_classes,
+            "fingerprints": self.fingerprints(),
         }
         os.makedirs(self.case_path, exist_ok=True)
         state_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
@@ -2272,6 +2531,12 @@ class Simulation:
         sim.object_types = data.get("object_types", {})
         sim.object_classes = data.get("object_classes", {})
         sim._loaded = True
+        # O machine script nao e reconstruivel a partir do estado (isso exigiria
+        # as chamadas de geometria originais), entao o geometry_hash recalculado
+        # nao teria sentido. Os hashes gravados sao mantidos como estao e a
+        # checagem de caso desatualizado e dispensada nesta execucao.
+        sim._loaded_from_state = True
+        sim._state_fingerprints = data.get("fingerprints")
         return sim
 
 
@@ -2349,6 +2614,59 @@ def salome_update():
     sim._record_line("nemos.salome_update()")
 
 
+def _load_state_file(case_path):
+    """Estado salvo pela execucao anterior nesta pasta, ou None."""
+    state_path = Path(case_path) / STATE_FILE
+    if not state_path.exists():
+        return None
+    try:
+        return json.loads(state_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
+def guard_preflight(simulation, case, salome_exe=None, machine_script=None):
+    """Gate A - guarda de saida antecipada antes de qualquer estagio caro.
+
+    Valida ambiente, configuracao, geometria, parametros de malha e coerencia
+    fisica, e detecta uma pasta de caso que nao corresponde mais ao script.
+    Levanta NemosValidationError se houver ERROR e a politica for "strict",
+    de modo que um erro custa um segundo em vez de uma malha de 40 min.
+    """
+    policy = getattr(simulation, "validate", _validation.POLICY_STRICT)
+    if policy == _validation.POLICY_OFF:
+        return None
+
+    previous_state = _load_state_file(case.case_path)
+    if getattr(simulation, "_loaded_from_state", False):
+        # Retomada por pasta: o "script atual" E o estado gravado, entao nao ha
+        # nada para comparar e a checagem seria um falso positivo garantido.
+        stale = []
+    else:
+        stale = _validation.check_stale(
+            case.case_path,
+            simulation.fingerprints(machine_script),
+            (previous_state or {}).get("fingerprints"),
+            previous_state=previous_state,
+            current_state={
+                "object_simulation": simulation.object_simulation,
+                "object_types": simulation.object_types,
+                "object_classes": simulation.object_classes,
+            },
+        )
+
+    return _validation.preflight(
+        simulation_config=simulation.simulation_config,
+        geometry=simulation.geometry_model(),
+        case_path=case.case_path,
+        salome_exe=salome_exe,
+        policy=policy,
+        extra=stale,
+        # Um SIM que importa a malha compartilhada nao tem objeto Mesh proprio.
+        mesh_imported=bool(getattr(simulation, "mesh_import_path", None)),
+    )
+
+
 def setup_workflow(simulation, salome_exe: str = DEFAULT_SALOME_EXE, script_path: str = None):
     if simulation is None:
         raise ValueError("Simulation nao pode ser None")
@@ -2356,7 +2674,14 @@ def setup_workflow(simulation, salome_exe: str = DEFAULT_SALOME_EXE, script_path
         raise ValueError("Simulation precisa de case_path")
 
     case = OpenFOAMCase(str(simulation.case_path))
+    os.makedirs(case.case_path, exist_ok=True)
     simulation.read_user_script()
+
+    # O Gate A compara o script atual com o da execucao anterior, entao roda
+    # ANTES de machine_script.py ser sobrescrito.
+    machine_script = simulation.generate_machine_script()
+    guard_preflight(simulation, case, salome_exe=salome_exe, machine_script=machine_script)
+
     simulation.write_machine_script(str(case.case_path / "machine_script.py"))
     case.gerar_arquivos_base(simulation.simulation_config)
 
@@ -2376,7 +2701,12 @@ def run(simulation, salome_exe: str = DEFAULT_SALOME_EXE, script_path: str = Non
     O fluxo e idempotente: cada estagio so roda se seu artefato ainda nao
     existe na pasta do caso, de modo que rodar de novo apos uma interrupcao
     retoma de onde parou (ver detectores em OpenFOAMCase e a funcao `resume`).
+
+    A validacao roda em quatro portoes: Gate A antes do SALOME, Gate B depois
+    da conversao da malha, Gate B2 depois dos campos e Gate D no fim
+    (ver docs/guardrail_architecture.md).
     """
+    started_at = time.time()
     case, mesher, boundary_manager, runner = setup_workflow(
         simulation,
         salome_exe=salome_exe,
@@ -2387,6 +2717,13 @@ def run(simulation, salome_exe: str = DEFAULT_SALOME_EXE, script_path: str = Non
     if simulation is not None:
         simulation.save_state()
 
+    policy = getattr(simulation, "validate", _validation.POLICY_STRICT)
+    if policy == _validation.POLICY_PREFLIGHT_ONLY:
+        # Usado pelo Manager para validar todas as N configuracoes de uma
+        # varredura antes de rodar qualquer uma delas.
+        print("[preflight-only] Configuration validated. No stage was executed.")
+        return case
+
     # --- Estagio: geracao/importacao da malha (SALOME) ---
     if case.mesh_geometry_ready():
         print("[resume] Malha (Mesh_1.unv) ja existe, pulando SALOME.")
@@ -2394,6 +2731,15 @@ def run(simulation, salome_exe: str = DEFAULT_SALOME_EXE, script_path: str = Non
         simulation._ensure_imported_mesh()
     else:
         mesher.executar_batch()
+        # executar_batch apenas imprime quando falha, entao o resultado e
+        # conferido aqui: sem isso o erro so apareceria dois estagios adiante.
+        if not case.mesh_geometry_ready():
+            raise RuntimeError(
+                f"O SALOME terminou mas '{case.case_path / 'Mesh_1.unv'}' nao foi gerado.\n"
+                "Veja a saida do SALOME acima. As causas comuns sao um erro dentro do "
+                "machine_script.py (geometria invalida) ou uma malha que o NETGEN nao "
+                "conseguiu computar com os parametros de refino escolhidos."
+            )
 
     # --- Estagio: conversao da malha (ideasUnvToFoam + checkMesh) ---
     if case.mesh_converted():
@@ -2401,9 +2747,20 @@ def run(simulation, salome_exe: str = DEFAULT_SALOME_EXE, script_path: str = Non
     else:
         mesh_ok = runner.preparar_malha(wait=True)
         if not mesh_ok:
-            raise RuntimeError("A preparacao da malha falhou. Verifique a saida do comandos_1.sh.")
+            raise RuntimeError(
+                "A preparacao da malha falhou. Veja "
+                f"'{case.case_path / 'log.ideasUnvToFoam'}' e a saida do comandos_1.sh."
+            )
     if not case.boundary_file.exists():
         raise FileNotFoundError(f"Arquivo boundary nao encontrado em '{case.boundary_file}'")
+
+    # --- Gate B: malha valida, caixa delimitadora e inventario de patches ---
+    _validation.check_mesh_stage(
+        case.case_path,
+        simulation.geometry_model() if simulation is not None else None,
+        object_types=getattr(simulation, "object_types", {}) or {},
+        policy=policy,
+    )
 
     # --- Estagio: condicoes de contorno e campos da pasta 0/ ---
     if case.fields_ready():
@@ -2412,16 +2769,73 @@ def run(simulation, salome_exe: str = DEFAULT_SALOME_EXE, script_path: str = Non
         boundary_manager.editar_boundary()
         boundary_manager.generate_all_fields()
 
+    # --- Gate B2: todo patch coberto em todo campo ---
+    _validation.check_fields_stage(
+        case.case_path,
+        object_simulation=getattr(simulation, "object_simulation", {}) or {},
+        policy=policy,
+    )
+
     # --- Estagio: solver (decomposePar guardado no bash; solver retoma
     # da ultima iteracao via 'startFrom latestTime' no controlDict) ---
-    solver_ok = runner.rodar_simulacao()
+    # wait=True: sem isso run() retornava com o solver ainda rodando solto e
+    # nunca escrevia o marcador de conclusao.
+    solver_ok = runner.rodar_simulacao(wait=True)
 
     case.residual_log_path = runner.residual_log_path
     case.residual_plot_path = runner.residual_plot_path
     case.residual_history = runner.residual_history
 
-    if solver_ok:
-        case.done_marker().write_text("ok\n", encoding="utf-8")
+    # --- Gate C (continuacao): com plot_residuals=False ninguem acompanhou o
+    # log ao vivo, entao ele e lido do arquivo agora. ---
+    monitor = runner.monitor
+    if monitor is None:
+        monitor = _validation.LogMonitor()
+        log_path = case.case_path / "log.simulation"
+        try:
+            log_text = log_path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            log_text = ""
+        for line in log_text.splitlines(True):
+            monitor.feed_line(line)
+        monitor.finish(returncode=0 if solver_ok else 1)
+        try:
+            monitor.write_csv(case.case_path / "monitor.csv")
+        except OSError:
+            pass
+
+    # --- Gate D: veredito honesto + artefatos ---
+    report = _validation.postflight(
+        case.case_path,
+        monitor=monitor,
+        returncode=0 if solver_ok else 1,
+        parallel=runner.parallel_flag,
+        wall_clock_s=time.time() - started_at,
+        policy=policy,
+    )
+
+    monitoring_cfg = (getattr(simulation, "simulation_config", {}) or {}).get("monitoring", {}) or {}
+    accept_unconverged = bool(monitoring_cfg.get("accept_unconverged", False))
+    verdict = monitor.verdict
+
+    case.verdict = verdict
+    case.validation_report = report
+
+    # .nemos_done significava apenas "o processo saiu com codigo 0". Agora so e
+    # escrito quando o resultado realmente esta pronto - o Manager.resume pula
+    # qualquer SIM que tenha esse marcador.
+    finished = solver_ok and (
+        verdict == "CONVERGED" or (verdict == "MAX_ITERATIONS" and accept_unconverged)
+    )
+    if finished:
+        case.done_marker().write_text(f"{verdict}\n", encoding="utf-8")
+    else:
+        print(
+            f"\nNEMOS: this case was NOT marked as finished (verdict: {verdict}).\n"
+            f"Details are in '{case.case_path / '.nemos_status.json'}'.\n"
+            "Re-running continues from the last written iteration. To accept an "
+            "unconverged result as final, pass accept_unconverged=True."
+        )
 
     return case
 
