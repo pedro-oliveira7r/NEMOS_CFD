@@ -54,7 +54,11 @@ The pipeline is now **idempotent/resumable**: re-running skips already-completed
    if `processor0/` already exists) then `mpirun -np 4 buoyantSimpleFoam -parallel` (or serial).
    `controlDict` uses `startFrom latestTime`, so the solver natively continues from the last
    written time directory. Live residuals are parsed/plotted.
-6. On solver success, a `.nemos_done` marker is written in the case folder.
+6. On a **converged** solver run, a `.nemos_done` marker is written in the case folder.
+   Every run also writes `.nemos_status.json` with the verdict — see §8.
+
+Validation gates are interleaved between these stages (§8): Gate A before stage 1,
+Gate B after stage 3, Gate B2 after stage 4, Gate C during stage 5, Gate D after it.
 
 ---
 
@@ -218,3 +222,68 @@ For a sweep, the root also holds `SIM_0..N/` (each like above), `scripts/script_
 - `startFrom latestTime` in `controlDict` is what lets the solver resume natively — the resume
   feature relies on it plus the guarded `decomposePar`.
 - Some `.pyc` files are tracked in this repo's `src/__pycache__/`.
+
+---
+
+## 8. Validation & guardrail layer
+
+Design doc: [docs/guardrail_architecture.md](docs/guardrail_architecture.md). Four host-side
+modules, none of which may import SALOME, WSL, matplotlib or pandas — so every check is
+runnable and testable on a bare machine:
+
+| File | Role |
+|---|---|
+| `src/validation_core.py` | `Issue`, `ValidationReport`, policy resolution, `EnvProbe`, `GeometryModel`, `Extent`, and the constants mirroring the generated OpenFOAM dicts |
+| `src/validation_checks.py` | Gate A checks: environment, config, geometry, mesh params, physics advisories |
+| `src/validation_parsers.py` | Gate B/C/D: `checkMesh` / `boundary` / field-file parsers, and `LogMonitor` |
+| `src/Validation.py` | Public facade — the gate functions the pipeline calls |
+
+### 8.1 Gates
+
+| Gate | Where | Checks |
+|---|---|---|
+| **A0** | `Simulation.__init__` → `_guard_kwargs` | `E-CFG-01` unknown kwargs, raised at the constructor call |
+| **A** | `setup_workflow` → `guard_preflight` | environment, config, geometry, mesh params, physics, stale case |
+| **B** | `run()` after mesh conversion | `checkMesh` parse, bounding-box continuity, patch inventory |
+| **B2** | `run()` after `generate_all_fields` | every patch covered in every field file |
+| **C** | `_rodar_simulacao_com_plot` | `LogMonitor` fed beside `ResidualPlotter`; writes `monitor.csv` |
+| **D** | `run()` after the solver | verdict, `.nemos_status.json`, artifact completeness |
+
+### 8.2 Policy
+
+`validate="strict"` (default) aborts on any `ERROR`; `"warn"` only reports; `"off"` skips;
+`"preflight-only"` runs Gate A and stops. Resolution order is kwarg → `NEMOS_VALIDATE` env
+var → `"strict"`. `Manager.main()` uses `preflight-only` in a child process to validate all
+N sweep configurations *before* running any of them.
+
+### 8.3 Behaviour changes this introduced
+
+- **`.nemos_done` now means "converged"**, not "exit code 0". Every run also writes
+  `.nemos_status.json` with a verdict of `CONVERGED` / `MAX_ITERATIONS` / `DIVERGED` /
+  `CRASHED` / `INCOMPLETE`. Pass `accept_unconverged=True` to mark a `MAX_ITERATIONS` run as
+  done. This matters because `Manager.resume()` skips any SIM that has the marker.
+- **`fields_ready()` now requires all eight fields**, not just `0/T` and `0/U`.
+- **`comandos_1.sh` / `comandos_2.sh` check every command's exit code** (`set -o pipefail`
+  plus explicit `$?` tests) and tee `log.ideasUnvToFoam` / `log.checkMesh` to disk for Gate B.
+- **The solver log is redirected to `log.simulation` inside bash when `plot_residuals=False`.**
+  Previously that path used a `PIPE` nobody drained, so the solver deadlocked at ~64 KB of
+  output. `run()` also now calls `rodar_simulacao(wait=True)`.
+- **Re-running an edited script into an existing case folder aborts** (`E-STATE-01` /
+  `E-STATE-02`) instead of silently reusing the stale mesh or stale `0/` fields. Nothing is
+  deleted automatically; the message lists the artifacts to remove.
+- Geometry calls are recorded into `Simulation._events` and exposed as
+  `Simulation.geometry_model()`; `save_state()` also stores fingerprint hashes.
+
+### 8.4 Not yet implemented
+
+Sections 5.2 and 5.3 of the design doc — global mass/energy conservation balances, field
+boundedness and y+ — plus the `functions {}` block in `controlDict` they depend on. Adding an
+unverified function-object entry to `controlDict` makes OpenFOAM fail at startup, so that
+block needs one confirmed run before it becomes the default. Section 9 of the design doc lists
+the log patterns still to be calibrated against real output.
+
+`nemos.doctor()` runs the environment checks alone:
+
+```
+python -c "import sys; sys.path.insert(0,'src'); import Validation; Validation.doctor()"
+```

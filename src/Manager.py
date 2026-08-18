@@ -1,9 +1,18 @@
 import ast
 import inspect
+import os
 import re
 import subprocess
 import sys
 from pathlib import Path
+
+# Ver a nota em Simulation.py: garante que os modulos irmaos sejam importaveis
+# tambem quando este arquivo e carregado como 'src.Manager'.
+_SRC_DIR = str(Path(__file__).resolve().parent)
+if _SRC_DIR not in sys.path:
+    sys.path.insert(0, _SRC_DIR)
+
+import Validation as _validation
 
 _ACTIVE_SIMULATION = None
 
@@ -22,6 +31,7 @@ class Simulation:
         self._sweep_lists = {}
         self._sweep_list_ids = {}
         self._sweep_length = 0
+        self.validate = _validation.resolve_policy(kwargs.get("validate"))
         _set_active_simulation(self)
 
     def _load_list_names(self):
@@ -54,22 +64,37 @@ class Simulation:
                 sweep_ids[id(value)] = name
 
         if not sweep_lists:
-            raise ValueError("Nenhuma lista de parametros foi encontrada no manager_script.")
+            raise ValueError(
+                "[E-SWP-03] No sweep parameter lists were found in the manager script.\n"
+                "  A sweep needs at least one list assigned at the top level of the "
+                "script, for example:\n"
+                "      T_Flow = [291, 293, 295]\n"
+                "  Also check that you passed script_path=__file__ to "
+                "nemos.Simulation(...). Without it the Manager cannot read its own "
+                "script to discover which lists are sweep parameters, and it sees no "
+                "sweep at all."
+            )
 
         lengths_by_name = {name: len(values) for name, values in sweep_lists.items()}
         lengths = set(lengths_by_name.values())
         if len(lengths) != 1:
-            details = ", ".join(
-                f"{name}={length}" for name, length in sorted(lengths_by_name.items())
+            details = "\n".join(
+                f"      {name}: {length} values"
+                for name, length in sorted(lengths_by_name.items())
             )
             raise ValueError(
-                "Todas as listas devem ter o mesmo tamanho. "
-                f"Tamanhos encontrados: {details}."
+                "[E-SWP-01] All sweep lists must have the same length.\n"
+                "  Sweep index i becomes SIM_i and takes the i-th value of every "
+                "list, so lists of different lengths do not define a case.\n"
+                f"  Lengths found:\n{details}"
             )
 
         length = lengths.pop()
         if length == 0:
-            raise ValueError("As listas de parametros nao podem estar vazias.")
+            raise ValueError(
+                "[E-SWP-01] The sweep parameter lists are empty.\n"
+                "  A sweep with zero values would generate no simulations at all."
+            )
 
         self._sweep_lists = sweep_lists
         self._sweep_list_ids = sweep_ids
@@ -253,6 +278,120 @@ class Simulation:
 
         return "\n".join(lines).rstrip() + "\n"
 
+    def _unrecognized_lists(self):
+        """Listas passadas por kwarg que NAO foram vistas como varredura.
+
+        _load_list_names so enxerga atribuicoes de lista no nivel principal do
+        script. Uma lista criada por compreensao, dentro de uma funcao ou
+        importada de outro modulo passa despercebida e acaba embutida
+        literalmente em TODOS os SIM, deixando a varredura inteira identica.
+        """
+        found = []
+        for action in self._actions:
+            kind = action[0]
+            if kind == "init":
+                _, var_name, class_name, _args, kwargs = action
+                label = f"{class_name}(name={kwargs.get('name', var_name)!r})"
+            else:
+                _, var_name, method_name, _args, kwargs = action
+                label = f"{var_name}.{method_name}()"
+            for key, value in kwargs.items():
+                if not isinstance(value, (list, tuple)):
+                    continue
+                if id(value) in self._sweep_list_ids:
+                    continue
+                # Listas de objetos (ex.: a.add([b, c])) nao sao parametros.
+                if any(isinstance(item, _RecordedObject) for item in value):
+                    continue
+                found.append((label, key, list(value)))
+        return found
+
+    def _guard_sweep(self):
+        """Guarda de saida antecipada para a estrutura da varredura.
+
+        Emite E-SWP-02, E-SWP-04, W-SWP-06 e I-SWP-08 antes de qualquer script
+        ser gerado ou executado.
+        """
+        if self.validate == _validation.POLICY_OFF:
+            return None
+
+        report = _validation.ValidationReport("NEMOS sweep check")
+
+        for label, key, values in self._unrecognized_lists():
+            preview = ", ".join(repr(v) for v in values[:4])
+            if len(values) > 4:
+                preview += ", ..."
+            report.add(
+                _validation.error(
+                    "E-SWP-02",
+                    f"{label}: the argument {key}=[{preview}] was not recognised as a "
+                    "sweep list",
+                    "The Manager only finds lists assigned to a plain variable at the "
+                    "top level of the manager script. A list built by comprehension, "
+                    "defined inside a function or imported from elsewhere is copied "
+                    "whole into every generated script, so all N cases of the sweep "
+                    "come out identical - with no warning at run time.",
+                    "Assign it to a top-level variable and pass the variable:\n"
+                    f"    {key}_list = [{preview}]\n"
+                    f"    ... {key}={key}_list ...",
+                    where=label,
+                )
+            )
+
+        stale = []
+        for entry in sorted(self.case_path.glob("SIM_*")):
+            match = re.match(r"SIM_(\d+)$", entry.name)
+            if match and int(match.group(1)) >= self._sweep_length:
+                stale.append(entry)
+        if stale:
+            report.add(
+                _validation.error(
+                    "E-SWP-04",
+                    f"The case folder already holds {len(stale)} SIM_* directories "
+                    "from a larger sweep",
+                    "Left over: "
+                    + ", ".join(p.name for p in stale)
+                    + f".\nThis sweep has {self._sweep_length} cases (SIM_0 to "
+                    f"SIM_{self._sweep_length - 1}), so those directories belong to an "
+                    "earlier, longer sweep. resume() walks the scripts folder and "
+                    "would try to re-run them against scripts that no longer exist, "
+                    "and their results would be mistaken for part of this sweep.",
+                    "Delete the directories listed above, or point case_path at a new "
+                    "folder so the two sweeps are not mixed together.",
+                    where=str(self.case_path),
+                )
+            )
+
+        if not self._mesh_uses_sweep():
+            report.add(
+                _validation.warn(
+                    "W-SWP-06",
+                    "Shared mesh: only SIM_0 builds the mesh",
+                    "No mesh parameter varies in this sweep, so SIM_0 generates "
+                    "Mesh_1.unv and every other SIM imports that same mesh. If SIM_0 "
+                    "fails to mesh, none of the other cases can run either.",
+                    "Not a problem in itself - just check SIM_0 first if the sweep "
+                    "stops early.",
+                )
+            )
+
+        matrix = ["Sweep matrix:"]
+        for name in sorted(self._sweep_lists):
+            values = ", ".join(str(v) for v in self._sweep_lists[name])
+            matrix.append(f"  {name}: [{values}]")
+        report.add(
+            _validation.info(
+                "I-SWP-08",
+                f"{self._sweep_length} simulations will be generated "
+                f"(SIM_0 to SIM_{self._sweep_length - 1})",
+                "\n".join(matrix),
+                "Check that each column is the case you meant to run: index i of every "
+                "list is used together in SIM_i.",
+            )
+        )
+
+        return report.enforce(self.validate)
+
     def build_machine_script(self):
         if self.case_path is None:
             raise ValueError("Simulation precisa de case_path")
@@ -260,6 +399,7 @@ class Simulation:
         caller_frame = inspect.currentframe().f_back
         caller_globals = caller_frame.f_globals if caller_frame else {}
         self._collect_sweep_lists(caller_globals)
+        self._guard_sweep()
 
         scripts_dir = self.case_path / "scripts"
         scripts_dir.mkdir(parents=True, exist_ok=True)
@@ -276,7 +416,7 @@ class Simulation:
         return script_paths
     
 
-def run_script(script_path: Path, cwd: Path) -> int:
+def run_script(script_path: Path, cwd: Path, env: dict = None, log_suffix: str = "") -> int:
     command = [sys.executable, str(script_path)]
     print(f"\n=== Running {script_path.name} ===")
 
@@ -285,11 +425,12 @@ def run_script(script_path: Path, cwd: Path) -> int:
         cwd=str(cwd),
         capture_output=True,
         text=True,
+        env=env,
     )
 
     log_dir = cwd / "logs"
     log_dir.mkdir(exist_ok=True)
-    log_file = log_dir / f"{script_path.stem}.log"
+    log_file = log_dir / f"{script_path.stem}{log_suffix}.log"
     log_file.write_text(
         "".join(
             [
@@ -312,7 +453,59 @@ def run_script(script_path: Path, cwd: Path) -> int:
     return result.returncode
 
 
-def main(scripts=None) -> int:
+def _cwd_for(script_path: Path, repo_root: Path) -> Path:
+    if script_path.parent.name == "scripts":
+        return script_path.parent.parent
+    return repo_root
+
+
+def preflight_all(script_paths, repo_root: Path) -> int:
+    """E-SWP-05 - valida as N configuracoes antes de rodar qualquer uma.
+
+    Cada script gerado roda com NEMOS_VALIDATE=preflight-only, o que faz o
+    Simulation.run parar logo depois do Gate A. Um T_Flow invalido em SIM_4
+    aparece em segundos, em vez de depois de SIM_0..3 terem rodado por horas.
+    """
+    env = dict(os.environ)
+    env["NEMOS_VALIDATE"] = "preflight-only"
+
+    print(f"\n=== Sweep preflight ({len(script_paths)} cases) ===")
+    failures = []
+    for script_path in script_paths:
+        result = subprocess.run(
+            [sys.executable, str(script_path)],
+            cwd=str(_cwd_for(script_path, repo_root)),
+            capture_output=True,
+            text=True,
+            env=env,
+        )
+        name = script_path.stem.replace("script_", "SIM_")
+        if result.returncode == 0:
+            print(f"  {name:<10} OK")
+        else:
+            print(f"  {name:<10} ERROR")
+            failures.append((name, script_path, result))
+
+    if not failures:
+        print("All configurations passed preflight.\n")
+        return 0
+
+    for name, script_path, result in failures:
+        print(f"\n----- {name} ({script_path.name}) -----")
+        print((result.stdout or "").strip() or "(no output)")
+        stderr = (result.stderr or "").strip()
+        if stderr:
+            print(stderr.splitlines()[-1])
+
+    print(
+        f"\nAborting before any case runs: {len(failures)} of {len(script_paths)} "
+        "configurations are invalid.\n"
+        "Fix the manager script and regenerate the sweep."
+    )
+    return 3
+
+
+def main(scripts=None, preflight: bool = True) -> int:
     repo_root = Path(__file__).resolve().parents[1]
     src_dir = repo_root / "src"
 
@@ -344,13 +537,14 @@ def main(scripts=None) -> int:
     else:
         print(f"\nQueue summary: {len(script_paths)} scripts")
 
+    if preflight and _validation.resolve_policy() != _validation.POLICY_OFF:
+        code = preflight_all(script_paths, repo_root)
+        if code != 0:
+            return code
+
     exit_code = 0
     for script_path in script_paths:
-        if script_path.parent.name == "scripts":
-            cwd = script_path.parent.parent
-        else:
-            cwd = repo_root
-        result = run_script(script_path, cwd)
+        result = run_script(script_path, _cwd_for(script_path, repo_root))
         if result != 0:
             exit_code = result
             break

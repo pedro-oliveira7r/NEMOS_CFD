@@ -1,7 +1,7 @@
 import Simulation as nemos
 
 sim = nemos.Simulation(
-	case_path=r"C:\Users\pedro\Desktop\TCC1\script_H_resume",
+	case_path=r"C:\Users\pedro\Desktop\Workspace\Test_01",
 	startTime=0,
 	endTime=20,
 	delta=0.1,

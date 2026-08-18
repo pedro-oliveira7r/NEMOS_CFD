@@ -4,7 +4,7 @@ import Manager as nemos
 
 sim = nemos.Simulation(
 	script_path=__file__,
-	case_path=r"C:\Users\pedro\Desktop\TCC1\Manager_Condition_Test",
+	case_path=r"C:\Users\pedro\Desktop\Workspace\Test_01",
 	startTime=0,
 	endTime=5,
 	delta=0.1,
