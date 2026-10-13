@@ -42,7 +42,7 @@ sim = nemos.Simulation(
 a = nemos.Room(dx=3.0, dy=3.0, dz=3.0, T_Face=300, name = "Room")
 b = nemos.Person_seated(x=2.025, z=1.5, theta=0, thickness=0.15, T_Face=304, name = "Person_1")
 c = nemos.Person_seated(x=0.975, z=1.5, theta=180, thickness=0.15, T_Face=305, name = "Person_2")
-d = nemos.Dip_type_01(x=2.025, y=1.0, z=1.5, V_Flow=-1.2, T_Flow=291, name = "Dip_1")
+d = nemos.Dip_type_01(x=2.025, y=1.0, z=1.5, V_Flow=-1.2, T_Flow=291, T_Face=293, name = "Dip_1")
 e = nemos.Dip_type_01(x=0.975, y=1.2, z=1.5, V_Flow=-1.2, T_Flow=293, name = "Dip_2")
 f = nemos.Table_circular(x=1.5, y=0.6, z=1.5, T_Face=300, name = "Table")
 a.insert_ceiling_opening(x=0.5, z=2.5, d=0.1)

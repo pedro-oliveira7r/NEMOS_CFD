@@ -1001,18 +1001,21 @@ class BoundaryManager:
                                 except Exception:
                                     pass
                         elif semantic == 'dip':
-                            v = self._object_sim_value(patch_name, 'T_Flow')
+                            # Dip body wall: fixed T_Face if given, otherwise adiabatic.
+                            v = self._object_sim_value(patch_name, 'T_Face')
+                            valor = None
                             if v is not None:
                                 try:
                                     valor = float(v)
                                 except Exception:
                                     pass
-                            else:
-                                valor = self._default_t_flow()
+                            if valor is None:
+                                cond = """        type            zeroGradient;"""
                         elif semantic == 'wall':
                             valor = default_face
 
-                        cond = f"""        type            fixedValue;
+                        if not cond:
+                            cond = f"""        type            fixedValue;
             value           uniform {valor};"""
                     else:
                         cond = self.field_conditions.get(field_name, {}).get(patch_type, "        type            zeroGradient;")

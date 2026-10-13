@@ -32,7 +32,6 @@ nemos.run(sim)          # SALOME -> OpenFOAM -> solver, all of it
 > **Research software.** NEMOS was written for an undergraduate thesis (TCC) on
 > indoor thermal comfort. It is actively developed, targets one specific
 > toolchain, and has the rough edges listed under
-> [Known limitations](#known-limitations). Read those before relying on it.
 
 ## Features
 
@@ -230,35 +229,6 @@ NEMOS_CFD/
 | `.nemos_done` | written when the solver exits successfully |
 
 A sweep root additionally holds `SIM_0…SIM_N/`, `scripts/script_i.py` and `logs/`.
-
-## Known limitations
-
-Stated plainly, because they will affect you:
-
-- **Windows + WSL only.** Paths are translated `C:\…` to `/mnt/c/…`; there is no
-  Linux- or macOS-native path.
-- **One physics setup.** `buoyantSimpleFoam`, steady state, k-epsilon RAS,
-  Boussinesq. Other solvers and turbulence models are not wired up.
-- **Parallel runs are fixed at 4 subdomains** (`numberOfSubdomains 4`,
-  `mpirun -np 4`), hardcoded.
-- **`.nemos_done` means "the solver exited 0", not "the solution converged."**
-  A run that reaches `endTime` with residuals at 1e-1 is still marked finished.
-  Always check `residuals.png`.
-- **Mistyped keyword arguments are silently ignored.** `endtime=20` will not
-  raise — it quietly leaves the default in place. Check spelling against
-  [docs/api-reference.md](docs/api-reference.md).
-- **Several inline keywords are accepted but unused.** `metabolic_heat_W`,
-  `emissivity`, `species_source` and others are parsed and then never read; only
-  `T_Face`, `T_Flow` and `V_Flow` currently affect the case.
-- **No automated tests.** Changes are verified by running the examples.
-- **Re-running an edited script into an existing case folder reuses the old mesh
-  and fields**, because the resume detectors only ask whether an artifact exists,
-  not whether it still matches the script. Delete `.nemos_done` and `Mesh_1.unv`
-  to be sure.
-
-A design for a validation layer addressing most of these is drafted in
-[docs/roadmap/guardrail_architecture.md](docs/roadmap/guardrail_architecture.md)
-— a proposal, not shipped behaviour.
 
 ## Documentation
 

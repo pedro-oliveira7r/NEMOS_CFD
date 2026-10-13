@@ -134,7 +134,7 @@ skin-surface temperature in kelvin (a seated person is typically ~304 K).
 ### Diffusers (`Dip_type_00` … `Dip_type_03`)
 
 ```python
-Dip_type_01(x=1.0, y=1.2, z=1.5, d=0.05, name=..., V_Flow=-1.2, T_Flow=291)
+Dip_type_01(x=1.0, y=1.2, z=1.5, d=0.05, name=..., V_Flow=-1.2, T_Flow=291, T_Face=293)
 ```
 
 Identical signatures; they differ in the nozzle geometry generated inside SALOME.
@@ -148,8 +148,11 @@ All four hang from the ceiling, their outlet placed at `room.H - 0.07 - y` — s
 | `d` | nozzle diameter parameter |
 | `V_Flow` | inlet velocity, m/s. **Negative blows downward into the room** |
 | `T_Flow` | supply air temperature, K |
+| `T_Face` | diffuser body wall temperature, K. **Omitted → adiabatic** (`zeroGradient`) |
 
-Diffuser patches are classified as `inlet`.
+Each diffuser produces two patches: `inlet_<name>` (the outlet face, classified as
+`inlet`, gets `T_Flow`/`V_Flow`) and `<name>` (the body, classified as `wall`, gets
+`T_Face` or zero gradient).
 
 ### Tables
 
@@ -166,7 +169,7 @@ These are stripped from the geometry call and used to write the `0/` fields:
 
 | Keyword | Applies to | Effect today |
 |---|---|---|
-| `T_Face` (or `T_face`) | room, people, tables | fixed wall temperature, K |
+| `T_Face` (or `T_face`) | room, people, tables, diffusers | fixed wall temperature, K (diffusers: adiabatic if omitted) |
 | `T_Flow` | diffusers | inlet air temperature, K |
 | `V_Flow` | diffusers | inlet velocity, m/s |
 | `metabolic_heat_W` | — | **accepted and ignored** |

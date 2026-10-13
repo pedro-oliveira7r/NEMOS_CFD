@@ -123,7 +123,8 @@ V_Flow, metabolic_heat_W, emissivity, …). Everything else stays a geometry arg
   (`wall`/`inlet`/`outlet`) from its name using `object_types` (patches are named after the
   object's `name=`; `inlet_<dipVar>`, `outlet`, `wall` special-cased). `generate_all_fields`
   writes `0/{U,alphat,epsilon,k,nut,p,p_rgh,T}` with per-patch BCs, pulling per-object values
-  from `object_simulation` (T_Face for person/table walls, T_Flow/V_Flow for dips/inlets).
+  from `object_simulation` (T_Face for person/table/dip walls — dip walls are zeroGradient when T_Face is omitted —,
+  T_Flow/V_Flow for dip inlets).
 - **`OpenFOAMRunner`** — writes `comandos_1.sh` (mesh prep) and `comandos_2.sh` (solver) and runs
   them through `wsl bash`. Reads `parallel` and `plot_residuals` from config. `decomposePar` is
   now bash-guarded (`[ -d processor0 ] || decomposePar`). Has `wait_*`, `is_*_running`, `kill_*`
