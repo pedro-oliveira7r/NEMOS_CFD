@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 896" width="1200" height="896" role="img" aria-label="Simulation.py run(): the five gated stages — setup, SALOME meshing, mesh conversion, boundary conditions and fields, solver — with the tools they call and the files they write">
+<title>Simulation.py run(): the five gated stages — setup, SALOME meshing, mesh conversion, boundary conditions and fields, solver — with the tools they call and the files they write</title>
+<defs><marker id="ah424a53" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#424a53"/></marker><marker id="ah9a6700" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9a6700"/></marker></defs>
+<rect width="1200" height="896" fill="#ffffff"/>
+<text xml:space="preserve" x="30" y="42" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" fill="#1f2328" text-anchor="start" font-weight="bold">Simulation.py (2 of 2) — nemos.run(sim): five stages, each skipped if its output exists</text>
+<text xml:space="preserve" x="30" y="68" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#57606a" text-anchor="start">That existence check is the entire resume mechanism: re-running the same script continues from wherever it stopped.</text>
+<rect x="30" y="94" width="212" height="58" rx="8" fill="#ddf4ff" stroke="#0969da" stroke-width="1.6"/>
+<text xml:space="preserve" x="40" y="115.05" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13" fill="#0a3069" text-anchor="start" font-weight="bold">your script</text>
+<text xml:space="preserve" x="40" y="132.05" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13" fill="#1f2328" text-anchor="start"><tspan font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">case = nemos.run(sim)</tspan></text>
+<rect x="290" y="94" width="400" height="58" rx="8" fill="#ddf4ff" stroke="#0969da" stroke-width="1.6"/>
+<text xml:space="preserve" x="300" y="114.625" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2328" text-anchor="start"><tspan fill="#0a3069" font-weight="bold" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">nemos.resume(case_path)</tspan></text>
+<text xml:space="preserve" x="300" y="133.625" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2328" text-anchor="start">rebuilds sim from .nemos_state.json, then calls run(sim).</text>
+<polyline points="290,123 244,123" fill="none" stroke="#424a53" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#ah424a53)"/>
+<text xml:space="preserve" x="700" y="116" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start"></text>
+<rect x="740" y="98" width="150.96" height="22" rx="11.0" fill="#fff8c5" stroke="#9a6700" stroke-width="1.2"/>
+<text xml:space="preserve" x="815.48" y="113.32" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#4d3800" text-anchor="middle">skip if Mesh_1.unv exists</text>
+<text xml:space="preserve" x="740" y="140" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#57606a" text-anchor="start">gate — the stage runs only if its output is missing</text>
+<circle cx="42" cy="181" r="12" fill="#6e7781"/>
+<text xml:space="preserve" x="42" y="185.68" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13" fill="#fff" text-anchor="middle" font-weight="bold">1</text>
+<text xml:space="preserve" x="62" y="186" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" fill="#1f2328" text-anchor="start" font-weight="bold">Setup</text>
+<rect x="30" y="212" width="76.19" height="22" rx="11.0" fill="#ffffff" stroke="#d0d7de" stroke-width="1.2"/>
+<text xml:space="preserve" x="68.095" y="227.14" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="middle">always runs</text>
+<rect x="30" y="246" width="212" height="140" rx="8" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.6"/>
+<text xml:space="preserve" x="40" y="268" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#1f2328" text-anchor="start" font-weight="bold">setup_workflow()</text>
+<text xml:space="preserve" x="40" y="288" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">builds the case folder,</text>
+<text xml:space="preserve" x="40" y="306" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">writes machine_script.py</text>
+<text xml:space="preserve" x="40" y="324" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">and the base dictionaries,</text>
+<text xml:space="preserve" x="40" y="342" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">then sim.save_state()</text>
+<text xml:space="preserve" x="40" y="376" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#1f2328" text-anchor="start"><tspan fill="#57606a">uses: </tspan><tspan fill="#57606a" font-style="italic">config, recorded lines</tspan></text>
+<rect x="78" y="408" width="164" height="100" rx="8" fill="#ffffff" stroke="#d0d7de" stroke-width="1.2" stroke-dasharray="4 4"/>
+<text xml:space="preserve" x="160.0" y="454.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="middle" font-style="italic">pure Python,</text>
+<text xml:space="preserve" x="160.0" y="470.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="middle" font-style="italic">no external tool</text>
+<polyline points="54,388 54,528" fill="none" stroke="#9a6700" stroke-width="1.6" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#ah9a6700)"/>
+<text xml:space="preserve" x="62" y="403" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#9a6700" text-anchor="start" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" paint-order="stroke">writes</text>
+<path d="M30,534 q0,-4 4,-4 H230 L242,542 V676 q0,4 -4,4 H34 q-4,0 -4,-4 z" fill="#fff8c5" stroke="#9a6700" stroke-width="1.4"/>
+<path d="M230,530 V542 H242" fill="none" stroke="#9a6700" stroke-width="1.2"/>
+<text xml:space="preserve" x="40" y="552" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">constant/  g, thermo…,</text>
+<text xml:space="preserve" x="40" y="569" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">           turbulence…</text>
+<text xml:space="preserve" x="40" y="586" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">system/    controlDict,</text>
+<text xml:space="preserve" x="40" y="603" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">           fvSchemes, …</text>
+<text xml:space="preserve" x="40" y="620" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">machine_script.py</text>
+<text xml:space="preserve" x="40" y="637" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">caso.foam</text>
+<text xml:space="preserve" x="40" y="654" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">.nemos_state.json</text>
+<polyline points="243,268 260,268" fill="none" stroke="#424a53" stroke-width="2" stroke-linejoin="round" marker-end="url(#ah424a53)"/>
+<circle cx="274" cy="181" r="12" fill="#6e7781"/>
+<text xml:space="preserve" x="274" y="185.68" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13" fill="#fff" text-anchor="middle" font-weight="bold">2</text>
+<text xml:space="preserve" x="294" y="186" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" fill="#1f2328" text-anchor="start" font-weight="bold">Mesh</text>
+<rect x="262" y="212" width="145.42000000000002" height="22" rx="11.0" fill="#fff8c5" stroke="#9a6700" stroke-width="1.2"/>
+<text xml:space="preserve" x="334.71000000000004" y="227.14" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#4d3800" text-anchor="middle">skip if Mesh_1.unv exists</text>
+<rect x="262" y="246" width="212" height="140" rx="8" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.6"/>
+<text xml:space="preserve" x="272" y="268" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#1f2328" text-anchor="start" font-weight="bold">SalomeMesher</text>
+<text xml:space="preserve" x="272" y="288" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start"><tspan font-weight="bold" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">  .executar_batch()</tspan></text>
+<text xml:space="preserve" x="272" y="306" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">or, if Import_mesh() was</text>
+<text xml:space="preserve" x="272" y="324" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">used, just copy that .unv</text>
+<text xml:space="preserve" x="272" y="342" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">(SALOME never starts)</text>
+<rect x="262" y="408" width="212" height="100" rx="8" fill="#dafbe1" stroke="#1a7f37" stroke-width="1.6"/>
+<text xml:space="preserve" x="272" y="429.05" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13" fill="#0f4a22" text-anchor="start" font-weight="bold">SALOME, batch mode</text>
+<text xml:space="preserve" x="272" y="447.05" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start"><tspan font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">run_salome.bat -t</tspan></text>
+<text xml:space="preserve" x="272" y="465.05" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start"><tspan font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">  machine_script.py</tspan></text>
+<text xml:space="preserve" x="272" y="483.05" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">GeoMesh.py builds + meshes</text>
+<polyline points="368.0,388 368.0,406" fill="none" stroke="#424a53" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#ah424a53)"/>
+<text xml:space="preserve" x="376.0" y="403" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" paint-order="stroke">subprocess</text>
+<polyline points="368.0,510 368.0,528" fill="none" stroke="#9a6700" stroke-width="1.6" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#ah9a6700)"/>
+<text xml:space="preserve" x="376.0" y="524" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#9a6700" text-anchor="start" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" paint-order="stroke">writes</text>
+<path d="M262,534 q0,-4 4,-4 H462 L474,542 V676 q0,4 -4,4 H266 q-4,0 -4,-4 z" fill="#fff8c5" stroke="#9a6700" stroke-width="1.4"/>
+<path d="M462,530 V542 H474" fill="none" stroke="#9a6700" stroke-width="1.2"/>
+<text xml:space="preserve" x="272" y="552" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">Mesh_1.unv</text>
+<text xml:space="preserve" x="272" y="569" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start"></text>
+<text xml:space="preserve" x="272" y="586" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">&lt;metric&gt;_summary.txt</text>
+<text xml:space="preserve" x="272" y="603" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">  (if check_quality)</text>
+<polyline points="475,268 492,268" fill="none" stroke="#424a53" stroke-width="2" stroke-linejoin="round" marker-end="url(#ah424a53)"/>
+<circle cx="506" cy="181" r="12" fill="#6e7781"/>
+<text xml:space="preserve" x="506" y="185.68" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13" fill="#fff" text-anchor="middle" font-weight="bold">3</text>
+<text xml:space="preserve" x="526" y="186" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" fill="#1f2328" text-anchor="start" font-weight="bold">Convert mesh</text>
+<rect x="494" y="212" width="185.67" height="22" rx="11.0" fill="#fff8c5" stroke="#9a6700" stroke-width="1.2"/>
+<text xml:space="preserve" x="586.835" y="227.14" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#4d3800" text-anchor="middle">skip if polyMesh/boundary exists</text>
+<rect x="494" y="246" width="212" height="140" rx="8" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.6"/>
+<text xml:space="preserve" x="504" y="268" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#1f2328" text-anchor="start" font-weight="bold">OpenFOAMRunner</text>
+<text xml:space="preserve" x="504" y="288" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start"><tspan font-weight="bold" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">  .preparar_malha()</tspan></text>
+<text xml:space="preserve" x="504" y="306" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">writes comandos_1.sh,</text>
+<text xml:space="preserve" x="504" y="324" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">runs it in WSL and waits;</text>
+<text xml:space="preserve" x="504" y="342" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">failure stops run()</text>
+<rect x="494" y="408" width="212" height="100" rx="8" fill="#fff1e5" stroke="#bc4c00" stroke-width="1.6"/>
+<text xml:space="preserve" x="504" y="429.05" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13" fill="#6b2a00" text-anchor="start" font-weight="bold">WSL · OpenFOAM v2312</text>
+<text xml:space="preserve" x="504" y="447.05" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start"><tspan font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">ideasUnvToFoam Mesh_1.unv</tspan></text>
+<text xml:space="preserve" x="504" y="465.05" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start"><tspan font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">checkMesh</tspan></text>
+<polyline points="600.0,388 600.0,406" fill="none" stroke="#424a53" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#ah424a53)"/>
+<text xml:space="preserve" x="608.0" y="403" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" paint-order="stroke">subprocess</text>
+<polyline points="600.0,510 600.0,528" fill="none" stroke="#9a6700" stroke-width="1.6" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#ah9a6700)"/>
+<text xml:space="preserve" x="608.0" y="524" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#9a6700" text-anchor="start" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" paint-order="stroke">writes</text>
+<path d="M494,534 q0,-4 4,-4 H694 L706,542 V676 q0,4 -4,4 H498 q-4,0 -4,-4 z" fill="#fff8c5" stroke="#9a6700" stroke-width="1.4"/>
+<path d="M694,530 V542 H706" fill="none" stroke="#9a6700" stroke-width="1.2"/>
+<text xml:space="preserve" x="504" y="552" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">constant/polyMesh/</text>
+<text xml:space="preserve" x="504" y="569" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">  points faces owner</text>
+<text xml:space="preserve" x="504" y="586" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">  boundary  (all &#x27;patch&#x27;)</text>
+<text xml:space="preserve" x="504" y="603" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">comandos_1.sh</text>
+<polyline points="707,268 724,268" fill="none" stroke="#424a53" stroke-width="2" stroke-linejoin="round" marker-end="url(#ah424a53)"/>
+<circle cx="738" cy="181" r="12" fill="#6e7781"/>
+<text xml:space="preserve" x="738" y="185.68" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13" fill="#fff" text-anchor="middle" font-weight="bold">4</text>
+<text xml:space="preserve" x="758" y="186" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" fill="#1f2328" text-anchor="start" font-weight="bold">Boundaries + fields</text>
+<rect x="726" y="212" width="144.26999999999998" height="22" rx="11.0" fill="#fff8c5" stroke="#9a6700" stroke-width="1.2"/>
+<text xml:space="preserve" x="798.135" y="227.14" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#4d3800" text-anchor="middle">skip if 0/T and 0/U exist</text>
+<rect x="726" y="246" width="212" height="140" rx="8" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.6"/>
+<text xml:space="preserve" x="736" y="268" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#1f2328" text-anchor="start" font-weight="bold">BoundaryManager</text>
+<text xml:space="preserve" x="736" y="288" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start"><tspan font-weight="bold" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">  .editar_boundary()</tspan></text>
+<text xml:space="preserve" x="736" y="306" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">patch → wall / inlet / outlet</text>
+<text xml:space="preserve" x="736" y="324" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start"><tspan font-weight="bold" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">  .generate_all_fields()</tspan></text>
+<text xml:space="preserve" x="736" y="342" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">one file per field</text>
+<text xml:space="preserve" x="736" y="376" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#1f2328" text-anchor="start"><tspan fill="#57606a">uses: </tspan><tspan fill="#57606a" font-style="italic">object_types, object_simulation</tspan></text>
+<rect x="774" y="408" width="164" height="100" rx="8" fill="#ffffff" stroke="#d0d7de" stroke-width="1.2" stroke-dasharray="4 4"/>
+<text xml:space="preserve" x="856.0" y="454.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="middle" font-style="italic">pure Python,</text>
+<text xml:space="preserve" x="856.0" y="470.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="middle" font-style="italic">no external tool</text>
+<polyline points="750,388 750,528" fill="none" stroke="#9a6700" stroke-width="1.6" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#ah9a6700)"/>
+<text xml:space="preserve" x="758" y="403" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#9a6700" text-anchor="start" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" paint-order="stroke">writes</text>
+<path d="M726,534 q0,-4 4,-4 H926 L938,542 V676 q0,4 -4,4 H730 q-4,0 -4,-4 z" fill="#fff8c5" stroke="#9a6700" stroke-width="1.4"/>
+<path d="M926,530 V542 H938" fill="none" stroke="#9a6700" stroke-width="1.2"/>
+<text xml:space="preserve" x="736" y="552" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">polyMesh/boundary</text>
+<text xml:space="preserve" x="736" y="569" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">  (types rewritten)</text>
+<text xml:space="preserve" x="736" y="586" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">0/  U  T  p  p_rgh</text>
+<text xml:space="preserve" x="736" y="603" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">    k  epsilon</text>
+<text xml:space="preserve" x="736" y="620" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">    nut  alphat</text>
+<polyline points="939,268 956,268" fill="none" stroke="#424a53" stroke-width="2" stroke-linejoin="round" marker-end="url(#ah424a53)"/>
+<circle cx="970" cy="181" r="12" fill="#6e7781"/>
+<text xml:space="preserve" x="970" y="185.68" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13" fill="#fff" text-anchor="middle" font-weight="bold">5</text>
+<text xml:space="preserve" x="990" y="186" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" fill="#1f2328" text-anchor="start" font-weight="bold">Solve</text>
+<rect x="958" y="212" width="202.23" height="22" rx="11.0" fill="#ffffff" stroke="#d0d7de" stroke-width="1.2"/>
+<text xml:space="preserve" x="1059.115" y="227.14" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="middle">always runs · resumes at latest time</text>
+<rect x="958" y="246" width="212" height="140" rx="8" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.6"/>
+<text xml:space="preserve" x="968" y="268" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#1f2328" text-anchor="start" font-weight="bold">OpenFOAMRunner</text>
+<text xml:space="preserve" x="968" y="288" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start"><tspan font-weight="bold" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">  .rodar_simulacao()</tspan></text>
+<text xml:space="preserve" x="968" y="306" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">writes comandos_2.sh;</text>
+<text xml:space="preserve" x="968" y="324" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">ResidualPlotter reads the</text>
+<text xml:space="preserve" x="968" y="342" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">solver output live</text>
+<text xml:space="preserve" x="968" y="376" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#1f2328" text-anchor="start"><tspan fill="#57606a">uses: </tspan><tspan fill="#57606a" font-style="italic">parallel, plot_residuals</tspan></text>
+<rect x="958" y="408" width="212" height="100" rx="8" fill="#fff1e5" stroke="#bc4c00" stroke-width="1.6"/>
+<text xml:space="preserve" x="968" y="429.05" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13" fill="#6b2a00" text-anchor="start" font-weight="bold">WSL · OpenFOAM v2312</text>
+<text xml:space="preserve" x="968" y="447.05" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start"><tspan font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">decomposePar</tspan>  once, if parallel</text>
+<text xml:space="preserve" x="968" y="465.05" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start"><tspan font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">mpirun -np 4</tspan></text>
+<text xml:space="preserve" x="968" y="483.05" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start"><tspan font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">  buoyantSimpleFoam</tspan></text>
+<polyline points="1064.0,388 1064.0,406" fill="none" stroke="#424a53" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#ah424a53)"/>
+<text xml:space="preserve" x="1072.0" y="403" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" paint-order="stroke">subprocess</text>
+<polyline points="1064.0,510 1064.0,528" fill="none" stroke="#9a6700" stroke-width="1.6" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#ah9a6700)"/>
+<text xml:space="preserve" x="1072.0" y="524" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#9a6700" text-anchor="start" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" paint-order="stroke">writes</text>
+<path d="M958,534 q0,-4 4,-4 H1158 L1170,542 V676 q0,4 -4,4 H962 q-4,0 -4,-4 z" fill="#fff8c5" stroke="#9a6700" stroke-width="1.4"/>
+<path d="M1158,530 V542 H1170" fill="none" stroke="#9a6700" stroke-width="1.2"/>
+<text xml:space="preserve" x="968" y="552" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">processor0…3/ (parallel)</text>
+<text xml:space="preserve" x="968" y="569" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">time dirs  200/ 400/ …</text>
+<text xml:space="preserve" x="968" y="586" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">log.simulation</text>
+<text xml:space="preserve" x="968" y="603" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">residuals.png</text>
+<text xml:space="preserve" x="968" y="620" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">.nemos_done  (exit code 0)</text>
+<polyline points="136,154 136,164" fill="none" stroke="#424a53" stroke-width="2" stroke-linejoin="round" marker-end="url(#ah424a53)"/>
+<text xml:space="preserve" x="40" y="698" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">rewritten on every run, so edits to</text>
+<text xml:space="preserve" x="40" y="713" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">endTime etc. take effect on re-run</text>
+<text xml:space="preserve" x="968" y="698" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">parallel: results live in processor*/</text>
+<text xml:space="preserve" x="968" y="713" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">— reconstructPar before analysis</text>
+<rect x="30" y="732" width="560" height="112" rx="8" fill="#ffffff" stroke="#d0d7de" stroke-width="1.3"/>
+<text xml:space="preserve" x="44" y="755" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#1f2328" text-anchor="start" font-weight="bold">Force a redo — delete, then re-run the script</text>
+<text xml:space="preserve" x="44" y="778" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#9a6700" text-anchor="start" font-weight="bold">.nemos_done</text>
+<text xml:space="preserve" x="360" y="778" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">→ solver again, from the latest time</text>
+<text xml:space="preserve" x="44" y="796" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#9a6700" text-anchor="start" font-weight="bold">.nemos_done  processor*/</text>
+<text xml:space="preserve" x="360" y="796" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">→ solver from scratch</text>
+<text xml:space="preserve" x="44" y="814" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#9a6700" text-anchor="start" font-weight="bold">.nemos_done  0/</text>
+<text xml:space="preserve" x="360" y="814" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">→ boundaries and fields, then solver</text>
+<text xml:space="preserve" x="44" y="832" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#9a6700" text-anchor="start" font-weight="bold">.nemos_done  0/  polyMesh/  Mesh_1.unv</text>
+<text xml:space="preserve" x="360" y="832" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">→ everything, including SALOME</text>
+<rect x="610" y="732" width="270" height="112" rx="8" fill="#ffebe9" stroke="#cf222e" stroke-width="1.6"/>
+<text xml:space="preserve" x="620" y="753.05" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13" fill="#82071e" text-anchor="start" font-weight="bold">Gates check existence only</text>
+<text xml:space="preserve" x="620" y="771.05" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">Edited the geometry? Delete</text>
+<text xml:space="preserve" x="620" y="789.05" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">Mesh_1.unv (and polyMesh/, 0/),</text>
+<text xml:space="preserve" x="620" y="807.05" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">or you will solve the old room.</text>
+<rect x="900" y="732" width="270" height="112" rx="8" fill="#ffebe9" stroke="#cf222e" stroke-width="1.6"/>
+<text xml:space="preserve" x="910" y="753.05" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13" fill="#82071e" text-anchor="start" font-weight="bold">.nemos_done ≠ converged</text>
+<text xml:space="preserve" x="910" y="771.05" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">It only means the solver exited</text>
+<text xml:space="preserve" x="910" y="789.05" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">with code 0. A run stuck at high</text>
+<text xml:space="preserve" x="910" y="807.05" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">residuals is marked done too —</text>
+<text xml:space="preserve" x="910" y="825.05" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">always look at residuals.png.</text>
+<rect x="30" y="860" width="22" height="14" rx="3" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.3"/>
+<text xml:space="preserve" x="58" y="871" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#57606a" text-anchor="start">Simulation.py (Python)</text>
+<rect x="205.25" y="860" width="22" height="14" rx="3" fill="#dafbe1" stroke="#1a7f37" stroke-width="1.3"/>
+<text xml:space="preserve" x="233.25" y="871" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#57606a" text-anchor="start">SALOME</text>
+<rect x="305.75" y="860" width="22" height="14" rx="3" fill="#fff1e5" stroke="#bc4c00" stroke-width="1.3"/>
+<text xml:space="preserve" x="333.75" y="871" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#57606a" text-anchor="start">WSL / OpenFOAM</text>
+<rect x="453.75" y="860" width="22" height="14" rx="3" fill="#fff8c5" stroke="#9a6700" stroke-width="1.3"/>
+<text xml:space="preserve" x="481.75" y="871" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#57606a" text-anchor="start">files in the case folder</text>
+<polyline points="635.75,867 665.75,867" fill="none" stroke="#424a53" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#ah424a53)"/>
+<text xml:space="preserve" x="673.75" y="871" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#57606a" text-anchor="start">calls</text>
+<polyline points="725.5,867 755.5,867" fill="none" stroke="#9a6700" stroke-width="1.6" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#ah9a6700)"/>
+<text xml:space="preserve" x="763.5" y="871" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#57606a" text-anchor="start">writes</text>
+</svg>

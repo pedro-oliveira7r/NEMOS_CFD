@@ -1,0 +1,242 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1178.0" width="1600" height="1178.0" role="img" aria-label="UML class diagram of GeoMesh.py">
+<title>UML class diagram of GeoMesh.py</title>
+<defs><marker id="mopen424a53" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#424a53" stroke-width="1.4"/></marker><marker id="mdiamond424a53" viewBox="0 0 20 12" refX="19" refY="6" markerWidth="20" markerHeight="12" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M1,6 L10,1 L19,6 L10,11 z" fill="#ffffff" stroke="#424a53" stroke-width="1.3"/></marker><marker id="mtriangle424a53" viewBox="0 0 16 16" refX="15" refY="8" markerWidth="16" markerHeight="16" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M1,1 L15,8 L1,15 z" fill="#ffffff" stroke="#424a53" stroke-width="1.3"/></marker></defs>
+<rect width="1600" height="1178.0" fill="#ffffff"/>
+<text xml:space="preserve" x="30.0" y="42.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" fill="#1f2328" text-anchor="start" font-weight="bold">GeoMesh.py — class diagram</text>
+<text xml:space="preserve" x="30.0" y="68.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#57606a" text-anchor="start">Runs inside SALOME's embedded Python. Builds the room geometry with GEOM, names every face group (the future OpenFOAM patches) and meshes it with SMESH / NETGEN.</text>
+<rect x="30.0" y="118.0" width="300.0" height="206.5" rx="4" fill="#ffffff" stroke="#1a7f37" stroke-width="1.3"/>
+<path d="M30.6,150.0 V122.0 Q30.6,118.7 34.0,118.7 H326.0 Q329.4,118.7 329.4,122.0 V150.0 Z" fill="#dafbe1"/>
+<line x1="30.0" y1="150.0" x2="330.0" y2="150.0" stroke="#1a7f37" stroke-width="1"/>
+<text xml:space="preserve" x="180.0" y="139.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#0f4a22" text-anchor="middle" font-weight="bold">Salome_Env</text>
+<text xml:space="preserve" x="41.0" y="169.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ notebook : NoteBook</text>
+<text xml:space="preserve" x="41.0" y="185.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ geompy : geomBuilder</text>
+<text xml:space="preserve" x="41.0" y="202.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  every GEOM call goes through it</text>
+<text xml:space="preserve" x="41.0" y="218.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ O : GEOM vertex</text>
+<text xml:space="preserve" x="41.0" y="235.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ OX, OY, OZ : GEOM vector</text>
+<text xml:space="preserve" x="41.0" y="251.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ boxList : list</text>
+<text xml:space="preserve" x="41.0" y="268.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ room : Room | None</text>
+<line x1="30.0" y1="278.5" x2="330.0" y2="278.5" stroke="#1a7f37" stroke-width="0.8"/>
+<text xml:space="preserve" x="41.0" y="297.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ Salome_Env(path=None)</text>
+<text xml:space="preserve" x="41.0" y="314.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  salome_init(); becomes the active env</text>
+<rect x="450.0" y="118.0" width="540.0" height="538.5" rx="4" fill="#ffffff" stroke="#1a7f37" stroke-width="1.3"/>
+<path d="M450.6,150.0 V122.0 Q450.6,118.7 454.0,118.7 H986.0 Q989.4,118.7 989.4,122.0 V150.0 Z" fill="#dafbe1"/>
+<line x1="450.0" y1="150.0" x2="990.0" y2="150.0" stroke="#1a7f37" stroke-width="1"/>
+<text xml:space="preserve" x="720.0" y="139.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#0f4a22" text-anchor="middle" font-weight="bold">Room</text>
+<text xml:space="preserve" x="461.0" y="169.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ salome_env : Salome_Env</text>
+<text xml:space="preserve" x="461.0" y="185.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ name : str = 'Room'</text>
+<text xml:space="preserve" x="461.0" y="202.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ H : float</text>
+<text xml:space="preserve" x="461.0" y="218.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  height = dy</text>
+<text xml:space="preserve" x="461.0" y="235.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ area : float</text>
+<text xml:space="preserve" x="461.0" y="251.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ object : GEOM solid</text>
+<text xml:space="preserve" x="461.0" y="268.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  the air volume</text>
+<text xml:space="preserve" x="461.0" y="284.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ obj_list : list[Object]</text>
+<text xml:space="preserve" x="461.0" y="301.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ faces_groups : list[GEOM group]</text>
+<text xml:space="preserve" x="461.0" y="317.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ faces_names_groups : list[(type, patch)]</text>
+<text xml:space="preserve" x="461.0" y="334.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ inlet_faces : list[int]</text>
+<text xml:space="preserve" x="461.0" y="350.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ outlet_faces : list[int]</text>
+<text xml:space="preserve" x="461.0" y="367.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ wall_faces : list[int]</text>
+<text xml:space="preserve" x="461.0" y="383.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ boxList, CilinderList, PontaList : list</text>
+<text xml:space="preserve" x="461.0" y="400.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  local refinement volumes</text>
+<line x1="450.0" y1="410.5" x2="990.0" y2="410.5" stroke="#1a7f37" stroke-width="0.8"/>
+<text xml:space="preserve" x="720.0" y="424.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" fill="#57606a" text-anchor="middle" font-style="italic">geometry</text>
+<text xml:space="preserve" x="461.0" y="440.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ Room(salome_env=None, dx=3.0, dy=3.0, dz=3.0)</text>
+<text xml:space="preserve" x="461.0" y="457.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ insert_ceiling_opening(x=1, z=1, d=0.025)</text>
+<text xml:space="preserve" x="461.0" y="473.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ insert_floor_opening(x=1, z=1, d=0.025)</text>
+<text xml:space="preserve" x="461.0" y="490.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ add(obj_list)</text>
+<text xml:space="preserve" x="461.0" y="506.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  cut the objects out, then name faces</text>
+<text xml:space="preserve" x="461.0" y="523.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ create_faces_groups()</text>
+<line x1="450.0" y1="533.5" x2="990.0" y2="533.5" stroke="#1a7f37" stroke-width="0.8"/>
+<text xml:space="preserve" x="720.0" y="547.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" fill="#57606a" text-anchor="middle" font-style="italic">local refinement volumes</text>
+<text xml:space="preserve" x="461.0" y="563.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ add_box_volume(x, z, theta, R_Tubo, R_Vol, H_Tubo, H_Vol, Filete,</text>
+<text xml:space="preserve" x="461.0" y="580.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">    name, person=None)</text>
+<text xml:space="preserve" x="461.0" y="596.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ add_box_cilinder(x, z, R_Tubo, R_Vol, H_Tubo, H_Vol, Filete, name,</text>
+<text xml:space="preserve" x="461.0" y="613.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">    person=None)</text>
+<text xml:space="preserve" x="461.0" y="629.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ add_cilinder(salome_env, x, z, R_Tubo, R_Ponta, H_Tubo, H_Ponta,</text>
+<text xml:space="preserve" x="461.0" y="646.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">    name, dip=None)</text>
+<rect x="1050.0" y="118.0" width="520.0" height="338.5" rx="4" fill="#ffffff" stroke="#1a7f37" stroke-width="1.3"/>
+<path d="M1050.7,150.0 V122.0 Q1050.7,118.7 1054.0,118.7 H1566.0 Q1569.3,118.7 1569.3,122.0 V150.0 Z" fill="#dafbe1"/>
+<line x1="1050.0" y1="150.0" x2="1570.0" y2="150.0" stroke="#1a7f37" stroke-width="1"/>
+<text xml:space="preserve" x="1310.0" y="139.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#0f4a22" text-anchor="middle" font-weight="bold">Mesh</text>
+<text xml:space="preserve" x="1061.0" y="169.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ room : Room</text>
+<text xml:space="preserve" x="1061.0" y="185.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ m2DMaxSize, m2DMinSize : float</text>
+<text xml:space="preserve" x="1061.0" y="202.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ m3DMaxSize, m3DMinSize : float</text>
+<text xml:space="preserve" x="1061.0" y="218.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ fineness : int</text>
+<text xml:space="preserve" x="1061.0" y="235.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  3 = Fine, 4 = Very fine</text>
+<text xml:space="preserve" x="1061.0" y="251.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ mesh : SMESH Mesh</text>
+<text xml:space="preserve" x="1061.0" y="268.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ groups : dict[str, SMESH group]</text>
+<text xml:space="preserve" x="1061.0" y="284.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ group_id_map : dict[int, str]</text>
+<text xml:space="preserve" x="1061.0" y="301.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ quality_df : DataFrame</text>
+<line x1="1050.0" y1="311.5" x2="1570.0" y2="311.5" stroke="#1a7f37" stroke-width="0.8"/>
+<text xml:space="preserve" x="1061.0" y="330.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ Mesh(room, m2DMaxSize=0.2, m2DMinSize=0.02, m3DMaxSize=0.075,</text>
+<text xml:space="preserve" x="1061.0" y="347.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">    m3DMinSize=0.001, fineness=3)</text>
+<text xml:space="preserve" x="1061.0" y="363.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ create_mesh(K_mesh=1, export=False, caminho='')</text>
+<text xml:space="preserve" x="1061.0" y="380.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  NETGEN 1D-2D-3D; export=True <tspan font-family="'DejaVu Sans', 'Segoe UI Symbol', 'Segoe UI', Arial, sans-serif">→</tspan> ExportUNV(caminho)</text>
+<text xml:space="preserve" x="1061.0" y="396.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ check_quality(name_metric, element_type, filter_type,</text>
+<text xml:space="preserve" x="1061.0" y="413.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">    comparison, threshold, create_group=False,</text>
+<text xml:space="preserve" x="1061.0" y="429.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">    out_dir='') : DataFrame</text>
+<text xml:space="preserve" x="1061.0" y="446.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ get_element_region(element_id) : str</text>
+<rect x="30.0" y="368.5" width="275.0" height="152.5" rx="4" fill="#ffffff" stroke="#1a7f37" stroke-width="1.3"/>
+<path d="M30.6,412.5 V372.5 Q30.6,369.1 34.0,369.1 H301.0 Q304.4,369.1 304.4,372.5 V412.5 Z" fill="#dafbe1"/>
+<line x1="30.0" y1="412.5" x2="305.0" y2="412.5" stroke="#1a7f37" stroke-width="1"/>
+<text xml:space="preserve" x="167.5" y="384.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="middle">«module»</text>
+<text xml:space="preserve" x="167.5" y="402.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#0f4a22" text-anchor="middle" font-weight="bold">GeoMesh.py</text>
+<text xml:space="preserve" x="41.0" y="431.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _ACTIVE_SALOME_ENV : Salome_Env</text>
+<line x1="30.0" y1="442.0" x2="305.0" y2="442.0" stroke="#1a7f37" stroke-width="0.8"/>
+<text xml:space="preserve" x="41.0" y="461.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ salome_start() : NoteBook</text>
+<text xml:space="preserve" x="41.0" y="477.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ salome_update()</text>
+<text xml:space="preserve" x="41.0" y="494.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _get_active_salome_env()</text>
+<text xml:space="preserve" x="41.0" y="510.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  creates a default Salome_Env if none</text>
+<rect x="560.0" y="720.5" width="320.0" height="173.5" rx="4" fill="#ffffff" stroke="#1a7f37" stroke-width="1.3"/>
+<path d="M560.6,752.5 V724.5 Q560.6,721.1 564.0,721.1 H876.0 Q879.4,721.1 879.4,724.5 V752.5 Z" fill="#dafbe1"/>
+<line x1="560.0" y1="752.5" x2="880.0" y2="752.5" stroke="#1a7f37" stroke-width="1"/>
+<text xml:space="preserve" x="720.0" y="741.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#0f4a22" text-anchor="middle" font-weight="bold">Object</text>
+<text xml:space="preserve" x="571.0" y="771.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ salome_env : Salome_Env</text>
+<text xml:space="preserve" x="571.0" y="788.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ name : str</text>
+<text xml:space="preserve" x="571.0" y="804.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  required</text>
+<text xml:space="preserve" x="571.0" y="821.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ faces : list[int]</text>
+<text xml:space="preserve" x="571.0" y="837.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ object : GEOM shape</text>
+<line x1="560.0" y1="848.0" x2="880.0" y2="848.0" stroke="#1a7f37" stroke-width="0.8"/>
+<text xml:space="preserve" x="571.0" y="867.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ Object(salome_env=None, name=...)</text>
+<text xml:space="preserve" x="571.0" y="883.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  ValueError without name=</text>
+<path d="M1050,632.5 H1558 L1570,644.5 V735.0 H1050 Z" fill="#f6f8fa" stroke="#8c959f" stroke-width="1"/>
+<path d="M1558,632.5 V644.5 H1570" fill="#eaeef2" stroke="#8c959f" stroke-width="1"/>
+<text xml:space="preserve" x="1062.0" y="655.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">create_faces_groups() names every patch:</text>
+<text xml:space="preserve" x="1062.0" y="671.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">• person, table, dip faces <tspan font-family="'DejaVu Sans', 'Segoe UI Symbol', 'Segoe UI', Arial, sans-serif">→</tspan> obj.name</text>
+<text xml:space="preserve" x="1062.0" y="688.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">• the outlet face of each dip <tspan font-family="'DejaVu Sans', 'Segoe UI Symbol', 'Segoe UI', Arial, sans-serif">→</tspan> inlet_&lt;name&gt;</text>
+<text xml:space="preserve" x="1062.0" y="704.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">• small ceiling / floor faces (the openings) <tspan font-family="'DejaVu Sans', 'Segoe UI Symbol', 'Segoe UI', Arial, sans-serif">→</tspan> outlet</text>
+<text xml:space="preserve" x="1062.0" y="721.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">• everything left <tspan font-family="'DejaVu Sans', 'Segoe UI Symbol', 'Segoe UI', Arial, sans-serif">→</tspan> wall</text>
+<path d="M30,551.0 H283 L295,563.0 V752.5 H30 Z" fill="#f6f8fa" stroke="#8c959f" stroke-width="1"/>
+<path d="M283,551.0 V563.0 H295" fill="#eaeef2" stroke="#8c959f" stroke-width="1"/>
+<text xml:space="preserve" x="42.0" y="573.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">How it runs: NEMOS writes</text>
+<text xml:space="preserve" x="42.0" y="590.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">&lt;case&gt;/machine_script.py, which is</text>
+<text xml:space="preserve" x="42.0" y="606.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">'import GeoMesh as nemos' followed by</text>
+<text xml:space="preserve" x="42.0" y="623.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">your recorded calls, and SALOME</text>
+<text xml:space="preserve" x="42.0" y="639.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">executes it in batch mode</text>
+<text xml:space="preserve" x="42.0" y="656.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">(run_salome.bat -t).</text>
+<text xml:space="preserve" x="42.0" y="672.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start"></text>
+<text xml:space="preserve" x="42.0" y="689.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">GeoMesh.py must be copied into</text>
+<text xml:space="preserve" x="42.0" y="705.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">SALOME's own site-packages. Re-copy it</text>
+<text xml:space="preserve" x="42.0" y="722.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">after every change, or SALOME keeps</text>
+<text xml:space="preserve" x="42.0" y="738.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">building the old geometry.</text>
+<rect x="1050.0" y="510.5" width="252.0" height="82.0" rx="4" fill="#fff8c5" stroke="#9a6700" stroke-width="1.2" stroke-dasharray="5 3"/>
+<text xml:space="preserve" x="1062.0" y="526.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" fill="#57606a" text-anchor="start">«artifact»</text>
+<text xml:space="preserve" x="1062.0" y="544.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#4d3800" text-anchor="start" font-weight="bold">Mesh_1.unv</text>
+<path d="M1280.0,518.5 h8 l5,5 v11 h-13 z" fill="#ffffff" stroke="#9a6700" stroke-width="1"/><path d="M1288.0,518.5 v5 h5" fill="none" stroke="#9a6700" stroke-width="1"/>
+<text xml:space="preserve" x="1062.0" y="566.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">create_mesh(export=True)</text>
+<text xml:space="preserve" x="1062.0" y="582.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">read by ideasUnvToFoam</text>
+<rect x="1318.0" y="510.5" width="252.0" height="82.0" rx="4" fill="#fff8c5" stroke="#9a6700" stroke-width="1.2" stroke-dasharray="5 3"/>
+<text xml:space="preserve" x="1330.0" y="526.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" fill="#57606a" text-anchor="start">«artifact»</text>
+<text xml:space="preserve" x="1330.0" y="544.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#4d3800" text-anchor="start" font-weight="bold">&lt;metric&gt;_df.csv</text>
+<path d="M1548.0,518.5 h8 l5,5 v11 h-13 z" fill="#ffffff" stroke="#9a6700" stroke-width="1"/><path d="M1556.0,518.5 v5 h5" fill="none" stroke="#9a6700" stroke-width="1"/>
+<text xml:space="preserve" x="1330.0" y="566.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">check_quality()</text>
+<text xml:space="preserve" x="1330.0" y="582.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">id, value, region, flag</text>
+<rect x="30.0" y="958.0" width="216.0" height="124.0" rx="4" fill="#ffffff" stroke="#1a7f37" stroke-width="1.3"/>
+<path d="M30.6,990.0 V962.0 Q30.6,958.6 34.0,958.6 H242.0 Q245.3,958.6 245.3,962.0 V990.0 Z" fill="#dafbe1"/>
+<line x1="30.0" y1="990.0" x2="246.0" y2="990.0" stroke="#1a7f37" stroke-width="1"/>
+<text xml:space="preserve" x="138.0" y="979.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#0f4a22" text-anchor="middle" font-weight="bold">Person_seated</text>
+<text xml:space="preserve" x="41.0" y="1009.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ x, z, theta : float</text>
+<line x1="30.0" y1="1019.5" x2="246.0" y2="1019.5" stroke="#1a7f37" stroke-width="0.8"/>
+<text xml:space="preserve" x="41.0" y="1038.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ seated(h, thickness,</text>
+<text xml:space="preserve" x="41.0" y="1055.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">    width, fillet_radius,</text>
+<text xml:space="preserve" x="41.0" y="1071.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">    x, z, theta)</text>
+<rect x="256.3" y="958.0" width="194.0" height="91.0" rx="4" fill="#ffffff" stroke="#1a7f37" stroke-width="1.3"/>
+<path d="M256.9,990.0 V962.0 Q256.9,958.6 260.3,958.6 H446.3 Q449.6,958.6 449.6,962.0 V990.0 Z" fill="#dafbe1"/>
+<line x1="256.3" y1="990.0" x2="450.3" y2="990.0" stroke="#1a7f37" stroke-width="1"/>
+<text xml:space="preserve" x="353.3" y="979.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#0f4a22" text-anchor="middle" font-weight="bold">Person_standing</text>
+<text xml:space="preserve" x="267.3" y="1009.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ x, z, theta : float</text>
+<line x1="256.3" y1="1019.5" x2="450.3" y2="1019.5" stroke="#1a7f37" stroke-width="0.8"/>
+<text xml:space="preserve" x="267.3" y="1038.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ standing(x, z, theta)</text>
+<rect x="460.6" y="958.0" width="172.0" height="124.0" rx="4" fill="#ffffff" stroke="#1a7f37" stroke-width="1.3"/>
+<path d="M461.2,990.0 V962.0 Q461.2,958.6 464.6,958.6 H628.6 Q631.9,958.6 631.9,962.0 V990.0 Z" fill="#dafbe1"/>
+<line x1="460.6" y1="990.0" x2="632.6" y2="990.0" stroke="#1a7f37" stroke-width="1"/>
+<text xml:space="preserve" x="546.6" y="979.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#0f4a22" text-anchor="middle" font-weight="bold">Dip_type_00</text>
+<text xml:space="preserve" x="471.6" y="1009.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ room : Room</text>
+<text xml:space="preserve" x="471.6" y="1025.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ x, y, z, d : float</text>
+<text xml:space="preserve" x="471.6" y="1042.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ inlet_face</text>
+<line x1="460.6" y1="1052.5" x2="632.6" y2="1052.5" stroke="#1a7f37" stroke-width="0.8"/>
+<text xml:space="preserve" x="471.6" y="1071.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ type_00()</text>
+<rect x="642.9" y="958.0" width="172.0" height="124.0" rx="4" fill="#ffffff" stroke="#1a7f37" stroke-width="1.3"/>
+<path d="M643.5,990.0 V962.0 Q643.5,958.6 646.9,958.6 H810.9 Q814.2,958.6 814.2,962.0 V990.0 Z" fill="#dafbe1"/>
+<line x1="642.9" y1="990.0" x2="814.9" y2="990.0" stroke="#1a7f37" stroke-width="1"/>
+<text xml:space="preserve" x="728.9" y="979.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#0f4a22" text-anchor="middle" font-weight="bold">Dip_type_01</text>
+<text xml:space="preserve" x="653.9" y="1009.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ room : Room</text>
+<text xml:space="preserve" x="653.9" y="1025.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ x, y, z, d : float</text>
+<text xml:space="preserve" x="653.9" y="1042.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ inlet_face</text>
+<line x1="642.9" y1="1052.5" x2="814.9" y2="1052.5" stroke="#1a7f37" stroke-width="0.8"/>
+<text xml:space="preserve" x="653.9" y="1071.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ type_01()</text>
+<rect x="825.1" y="958.0" width="172.0" height="124.0" rx="4" fill="#ffffff" stroke="#1a7f37" stroke-width="1.3"/>
+<path d="M825.8,990.0 V962.0 Q825.8,958.6 829.1,958.6 H993.1 Q996.5,958.6 996.5,962.0 V990.0 Z" fill="#dafbe1"/>
+<line x1="825.1" y1="990.0" x2="997.1" y2="990.0" stroke="#1a7f37" stroke-width="1"/>
+<text xml:space="preserve" x="911.1" y="979.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#0f4a22" text-anchor="middle" font-weight="bold">Dip_type_02</text>
+<text xml:space="preserve" x="836.1" y="1009.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ room : Room</text>
+<text xml:space="preserve" x="836.1" y="1025.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ x, y, z, d : float</text>
+<text xml:space="preserve" x="836.1" y="1042.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ inlet_face</text>
+<line x1="825.1" y1="1052.5" x2="997.1" y2="1052.5" stroke="#1a7f37" stroke-width="0.8"/>
+<text xml:space="preserve" x="836.1" y="1071.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ type_02()</text>
+<rect x="1007.4" y="958.0" width="172.0" height="124.0" rx="4" fill="#ffffff" stroke="#1a7f37" stroke-width="1.3"/>
+<path d="M1008.1,990.0 V962.0 Q1008.1,958.6 1011.4,958.6 H1175.4 Q1178.8,958.6 1178.8,962.0 V990.0 Z" fill="#dafbe1"/>
+<line x1="1007.4" y1="990.0" x2="1179.4" y2="990.0" stroke="#1a7f37" stroke-width="1"/>
+<text xml:space="preserve" x="1093.4" y="979.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#0f4a22" text-anchor="middle" font-weight="bold">Dip_type_03</text>
+<text xml:space="preserve" x="1018.4" y="1009.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ room : Room</text>
+<text xml:space="preserve" x="1018.4" y="1025.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ x, y, z, d : float</text>
+<text xml:space="preserve" x="1018.4" y="1042.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ inlet_face</text>
+<line x1="1007.4" y1="1052.5" x2="1179.4" y2="1052.5" stroke="#1a7f37" stroke-width="0.8"/>
+<text xml:space="preserve" x="1018.4" y="1071.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ type_03()</text>
+<rect x="1189.7" y="958.0" width="172.0" height="88.0" rx="4" fill="#ffffff" stroke="#1a7f37" stroke-width="1.3"/>
+<path d="M1190.4,990.0 V962.0 Q1190.4,958.6 1193.7,958.6 H1357.7 Q1361.1,958.6 1361.1,962.0 V990.0 Z" fill="#dafbe1"/>
+<line x1="1189.7" y1="990.0" x2="1361.7" y2="990.0" stroke="#1a7f37" stroke-width="1"/>
+<text xml:space="preserve" x="1275.7" y="979.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#0f4a22" text-anchor="middle" font-weight="bold">Table_retangular</text>
+<line x1="1189.7" y1="1000.0" x2="1361.7" y2="1000.0" stroke="#1a7f37" stroke-width="0.8"/>
+<text xml:space="preserve" x="1200.7" y="1019.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ retangular(dx, dy,</text>
+<text xml:space="preserve" x="1200.7" y="1035.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">    dz, x, y, z)</text>
+<rect x="1372.0" y="958.0" width="198.0" height="88.0" rx="4" fill="#ffffff" stroke="#1a7f37" stroke-width="1.3"/>
+<path d="M1372.6,990.0 V962.0 Q1372.6,958.6 1376.0,958.6 H1566.0 Q1569.3,958.6 1569.3,962.0 V990.0 Z" fill="#dafbe1"/>
+<line x1="1372.0" y1="990.0" x2="1570.0" y2="990.0" stroke="#1a7f37" stroke-width="1"/>
+<text xml:space="preserve" x="1471.0" y="979.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#0f4a22" text-anchor="middle" font-weight="bold">Table_circular</text>
+<line x1="1372.0" y1="1000.0" x2="1570.0" y2="1000.0" stroke="#1a7f37" stroke-width="0.8"/>
+<text xml:space="preserve" x="1383.0" y="1019.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ circular(raio,</text>
+<text xml:space="preserve" x="1383.0" y="1035.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">    espessura, x, y, z)</text>
+<polyline points="330.0,178.0 450.0,178.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round" marker-start="url(#mopen424a53)" marker-end="url(#mopen424a53)"/>
+<text xml:space="preserve" x="444.0" y="172.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="end">room 0..1</text>
+<text xml:space="preserve" x="336.0" y="194.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">salome_env 1</text>
+<polyline points="1050.0,178.0 990.0,178.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round" marker-end="url(#mopen424a53)"/>
+<text xml:space="preserve" x="996.0" y="172.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">room 1</text>
+<polyline points="720.0,656.5 720.0,720.5" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round" marker-start="url(#mdiamond424a53)" marker-end="url(#mopen424a53)"/>
+<text xml:space="preserve" x="728.0" y="712.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">obj_list 0..*</text>
+<rect x="643.2" y="682.0" width="71.8" height="15.5" rx="0" fill="#ffffff"/>
+<text xml:space="preserve" x="712.0" y="692.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="end" font-style="italic">add(obj_list)</text>
+<polyline points="560.0,760.5 320.0,760.5 320.0,324.5" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round" marker-end="url(#mopen424a53)"/>
+<text xml:space="preserve" x="326.0" y="340.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">salome_env 1</text>
+<polyline points="1050.0,656.5 990.0,656.5" fill="none" stroke="#8c959f" stroke-width="1" stroke-linejoin="round" stroke-dasharray="3 3"/>
+<polyline points="1176.0,456.5 1176.0,510.5" fill="none" stroke="#424a53" stroke-width="1.2" stroke-linejoin="round" stroke-dasharray="6 4" marker-end="url(#mopen424a53)"/>
+<rect x="1153.5" y="477.0" width="44.9" height="15.5" rx="0" fill="#ffffff"/>
+<text xml:space="preserve" x="1176.0" y="487.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="middle" font-style="italic">«write»</text>
+<polyline points="1444.0,456.5 1444.0,510.5" fill="none" stroke="#424a53" stroke-width="1.2" stroke-linejoin="round" stroke-dasharray="6 4" marker-end="url(#mopen424a53)"/>
+<rect x="1421.5" y="477.0" width="44.9" height="15.5" rx="0" fill="#ffffff"/>
+<text xml:space="preserve" x="1444.0" y="487.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="middle" font-style="italic">«write»</text>
+<polyline points="138.0,958.0 138.0,932.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round"/>
+<polyline points="353.3,958.0 353.3,932.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round"/>
+<polyline points="546.6,958.0 546.6,932.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round"/>
+<polyline points="728.9,958.0 728.9,932.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round"/>
+<polyline points="911.1,958.0 911.1,932.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round"/>
+<polyline points="1093.4,958.0 1093.4,932.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round"/>
+<polyline points="1275.7,958.0 1275.7,932.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round"/>
+<polyline points="1471.0,958.0 1471.0,932.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round"/>
+<polyline points="138.0,932.0 1471.0,932.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round"/>
+<polyline points="720.0,932.0 720.0,894.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round" marker-end="url(#mtriangle424a53)"/>
+<rect x="30.0" y="1110.0" width="1540.0" height="46.0" rx="4" fill="#ffffff" stroke="#d0d7de" stroke-width="1"/>
+<text xml:space="preserve" x="44.0" y="1138.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start" font-weight="bold">How to read it</text>
+<polyline points="160.0,1134.0 204.0,1134.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round" marker-end="url(#mtriangle424a53)"/>
+<text xml:space="preserve" x="212.0" y="1138.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">is a (inherits)</text>
+<polyline points="307.1,1134.0 351.1,1134.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round" marker-end="url(#mopen424a53)"/>
+<text xml:space="preserve" x="359.1" y="1138.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">holds a reference</text>
+<polyline points="478.4,1134.0 522.4,1134.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round" marker-start="url(#mdiamond424a53)" marker-end="url(#mopen424a53)"/>
+<text xml:space="preserve" x="530.4" y="1138.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">contains a list of</text>
+<polyline points="643.0,1134.0 687.0,1134.0" fill="none" stroke="#424a53" stroke-width="1.2" stroke-linejoin="round" stroke-dasharray="6 4" marker-end="url(#mopen424a53)"/>
+<text xml:space="preserve" x="695.0" y="1138.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">uses / creates / writes</text>
+<text xml:space="preserve" x="837.7" y="1138.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">+ public   - internal   underline = static</text>
+<rect x="1064.4" y="1126.0" width="18.0" height="13.0" rx="2" fill="#dafbe1" stroke="#1a7f37" stroke-width="1.1"/>
+<text xml:space="preserve" x="1088.4" y="1137.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">runs inside SALOME</text>
+<rect x="1218.5" y="1126.0" width="18.0" height="13.0" rx="2" fill="#fff8c5" stroke="#9a6700" stroke-width="1.1"/>
+<text xml:space="preserve" x="1242.5" y="1137.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">file written</text>
+</svg>

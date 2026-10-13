@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 763.0" width="1600" height="763.0" role="img" aria-label="UML class diagram of NEMOS_SimulationAnalysis.py">
+<title>UML class diagram of NEMOS_SimulationAnalysis.py</title>
+<defs><marker id="mopen424a53" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#424a53" stroke-width="1.4"/></marker><marker id="mtriangle424a53" viewBox="0 0 16 16" refX="15" refY="8" markerWidth="16" markerHeight="16" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M1,1 L15,8 L1,15 z" fill="#ffffff" stroke="#424a53" stroke-width="1.3"/></marker><marker id="mdiamond424a53" viewBox="0 0 20 12" refX="19" refY="6" markerWidth="20" markerHeight="12" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M1,6 L10,1 L19,6 L10,11 z" fill="#ffffff" stroke="#424a53" stroke-width="1.3"/></marker></defs>
+<rect width="1600" height="763.0" fill="#ffffff"/>
+<text xml:space="preserve" x="30.0" y="42.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" fill="#1f2328" text-anchor="start" font-weight="bold">NEMOS_SimulationAnalysis.py — class diagram</text>
+<text xml:space="preserve" x="30.0" y="68.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#57606a" text-anchor="start">Post-processing of a finished case with PyVista. LoadSimulation opens it; SimulationAnalysis works on the fields, Regularization resamples them onto regular grids.</text>
+<rect x="30.0" y="118.0" width="500.0" height="324.0" rx="4" fill="#ffffff" stroke="#8250df" stroke-width="1.3"/>
+<path d="M30.6,150.0 V122.0 Q30.6,118.7 34.0,118.7 H526.0 Q529.4,118.7 529.4,122.0 V150.0 Z" fill="#fbefff"/>
+<line x1="30.0" y1="150.0" x2="530.0" y2="150.0" stroke="#8250df" stroke-width="1"/>
+<text xml:space="preserve" x="280.0" y="139.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#3e1f79" text-anchor="middle" font-weight="bold">SimulationAnalysis</text>
+<text xml:space="preserve" x="41.0" y="169.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ sim : LoadSimulation</text>
+<text xml:space="preserve" x="41.0" y="185.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ internal_mesh : pv.UnstructuredGrid</text>
+<text xml:space="preserve" x="41.0" y="202.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  copied at construction: call sim.set_time() first</text>
+<line x1="30.0" y1="212.5" x2="530.0" y2="212.5" stroke="#8250df" stroke-width="0.8"/>
+<text xml:space="preserve" x="280.0" y="226.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" fill="#57606a" text-anchor="middle" font-style="italic">fields at the active time</text>
+<text xml:space="preserve" x="41.0" y="242.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ plot(parameter, out_dir, plane='xy', value=None, clim=None)</text>
+<text xml:space="preserve" x="41.0" y="259.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  slice <tspan font-family="'DejaVu Sans', 'Segoe UI Symbol', 'Segoe UI', Arial, sans-serif">→</tspan> &lt;parameter&gt;_&lt;plane&gt;_&lt;time&gt;.png; U <tspan font-family="'DejaVu Sans', 'Segoe UI Symbol', 'Segoe UI', Arial, sans-serif">→</tspan> U_mag</text>
+<text xml:space="preserve" x="41.0" y="275.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ get_point_value(point_location, geometric_type=None,</text>
+<text xml:space="preserve" x="41.0" y="292.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">    interpolation_radius=0.1, field='T')</text>
+<text xml:space="preserve" x="41.0" y="308.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  point, 'sphere', 'plane' or 'box'; prints the statistics</text>
+<line x1="30.0" y1="319.0" x2="530.0" y2="319.0" stroke="#8250df" stroke-width="0.8"/>
+<text xml:space="preserve" x="280.0" y="332.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" fill="#57606a" text-anchor="middle" font-style="italic">probes — time history</text>
+<text xml:space="preserve" x="41.0" y="349.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ get_probe_data(probe_path, field, magnitude=False, rms=False,</text>
+<text xml:space="preserve" x="41.0" y="365.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">    return_dataframe=False)</text>
+<text xml:space="preserve" x="41.0" y="382.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ probe_to_excel(probe_path, field, output_excel=None,</text>
+<text xml:space="preserve" x="41.0" y="398.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">    time=None) : DataFrame</text>
+<text xml:space="preserve" x="41.0" y="415.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ plot_probe(probe_path, field, magnitude=False,</text>
+<text xml:space="preserve" x="41.0" y="431.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">    figsize=(10, 5))</text>
+<rect x="580.0" y="118.0" width="440.0" height="272.5" rx="4" fill="#ffffff" stroke="#8250df" stroke-width="1.3"/>
+<path d="M580.6,150.0 V122.0 Q580.6,118.7 584.0,118.7 H1016.0 Q1019.4,118.7 1019.4,122.0 V150.0 Z" fill="#fbefff"/>
+<line x1="580.0" y1="150.0" x2="1020.0" y2="150.0" stroke="#8250df" stroke-width="1"/>
+<text xml:space="preserve" x="800.0" y="139.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#3e1f79" text-anchor="middle" font-weight="bold">LoadSimulation</text>
+<text xml:space="preserve" x="591.0" y="169.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ sim_path : str</text>
+<text xml:space="preserve" x="591.0" y="185.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ case : pv.OpenFOAMReader</text>
+<text xml:space="preserve" x="591.0" y="202.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ available_times : list[float]</text>
+<text xml:space="preserve" x="591.0" y="218.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ time_step : float</text>
+<text xml:space="preserve" x="591.0" y="235.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  default: the last time</text>
+<text xml:space="preserve" x="591.0" y="251.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ mesh : pv.MultiBlock</text>
+<text xml:space="preserve" x="591.0" y="268.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ internal_mesh : pv.UnstructuredGrid</text>
+<text xml:space="preserve" x="591.0" y="284.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ boundaries : dict[str, pv.PolyData]</text>
+<line x1="580.0" y1="295.0" x2="1020.0" y2="295.0" stroke="#8250df" stroke-width="0.8"/>
+<text xml:space="preserve" x="591.0" y="314.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ LoadSimulation(sim_path, time_step=None)</text>
+<text xml:space="preserve" x="591.0" y="330.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ set_time(time)</text>
+<text xml:space="preserve" x="591.0" y="347.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  re-reads mesh, internal_mesh, boundaries</text>
+<text xml:space="preserve" x="591.0" y="363.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _read_field_probe(probe_path, field, ...)</text>
+<text xml:space="preserve" x="591.0" y="380.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ __repr__() : str</text>
+<rect x="1070.0" y="118.0" width="500.0" height="307.5" rx="4" fill="#ffffff" stroke="#8250df" stroke-width="1.3"/>
+<path d="M1070.7,150.0 V122.0 Q1070.7,118.7 1074.0,118.7 H1566.0 Q1569.3,118.7 1569.3,122.0 V150.0 Z" fill="#fbefff"/>
+<line x1="1070.0" y1="150.0" x2="1570.0" y2="150.0" stroke="#8250df" stroke-width="1"/>
+<text xml:space="preserve" x="1320.0" y="139.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#3e1f79" text-anchor="middle" font-weight="bold">Regularization</text>
+<text xml:space="preserve" x="1081.0" y="169.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ sim : LoadSimulation</text>
+<text xml:space="preserve" x="1081.0" y="185.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  read live on every call</text>
+<line x1="1070.0" y1="196.0" x2="1570.0" y2="196.0" stroke="#8250df" stroke-width="0.8"/>
+<text xml:space="preserve" x="1320.0" y="209.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" fill="#57606a" text-anchor="middle" font-style="italic">2D — one plane</text>
+<text xml:space="preserve" x="1081.0" y="226.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ reg2D(out_dir, n1, n2, plane='xy',</text>
+<text xml:space="preserve" x="1081.0" y="242.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">    value=None) : (DataFrame, plane)</text>
+<text xml:space="preserve" x="1081.0" y="259.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  Sim_points_2D_&lt;plane&gt;_t&lt;time&gt;.xlsx</text>
+<text xml:space="preserve" x="1081.0" y="275.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ plot_2D(plane_sampled, scalar='T', clim=None)</text>
+<text xml:space="preserve" x="1081.0" y="292.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ save_plot_2D_reg(plane_sampled, scalar='T', filename='2D.png',</text>
+<text xml:space="preserve" x="1081.0" y="308.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">    out_dir='', clim=None)</text>
+<line x1="1070.0" y1="319.0" x2="1570.0" y2="319.0" stroke="#8250df" stroke-width="0.8"/>
+<text xml:space="preserve" x="1320.0" y="332.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" fill="#57606a" text-anchor="middle" font-style="italic">3D — whole volume</text>
+<text xml:space="preserve" x="1081.0" y="349.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ reg3D(nx, ny, nz, out_dir) : (DataFrame, grid)</text>
+<text xml:space="preserve" x="1081.0" y="365.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  Sim_points_3D_t&lt;time&gt;.csv; 60 x 60 x 60 = 216 000 points</text>
+<text xml:space="preserve" x="1081.0" y="382.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ plot_reg_3D(grid_sampled, scalar='T', clim=None)</text>
+<text xml:space="preserve" x="1081.0" y="398.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ save_plot_3D_reg(grid_sampled, scalar='T', filename='3D.png',</text>
+<text xml:space="preserve" x="1081.0" y="415.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">    out_dir='', clim=None)</text>
+<rect x="580.0" y="506.0" width="210.0" height="82.0" rx="4" fill="#fbefff" stroke="#8250df" stroke-width="1.2"/>
+<text xml:space="preserve" x="592.0" y="522.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" fill="#57606a" text-anchor="start">«library»</text>
+<text xml:space="preserve" x="592.0" y="540.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13" fill="#3e1f79" text-anchor="start" font-weight="bold">PyVista</text>
+<rect x="768.0" y="514.0" width="13" height="15" fill="#ffffff" stroke="#8250df" stroke-width="1"/><rect x="765.0" y="517.0" width="6" height="3" fill="#ffffff" stroke="#8250df" stroke-width="1"/><rect x="765.0" y="523.0" width="6" height="3" fill="#ffffff" stroke="#8250df" stroke-width="1"/>
+<text xml:space="preserve" x="592.0" y="562.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">pv.OpenFOAMReader, slices,</text>
+<text xml:space="preserve" x="592.0" y="578.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">sampling, plotting</text>
+<rect x="810.0" y="506.0" width="210.0" height="82.0" rx="4" fill="#fff8c5" stroke="#9a6700" stroke-width="1.2" stroke-dasharray="5 3"/>
+<text xml:space="preserve" x="822.0" y="522.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" fill="#57606a" text-anchor="start">«artifact»</text>
+<text xml:space="preserve" x="822.0" y="540.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#4d3800" text-anchor="start" font-weight="bold">&lt;case&gt;/caso.foam</text>
+<path d="M998.0,514.0 h8 l5,5 v11 h-13 z" fill="#ffffff" stroke="#9a6700" stroke-width="1"/><path d="M1006.0,514.0 v5 h5" fill="none" stroke="#9a6700" stroke-width="1"/>
+<text xml:space="preserve" x="822.0" y="562.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">+ time folders 0/, 20/, …</text>
+<text xml:space="preserve" x="822.0" y="578.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">+ postProcessing/probes/</text>
+<rect x="30.0" y="506.0" width="500.0" height="82.0" rx="4" fill="#fff8c5" stroke="#9a6700" stroke-width="1.2" stroke-dasharray="5 3"/>
+<text xml:space="preserve" x="42.0" y="522.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" fill="#57606a" text-anchor="start">«artifact»</text>
+<text xml:space="preserve" x="42.0" y="540.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#4d3800" text-anchor="start" font-weight="bold">&lt;out_dir&gt;/</text>
+<path d="M508,514.0 h8 l5,5 v11 h-13 z" fill="#ffffff" stroke="#9a6700" stroke-width="1"/><path d="M516,514.0 v5 h5" fill="none" stroke="#9a6700" stroke-width="1"/>
+<text xml:space="preserve" x="42.0" y="562.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">PNG slices from plot()</text>
+<text xml:space="preserve" x="42.0" y="578.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">&lt;field&gt;.xlsx from probe_to_excel()</text>
+<rect x="1070.0" y="506.0" width="500.0" height="82.0" rx="4" fill="#fff8c5" stroke="#9a6700" stroke-width="1.2" stroke-dasharray="5 3"/>
+<text xml:space="preserve" x="1082.0" y="522.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" fill="#57606a" text-anchor="start">«artifact»</text>
+<text xml:space="preserve" x="1082.0" y="540.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#4d3800" text-anchor="start" font-weight="bold">&lt;out_dir&gt;/</text>
+<path d="M1548.0,514.0 h8 l5,5 v11 h-13 z" fill="#ffffff" stroke="#9a6700" stroke-width="1"/><path d="M1556.0,514.0 v5 h5" fill="none" stroke="#9a6700" stroke-width="1"/>
+<text xml:space="preserve" x="1082.0" y="562.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">2D: .xlsx + PNG</text>
+<text xml:space="preserve" x="1082.0" y="578.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">3D: .csv + PNG</text>
+<path d="M580.0,614.0 H1008.0 L1020.0,626.0 V667.0 H580.0 Z" fill="#f6f8fa" stroke="#8c959f" stroke-width="1"/>
+<path d="M1008.0,614.0 V626.0 H1020.0" fill="#eaeef2" stroke="#8c959f" stroke-width="1"/>
+<text xml:space="preserve" x="592.0" y="636.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">Needs a finished case: caso.foam at the root and, for a parallel run,</text>
+<text xml:space="preserve" x="592.0" y="653.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">reconstructPar first. Otherwise only time 0 is visible.</text>
+<polyline points="530.0,162.0 580.0,162.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round" marker-end="url(#mopen424a53)"/>
+<text xml:space="preserve" x="574.0" y="156.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="end">sim 1</text>
+<polyline points="1070.0,162.0 1020.0,162.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round" marker-end="url(#mopen424a53)"/>
+<text xml:space="preserve" x="1026.0" y="156.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">sim 1</text>
+<polyline points="685.0,390.5 685.0,506.0" fill="none" stroke="#424a53" stroke-width="1.2" stroke-linejoin="round" stroke-dasharray="6 4" marker-end="url(#mopen424a53)"/>
+<rect x="665.6" y="441.8" width="38.9" height="15.5" rx="0" fill="#ffffff"/>
+<text xml:space="preserve" x="685.0" y="452.2" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="middle" font-style="italic">«use»</text>
+<polyline points="915.0,390.5 915.0,506.0" fill="none" stroke="#424a53" stroke-width="1.2" stroke-linejoin="round" stroke-dasharray="6 4" marker-end="url(#mopen424a53)"/>
+<rect x="893.2" y="441.8" width="43.6" height="15.5" rx="0" fill="#ffffff"/>
+<text xml:space="preserve" x="915.0" y="452.2" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="middle" font-style="italic">«read»</text>
+<polyline points="90.0,442.0 90.0,506.0" fill="none" stroke="#424a53" stroke-width="1.2" stroke-linejoin="round" stroke-dasharray="6 4" marker-end="url(#mopen424a53)"/>
+<rect x="67.5" y="467.5" width="44.9" height="15.5" rx="0" fill="#ffffff"/>
+<text xml:space="preserve" x="90.0" y="478.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="middle" font-style="italic">«write»</text>
+<polyline points="1510.0,425.5 1510.0,506.0" fill="none" stroke="#424a53" stroke-width="1.2" stroke-linejoin="round" stroke-dasharray="6 4" marker-end="url(#mopen424a53)"/>
+<rect x="1487.5" y="459.2" width="44.9" height="15.5" rx="0" fill="#ffffff"/>
+<text xml:space="preserve" x="1510.0" y="469.8" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="middle" font-style="italic">«write»</text>
+<polyline points="800.0,614.0 800.0,588.0" fill="none" stroke="#8c959f" stroke-width="1" stroke-linejoin="round" stroke-dasharray="3 3"/>
+<rect x="30.0" y="695.0" width="1540.0" height="46.0" rx="4" fill="#ffffff" stroke="#d0d7de" stroke-width="1"/>
+<text xml:space="preserve" x="44.0" y="723.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start" font-weight="bold">How to read it</text>
+<polyline points="160.0,719.0 204.0,719.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round" marker-end="url(#mtriangle424a53)"/>
+<text xml:space="preserve" x="212.0" y="723.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">is a (inherits)</text>
+<polyline points="307.1,719.0 351.1,719.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round" marker-end="url(#mopen424a53)"/>
+<text xml:space="preserve" x="359.1" y="723.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">holds a reference</text>
+<polyline points="478.4,719.0 522.4,719.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round" marker-start="url(#mdiamond424a53)" marker-end="url(#mopen424a53)"/>
+<text xml:space="preserve" x="530.4" y="723.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">contains a list of</text>
+<polyline points="643.0,719.0 687.0,719.0" fill="none" stroke="#424a53" stroke-width="1.2" stroke-linejoin="round" stroke-dasharray="6 4" marker-end="url(#mopen424a53)"/>
+<text xml:space="preserve" x="695.0" y="723.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">uses / creates / writes</text>
+<text xml:space="preserve" x="837.7" y="723.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">+ public   - internal   underline = static</text>
+<rect x="1064.4" y="711.0" width="18.0" height="13.0" rx="2" fill="#fbefff" stroke="#8250df" stroke-width="1.1"/>
+<text xml:space="preserve" x="1088.4" y="722.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">post-processing (PyVista)</text>
+<rect x="1244.0" y="711.0" width="18.0" height="13.0" rx="2" fill="#fff8c5" stroke="#9a6700" stroke-width="1.1"/>
+<text xml:space="preserve" x="1268.0" y="722.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">files</text>
+</svg>

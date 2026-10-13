@@ -1,0 +1,186 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1182.0" width="1600" height="1182.0" role="img" aria-label="UML class diagram of Manager.py">
+<title>UML class diagram of Manager.py</title>
+<defs><marker id="mtriangle424a53" viewBox="0 0 16 16" refX="15" refY="8" markerWidth="16" markerHeight="16" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M1,1 L15,8 L1,15 z" fill="#ffffff" stroke="#424a53" stroke-width="1.3"/></marker><marker id="mopen424a53" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#424a53" stroke-width="1.4"/></marker><marker id="mdiamond424a53" viewBox="0 0 20 12" refX="19" refY="6" markerWidth="20" markerHeight="12" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M1,6 L10,1 L19,6 L10,11 z" fill="#ffffff" stroke="#424a53" stroke-width="1.3"/></marker></defs>
+<rect width="1600" height="1182.0" fill="#ffffff"/>
+<text xml:space="preserve" x="30.0" y="42.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" fill="#1f2328" text-anchor="start" font-weight="bold">Manager.py — class diagram</text>
+<text xml:space="preserve" x="30.0" y="68.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#57606a" text-anchor="start">Parameter sweeps. Same recorder classes as Simulation.py, but the calls are replayed N times: one ordinary single-run script per simulation, run one after another.</text>
+<rect x="30.0" y="96.0" width="132.7" height="23.0" rx="3" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.1"/>
+<rect x="30.0" y="118.0" width="640.0" height="319.0" rx="3" fill="#ffffff" stroke="#6e7781" stroke-width="1.1"/>
+<rect x="31.0" y="116.5" width="130.7" height="3.0" rx="0" fill="#f6f8fa"/>
+<text xml:space="preserve" x="42.0" y="111.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#24292f" text-anchor="start" font-weight="bold">Recorder classes</text>
+<text xml:space="preserve" x="170.7" y="111.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start" font-style="italic">what your script instantiates</text>
+<polyline points="118.0,164.0 118.0,176.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round"/>
+<polyline points="200.5,164.0 200.5,176.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round"/>
+<polyline points="260.8,164.0 260.8,176.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round"/>
+<polyline points="349.1,164.0 349.1,176.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round"/>
+<polyline points="473.9,164.0 473.9,176.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round"/>
+<polyline points="596.5,164.0 596.5,176.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round"/>
+<polyline points="50.0,176.0 596.5,176.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round"/>
+<polyline points="117.7,216.0 117.7,230.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round"/>
+<polyline points="231.7,216.0 231.7,230.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round"/>
+<polyline points="345.8,216.0 345.8,230.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round"/>
+<polyline points="459.8,216.0 459.8,230.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round"/>
+<polyline points="588.1,216.0 588.1,230.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round"/>
+<polyline points="50.0,176.0 50.0,230.0 588.1,230.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round"/>
+<polyline points="350.0,230.0 350.0,264.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round" marker-end="url(#mtriangle424a53)"/>
+<rect x="68.0" y="136.0" width="100.1" height="28.0" rx="4" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.2"/>
+<text xml:space="preserve" x="118.0" y="154.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#24292f" text-anchor="middle" font-weight="bold">Salome_Env</text>
+<rect x="170.9" y="136.0" width="59.2" height="28.0" rx="4" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.2"/>
+<text xml:space="preserve" x="200.5" y="154.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#24292f" text-anchor="middle" font-weight="bold">Room</text>
+<rect x="233.0" y="136.0" width="55.5" height="28.0" rx="4" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.2"/>
+<text xml:space="preserve" x="260.8" y="154.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#24292f" text-anchor="middle" font-weight="bold">Mesh</text>
+<rect x="291.4" y="136.0" width="115.4" height="28.0" rx="4" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.2"/>
+<text xml:space="preserve" x="349.1" y="154.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#24292f" text-anchor="middle" font-weight="bold">Person_seated</text>
+<rect x="409.6" y="136.0" width="128.5" height="28.0" rx="4" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.2"/>
+<text xml:space="preserve" x="473.9" y="154.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#24292f" text-anchor="middle" font-weight="bold">Person_standing</text>
+<rect x="541.0" y="136.0" width="111.0" height="28.0" rx="4" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.2"/>
+<text xml:space="preserve" x="596.5" y="154.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#24292f" text-anchor="middle" font-weight="bold">Table_circular</text>
+<rect x="68.0" y="188.0" width="99.3" height="28.0" rx="4" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.2"/>
+<text xml:space="preserve" x="117.7" y="206.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#24292f" text-anchor="middle" font-weight="bold">Dip_type_00</text>
+<rect x="182.1" y="188.0" width="99.3" height="28.0" rx="4" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.2"/>
+<text xml:space="preserve" x="231.7" y="206.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#24292f" text-anchor="middle" font-weight="bold">Dip_type_01</text>
+<rect x="296.1" y="188.0" width="99.3" height="28.0" rx="4" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.2"/>
+<text xml:space="preserve" x="345.8" y="206.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#24292f" text-anchor="middle" font-weight="bold">Dip_type_02</text>
+<rect x="410.2" y="188.0" width="99.3" height="28.0" rx="4" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.2"/>
+<text xml:space="preserve" x="459.8" y="206.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#24292f" text-anchor="middle" font-weight="bold">Dip_type_03</text>
+<rect x="524.2" y="188.0" width="127.8" height="28.0" rx="4" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.2"/>
+<text xml:space="preserve" x="588.1" y="206.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#24292f" text-anchor="middle" font-weight="bold">Table_retangular</text>
+<rect x="191.9" y="264.0" width="316.2" height="157.0" rx="4" fill="#ffffff" stroke="#6e7781" stroke-width="1.3"/>
+<path d="M192.6,296.0 V268.0 Q192.6,264.6 195.9,264.6 H504.1 Q507.4,264.6 507.4,268.0 V296.0 Z" fill="#f6f8fa"/>
+<line x1="191.9" y1="296.0" x2="508.1" y2="296.0" stroke="#6e7781" stroke-width="1"/>
+<text xml:space="preserve" x="350.0" y="285.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#24292f" text-anchor="middle" font-weight="bold">_RecordedObject</text>
+<text xml:space="preserve" x="202.9" y="315.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _simulation : Simulation</text>
+<text xml:space="preserve" x="202.9" y="331.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _class_name : str</text>
+<text xml:space="preserve" x="202.9" y="348.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _var_name : str</text>
+<line x1="191.9" y1="358.5" x2="508.1" y2="358.5" stroke="#6e7781" stroke-width="0.8"/>
+<text xml:space="preserve" x="202.9" y="377.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ __init__(class_name, *args, **kwargs)</text>
+<text xml:space="preserve" x="202.9" y="394.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ __getattr__(name) : callable</text>
+<text xml:space="preserve" x="202.9" y="410.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  any method call <tspan font-family="'DejaVu Sans', 'Segoe UI Symbol', 'Segoe UI', Arial, sans-serif">→</tspan> sim._record_method(...)</text>
+<rect x="30.0" y="507.0" width="640.0" height="579.0" rx="4" fill="#ffffff" stroke="#6e7781" stroke-width="1.3"/>
+<path d="M30.6,539.0 V511.0 Q30.6,507.6 34.0,507.6 H666.0 Q669.4,507.6 669.4,511.0 V539.0 Z" fill="#f6f8fa"/>
+<line x1="30.0" y1="539.0" x2="670.0" y2="539.0" stroke="#6e7781" stroke-width="1"/>
+<text xml:space="preserve" x="350.0" y="528.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#24292f" text-anchor="middle" font-weight="bold">Simulation</text>
+<text xml:space="preserve" x="41.0" y="558.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ user_script_path : Path</text>
+<text xml:space="preserve" x="41.0" y="574.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  the manager script itself</text>
+<text xml:space="preserve" x="41.0" y="591.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ case_path : Path</text>
+<text xml:space="preserve" x="41.0" y="607.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  sweep root</text>
+<text xml:space="preserve" x="41.0" y="624.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _sim_kwargs : dict</text>
+<text xml:space="preserve" x="41.0" y="640.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  copied into every script_i.py</text>
+<text xml:space="preserve" x="41.0" y="657.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _actions : list[tuple]</text>
+<text xml:space="preserve" x="41.0" y="673.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  ('init' | 'method', var, ...)</text>
+<text xml:space="preserve" x="41.0" y="690.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _list_names : set[str]</text>
+<text xml:space="preserve" x="41.0" y="706.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  top-level lists, found with ast</text>
+<text xml:space="preserve" x="41.0" y="723.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _sweep_lists : dict[str, list]</text>
+<text xml:space="preserve" x="41.0" y="739.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _sweep_list_ids : dict[int, str]</text>
+<text xml:space="preserve" x="41.0" y="756.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _sweep_length : int</text>
+<text xml:space="preserve" x="41.0" y="772.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  N simulations</text>
+<text xml:space="preserve" x="41.0" y="789.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _object_var_names : dict</text>
+<text xml:space="preserve" x="41.0" y="805.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _object_classes_by_var : dict</text>
+<line x1="30.0" y1="816.0" x2="670.0" y2="816.0" stroke="#6e7781" stroke-width="0.8"/>
+<text xml:space="preserve" x="350.0" y="829.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" fill="#57606a" text-anchor="middle" font-style="italic">public</text>
+<text xml:space="preserve" x="41.0" y="846.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ Simulation(script_path=None, case_path=None, **config)</text>
+<text xml:space="preserve" x="41.0" y="862.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ build_machine_script() : list[Path]</text>
+<text xml:space="preserve" x="41.0" y="879.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  creates SIM_0 … SIM_N-1 and scripts/script_i.py</text>
+<line x1="30.0" y1="889.5" x2="670.0" y2="889.5" stroke="#6e7781" stroke-width="0.8"/>
+<text xml:space="preserve" x="350.0" y="903.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" fill="#57606a" text-anchor="middle" font-style="italic">recording — called by the recorder objects</text>
+<text xml:space="preserve" x="41.0" y="919.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _register_object(obj, class_name, args, kwargs) : str</text>
+<text xml:space="preserve" x="41.0" y="936.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _record_method(obj, method_name, args, kwargs)</text>
+<line x1="30.0" y1="946.5" x2="670.0" y2="946.5" stroke="#6e7781" stroke-width="0.8"/>
+<text xml:space="preserve" x="350.0" y="960.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" fill="#57606a" text-anchor="middle" font-style="italic">rendering one script per simulation</text>
+<text xml:space="preserve" x="41.0" y="976.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _load_list_names() : set[str]</text>
+<text xml:space="preserve" x="41.0" y="993.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _collect_sweep_lists(globals_dict)</text>
+<text xml:space="preserve" x="41.0" y="1009.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  ValueError unless all lists share one non-zero length</text>
+<text xml:space="preserve" x="41.0" y="1026.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _mesh_uses_sweep() : bool</text>
+<text xml:space="preserve" x="41.0" y="1042.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _format_value(value, index)</text>
+<text xml:space="preserve" x="41.0" y="1059.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  list <tspan font-family="'DejaVu Sans', 'Segoe UI Symbol', 'Segoe UI', Arial, sans-serif">→</tspan> element i</text>
+<text xml:space="preserve" x="41.0" y="1075.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _render_script(case_path, index) : str</text>
+<rect x="740.0" y="118.0" width="470.0" height="202.0" rx="4" fill="#ffffff" stroke="#6e7781" stroke-width="1.3"/>
+<path d="M740.6,162.0 V122.0 Q740.6,118.7 744.0,118.7 H1206.0 Q1209.3,118.7 1209.3,122.0 V162.0 Z" fill="#f6f8fa"/>
+<line x1="740.0" y1="162.0" x2="1210.0" y2="162.0" stroke="#6e7781" stroke-width="1"/>
+<text xml:space="preserve" x="975.0" y="134.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="middle">«module»</text>
+<text xml:space="preserve" x="975.0" y="152.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#24292f" text-anchor="middle" font-weight="bold">Manager.py</text>
+<text xml:space="preserve" x="751.0" y="181.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _ACTIVE_SIMULATION : Simulation</text>
+<line x1="740.0" y1="191.5" x2="1210.0" y2="191.5" stroke="#6e7781" stroke-width="0.8"/>
+<text xml:space="preserve" x="751.0" y="210.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ main(scripts=None) : int</text>
+<text xml:space="preserve" x="751.0" y="227.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  runs the scripts in order, stops at the first failure</text>
+<text xml:space="preserve" x="751.0" y="243.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ run_script(script_path, cwd) : int</text>
+<text xml:space="preserve" x="751.0" y="260.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  subprocess: python script_i.py</text>
+<text xml:space="preserve" x="751.0" y="276.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">+ resume(case_root) : int</text>
+<text xml:space="preserve" x="751.0" y="293.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" font-style="italic">  re-runs only the SIM_i without .nemos_done</text>
+<text xml:space="preserve" x="751.0" y="309.5" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">- _sim_is_complete(sim_dir) : bool</text>
+<path d="M1232,118 H1558 L1570,130 V204.0 H1232 Z" fill="#f6f8fa" stroke="#8c959f" stroke-width="1"/>
+<path d="M1558,118 V130 H1570" fill="#eaeef2" stroke="#8c959f" stroke-width="1"/>
+<text xml:space="preserve" x="1244.0" y="140.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">Every top-level list in the manager script is a sweep</text>
+<text xml:space="preserve" x="1244.0" y="157.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">parameter.</text>
+<text xml:space="preserve" x="1244.0" y="173.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">Simulation i receives element i of every list, so all lists</text>
+<text xml:space="preserve" x="1244.0" y="190.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">must have the same, non-zero length N.</text>
+<rect x="740.0" y="517.0" width="385.0" height="82.0" rx="4" fill="#fff8c5" stroke="#9a6700" stroke-width="1.2" stroke-dasharray="5 3"/>
+<text xml:space="preserve" x="752.0" y="533.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" fill="#57606a" text-anchor="start">«artifact»</text>
+<text xml:space="preserve" x="752.0" y="551.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#4d3800" text-anchor="start" font-weight="bold">scripts/script_i.py</text>
+<path d="M1103.0,525.0 h8 l5,5 v11 h-13 z" fill="#ffffff" stroke="#9a6700" stroke-width="1"/><path d="M1111.0,525.0 v5 h5" fill="none" stroke="#9a6700" stroke-width="1"/>
+<text xml:space="preserve" x="752.0" y="573.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">× N — an ordinary single-run script:</text>
+<text xml:space="preserve" x="752.0" y="589.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">import Simulation as nemos … nemos.run(sim)</text>
+<rect x="1185.0" y="517.0" width="385.0" height="66.0" rx="4" fill="#fff8c5" stroke="#9a6700" stroke-width="1.2" stroke-dasharray="5 3"/>
+<text xml:space="preserve" x="1197.0" y="533.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" fill="#57606a" text-anchor="start">«artifact»</text>
+<text xml:space="preserve" x="1197.0" y="551.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#4d3800" text-anchor="start" font-weight="bold">logs/script_i.log</text>
+<path d="M1548.0,525.0 h8 l5,5 v11 h-13 z" fill="#ffffff" stroke="#9a6700" stroke-width="1"/><path d="M1556.0,525.0 v5 h5" fill="none" stroke="#9a6700" stroke-width="1"/>
+<text xml:space="preserve" x="1197.0" y="573.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">× N — stdout and stderr of each run</text>
+<rect x="740.0" y="693.2" width="385.0" height="82.0" rx="4" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.2"/>
+<text xml:space="preserve" x="752.0" y="709.2" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" fill="#57606a" text-anchor="start">«module»</text>
+<text xml:space="preserve" x="752.0" y="727.2" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#24292f" text-anchor="start" font-weight="bold">Simulation.py</text>
+<rect x="1103.0" y="701.1666666666666" width="13" height="15" fill="#ffffff" stroke="#6e7781" stroke-width="1"/><rect x="1100.0" y="704.1666666666666" width="6" height="3" fill="#ffffff" stroke="#6e7781" stroke-width="1"/><rect x="1100.0" y="710.1666666666666" width="6" height="3" fill="#ffffff" stroke="#6e7781" stroke-width="1"/>
+<text xml:space="preserve" x="752.0" y="749.2" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">the single-run driver (see 1_simulation.svg)</text>
+<text xml:space="preserve" x="752.0" y="765.2" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">run(sim) builds and solves one case</text>
+<rect x="1185.0" y="693.2" width="385.0" height="82.0" rx="4" fill="#fff8c5" stroke="#9a6700" stroke-width="1.2" stroke-dasharray="5 3"/>
+<text xml:space="preserve" x="1197.0" y="709.2" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" fill="#57606a" text-anchor="start">«artifact»</text>
+<text xml:space="preserve" x="1197.0" y="727.2" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#4d3800" text-anchor="start" font-weight="bold">SIM_i/</text>
+<path d="M1548.0,701.1666666666666 h8 l5,5 v11 h-13 z" fill="#ffffff" stroke="#9a6700" stroke-width="1"/><path d="M1556.0,701.1666666666666 v5 h5" fill="none" stroke="#9a6700" stroke-width="1"/>
+<text xml:space="preserve" x="1197.0" y="749.2" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">× N — one complete OpenFOAM case each</text>
+<text xml:space="preserve" x="1197.0" y="765.2" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">SIM_i/.nemos_done when it finished</text>
+<path d="M740,841.0833333333333 H1558 L1570,853.0833333333333 V894.0833333333333 H740 Z" fill="#f6f8fa" stroke="#8c959f" stroke-width="1"/>
+<path d="M1558,841.0833333333333 V853.0833333333333 H1570" fill="#eaeef2" stroke="#8c959f" stroke-width="1"/>
+<text xml:space="preserve" x="752.0" y="863.6" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">Shared mesh: when no sweep list feeds Mesh(...), only SIM_0 runs create_mesh(). SIM_1 … SIM_N-1 get</text>
+<text xml:space="preserve" x="752.0" y="880.1" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">Simulation.Import_mesh(SIM_0/Mesh_1.unv) instead, and check_quality() is skipped there.</text>
+<path d="M740,941.1666666666666 H1558 L1570,953.1666666666666 V1010.6666666666666 H740 Z" fill="#f6f8fa" stroke="#8c959f" stroke-width="1"/>
+<path d="M1558,941.1666666666666 V953.1666666666666 H1570" fill="#eaeef2" stroke="#8c959f" stroke-width="1"/>
+<text xml:space="preserve" x="752.0" y="963.7" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">Example (examples/03_sweep_conditions.py):</text>
+<text xml:space="preserve" x="752.0" y="980.2" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">T_Flow = [291, 293, 294, 295, 296] <tspan font-family="'DejaVu Sans', 'Segoe UI Symbol', 'Segoe UI', Arial, sans-serif">→</tspan> N = 5</text>
+<text xml:space="preserve" x="752.0" y="996.7" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">script_0.py gets T_Flow=291, script_1.py gets T_Flow=293, … script_4.py gets T_Flow=296.</text>
+<polyline points="350.0,421.0 350.0,507.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round" marker-end="url(#mopen424a53)"/>
+<rect x="288.3" y="457.5" width="123.4" height="15.5" rx="0" fill="#ffffff"/>
+<text xml:space="preserve" x="350.0" y="468.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="middle" font-style="italic">records every call into</text>
+<text xml:space="preserve" x="358.0" y="437.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">*</text>
+<text xml:space="preserve" x="358.0" y="501.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">1</text>
+<polyline points="1232.0,148.0 1210.0,168.0" fill="none" stroke="#8c959f" stroke-width="1" stroke-linejoin="round" stroke-dasharray="3 3"/>
+<polyline points="670.0,547.0 740.0,547.0" fill="none" stroke="#424a53" stroke-width="1.2" stroke-linejoin="round" stroke-dasharray="6 4" marker-end="url(#mopen424a53)"/>
+<rect x="682.5" y="530.5" width="44.9" height="15.5" rx="0" fill="#ffffff"/>
+<text xml:space="preserve" x="705.0" y="541.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="middle" font-style="italic">«write»</text>
+<polyline points="932.5,320.0 932.5,517.0" fill="none" stroke="#424a53" stroke-width="1.2" stroke-linejoin="round" stroke-dasharray="6 4" marker-end="url(#mopen424a53)"/>
+<rect x="901.6" y="412.0" width="61.7" height="15.5" rx="0" fill="#ffffff"/>
+<text xml:space="preserve" x="932.5" y="422.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="middle" font-style="italic">«execute»</text>
+<polyline points="1180.0,320.0 1180.0,517.0" fill="none" stroke="#424a53" stroke-width="1.2" stroke-linejoin="round" stroke-dasharray="6 4" marker-end="url(#mopen424a53)"/>
+<rect x="1157.5" y="412.0" width="44.9" height="15.5" rx="0" fill="#ffffff"/>
+<text xml:space="preserve" x="1180.0" y="422.5" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="middle" font-style="italic">«write»</text>
+<polyline points="932.5,599.0 932.5,693.2" fill="none" stroke="#424a53" stroke-width="1.2" stroke-linejoin="round" stroke-dasharray="6 4" marker-end="url(#mopen424a53)"/>
+<rect x="859.0" y="639.6" width="146.9" height="15.5" rx="0" fill="#ffffff"/>
+<text xml:space="preserve" x="932.5" y="650.1" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="middle" font-style="italic">«import» · nemos.run(sim)</text>
+<polyline points="1125.0,734.2 1185.0,734.2" fill="none" stroke="#424a53" stroke-width="1.2" stroke-linejoin="round" stroke-dasharray="6 4" marker-end="url(#mopen424a53)"/>
+<rect x="1111.6" y="717.7" width="86.9" height="15.5" rx="0" fill="#ffffff"/>
+<text xml:space="preserve" x="1155.0" y="728.2" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="middle" font-style="italic">«build + solve»</text>
+<polyline points="780.0,841.1 780.0,775.2" fill="none" stroke="#8c959f" stroke-width="1" stroke-linejoin="round" stroke-dasharray="3 3"/>
+<rect x="30.0" y="1114.0" width="1540.0" height="46.0" rx="4" fill="#ffffff" stroke="#d0d7de" stroke-width="1"/>
+<text xml:space="preserve" x="44.0" y="1142.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start" font-weight="bold">How to read it</text>
+<polyline points="160.0,1138.0 204.0,1138.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round" marker-end="url(#mtriangle424a53)"/>
+<text xml:space="preserve" x="212.0" y="1142.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">is a (inherits)</text>
+<polyline points="307.1,1138.0 351.1,1138.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round" marker-end="url(#mopen424a53)"/>
+<text xml:space="preserve" x="359.1" y="1142.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">holds a reference</text>
+<polyline points="478.4,1138.0 522.4,1138.0" fill="none" stroke="#424a53" stroke-width="1.3" stroke-linejoin="round" marker-start="url(#mdiamond424a53)" marker-end="url(#mopen424a53)"/>
+<text xml:space="preserve" x="530.4" y="1142.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">contains a list of</text>
+<polyline points="643.0,1138.0 687.0,1138.0" fill="none" stroke="#424a53" stroke-width="1.2" stroke-linejoin="round" stroke-dasharray="6 4" marker-end="url(#mopen424a53)"/>
+<text xml:space="preserve" x="695.0" y="1142.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">uses / creates / writes</text>
+<text xml:space="preserve" x="837.7" y="1142.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">+ public   - internal   underline = static</text>
+<rect x="1064.4" y="1130.0" width="18.0" height="13.0" rx="2" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.1"/>
+<text xml:space="preserve" x="1088.4" y="1141.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">host Python</text>
+<rect x="1170.2" y="1130.0" width="18.0" height="13.0" rx="2" fill="#fff8c5" stroke="#9a6700" stroke-width="1.1"/>
+<text xml:space="preserve" x="1194.2" y="1141.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">files it writes</text>
+</svg>

@@ -3,6 +3,7 @@
 | Document | Read it when |
 |---|---|
 | [installation.md](installation.md) | Setting the environment up, or something in the toolchain is failing |
+| [diagrams/](diagrams/) | You want the picture first: one diagram per module, then the whole pipeline |
 | [workflow.md](workflow.md) | You want to know what happens between `nemos.run(sim)` and a solved case |
 | [api-reference.md](api-reference.md) | You need the exact classes, methods and keyword arguments |
 | [../examples/README.md](../examples/README.md) | You want a script to start from |

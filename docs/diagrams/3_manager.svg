@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 884" width="1200" height="884" role="img" aria-label="Manager.py: sweep lists in one script are expanded into N generated single-run scripts, run sequentially into SIM_0..SIM_N-1, sharing SIM_0&#x27;s mesh when the mesh is not swept">
+<title>Manager.py: sweep lists in one script are expanded into N generated single-run scripts, run sequentially into SIM_0..SIM_N-1, sharing SIM_0&#x27;s mesh when the mesh is not swept</title>
+<defs><marker id="ah0969da" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0969da"/></marker><marker id="ah424a53" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#424a53"/></marker><marker id="ah9a6700" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9a6700"/></marker></defs>
+<rect width="1200" height="884" fill="#ffffff"/>
+<text xml:space="preserve" x="30" y="42" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" fill="#1f2328" text-anchor="start" font-weight="bold">Manager.py — one templated script becomes N independent simulations</text>
+<text xml:space="preserve" x="30" y="68" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#57606a" text-anchor="start">Every top-level list in your script is a sweep parameter; simulation i receives element i of every list.</text>
+<rect x="30" y="94" width="392" height="490" rx="8" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1.4"/>
+<path d="M30,102 q0,-8 8,-8 H414 q8,0 8,8 V124 H30 z" fill="#ddf4ff" stroke="#0969da" stroke-width="1.4"/>
+<text xml:space="preserve" x="42" y="114" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#0a3069" text-anchor="start" font-weight="bold">sweep_script.py</text>
+<text xml:space="preserve" x="44" y="148.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12.5" fill="#1f2328" text-anchor="start">import Manager as nemos</text>
+<text xml:space="preserve" x="44" y="170.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12.5" fill="#1f2328" text-anchor="start"></text>
+<text xml:space="preserve" x="44" y="192.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12.5" fill="#1f2328" text-anchor="start">sim = nemos.Simulation(script_path=__file__,</text>
+<text xml:space="preserve" x="44" y="214.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12.5" fill="#1f2328" text-anchor="start">    case_path=CASE, endTime=3500)</text>
+<text xml:space="preserve" x="44" y="236.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12.5" fill="#1f2328" text-anchor="start"></text>
+<text xml:space="preserve" x="44" y="258.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12.5" fill="#1f2328" text-anchor="start"><tspan fill="#bf3989" font-weight="bold">T_Flow = [291, 293, 295]</tspan></text>
+<text xml:space="preserve" x="44" y="280.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12.5" fill="#1f2328" text-anchor="start"><tspan fill="#bf3989" font-weight="bold">V_Flow = [-1.0, -1.2, -1.4]</tspan><tspan fill="#57606a" font-style="italic">   # N = 3</tspan></text>
+<text xml:space="preserve" x="44" y="302.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12.5" fill="#1f2328" text-anchor="start"></text>
+<text xml:space="preserve" x="44" y="324.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12.5" fill="#1f2328" text-anchor="start">a = nemos.Room(dx=3, dy=3, dz=3, name=&quot;Room&quot;)</text>
+<text xml:space="preserve" x="44" y="346.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12.5" fill="#1f2328" text-anchor="start">d = nemos.Dip_type_01(x=1.0, z=1.5,</text>
+<text xml:space="preserve" x="44" y="368.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12.5" fill="#1f2328" text-anchor="start">    T_Flow=<tspan fill="#bf3989" font-weight="bold">T_Flow</tspan>, V_Flow=<tspan fill="#bf3989" font-weight="bold">V_Flow</tspan>, name=&quot;Dip_1&quot;)</text>
+<text xml:space="preserve" x="44" y="390.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12.5" fill="#1f2328" text-anchor="start">a.add([d])</text>
+<text xml:space="preserve" x="44" y="412.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12.5" fill="#1f2328" text-anchor="start">mesh = nemos.Mesh(a, m3DMaxSize=0.075)</text>
+<text xml:space="preserve" x="44" y="434.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12.5" fill="#1f2328" text-anchor="start">mesh.create_mesh(export=True)</text>
+<text xml:space="preserve" x="44" y="456.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12.5" fill="#1f2328" text-anchor="start"></text>
+<text xml:space="preserve" x="44" y="478.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12.5" fill="#1f2328" text-anchor="start"><tspan fill="#0969da" font-weight="bold">scripts = sim.build_machine_script()</tspan></text>
+<text xml:space="preserve" x="44" y="500.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12.5" fill="#1f2328" text-anchor="start"><tspan fill="#0969da" font-weight="bold">nemos.main(scripts)</tspan></text>
+<rect x="470" y="94" width="330" height="490" rx="10" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.8"/>
+<text xml:space="preserve" x="484" y="119" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="14" fill="#1f2328" text-anchor="start" font-weight="bold">sim.build_machine_script()</text>
+<text xml:space="preserve" x="484" y="138" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#57606a" text-anchor="start">geometry calls were only recorded as actions</text>
+<circle cx="494" cy="168" r="11" fill="#6e7781"/>
+<text xml:space="preserve" x="494" y="172.32" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#fff" text-anchor="middle" font-weight="bold">1</text>
+<text xml:space="preserve" x="514" y="173" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" fill="#1f2328" text-anchor="start" font-weight="bold">Find the sweep lists</text>
+<text xml:space="preserve" x="514" y="194" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">parse your script for top-level <tspan font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">x = [ … ]</tspan></text>
+<text xml:space="preserve" x="514" y="211" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">and read their values from your globals</text>
+<circle cx="494" cy="248" r="11" fill="#6e7781"/>
+<text xml:space="preserve" x="494" y="252.32" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#fff" text-anchor="middle" font-weight="bold">2</text>
+<text xml:space="preserve" x="514" y="253" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" fill="#1f2328" text-anchor="start" font-weight="bold">Check their lengths</text>
+<text xml:space="preserve" x="514" y="274" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">all equal and non-empty, else ValueError;</text>
+<text xml:space="preserve" x="514" y="291" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">that length is N</text>
+<circle cx="494" cy="328" r="11" fill="#6e7781"/>
+<text xml:space="preserve" x="494" y="332.32" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#fff" text-anchor="middle" font-weight="bold">3</text>
+<text xml:space="preserve" x="514" y="333" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" fill="#1f2328" text-anchor="start" font-weight="bold">Is the mesh swept?</text>
+<text xml:space="preserve" x="514" y="354" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">does a list feed Mesh(…) or create_mesh(…)?</text>
+<rect x="514" y="366" width="133.0" height="74" rx="6" fill="#ffffff" stroke="#1a7f37" stroke-width="1.3"/>
+<text xml:space="preserve" x="522" y="384" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#0f4a22" text-anchor="start" font-weight="bold">no → shared mesh</text>
+<text xml:space="preserve" x="522" y="402" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">SIM_0 meshes;</text>
+<text xml:space="preserve" x="522" y="418" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">the others call</text>
+<text xml:space="preserve" x="522" y="434" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">Import_mesh()</text>
+<rect x="655.0" y="366" width="133.0" height="74" rx="6" fill="#ffffff" stroke="#1a7f37" stroke-width="1.3"/>
+<text xml:space="preserve" x="663.0" y="384" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#0f4a22" text-anchor="start" font-weight="bold">yes</text>
+<text xml:space="preserve" x="663.0" y="402" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">every SIM runs</text>
+<text xml:space="preserve" x="663.0" y="418" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">SALOME itself</text>
+<text xml:space="preserve" x="663.0" y="434" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="start">(much slower)</text>
+<circle cx="494" cy="468" r="11" fill="#6e7781"/>
+<text xml:space="preserve" x="494" y="472.32" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#fff" text-anchor="middle" font-weight="bold">4</text>
+<text xml:space="preserve" x="514" y="473" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13.5" fill="#1f2328" text-anchor="start" font-weight="bold">Write N scripts</text>
+<text xml:space="preserve" x="514" y="494" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">for i in 0 … N-1: <tspan font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">mkdir SIM_i/</tspan></text>
+<text xml:space="preserve" x="514" y="511" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">write <tspan font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">scripts/script_i.py</tspan></text>
+<text xml:space="preserve" x="514" y="528" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">with element i substituted everywhere</text>
+<text xml:space="preserve" x="514" y="570" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start"><tspan fill="#57606a">returns </tspan><tspan fill="#0969da" font-weight="bold" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">[script_0.py, …]</tspan></text>
+<polyline points="424,484 468,484" fill="none" stroke="#0969da" stroke-width="2" stroke-linejoin="round" marker-end="url(#ah0969da)"/>
+<text xml:space="preserve" x="850" y="86" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#57606a" text-anchor="start" font-weight="bold">generated, one per simulation</text>
+<rect x="850" y="94" width="320" height="239.0" rx="8" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1.4"/>
+<path d="M850,102 q0,-8 8,-8 H1162 q8,0 8,8 V124 H850 z" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.4"/>
+<text xml:space="preserve" x="862" y="114" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#1f2328" text-anchor="start" font-weight="bold">scripts/script_0.py</text>
+<text xml:space="preserve" x="864" y="147.2" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">import Simulation as nemos</text>
+<text xml:space="preserve" x="864" y="165.2" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">sim = nemos.Simulation(</text>
+<text xml:space="preserve" x="864" y="183.2" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">    case_path=&#x27;…/<tspan fill="#bf3989" font-weight="bold">SIM_0</tspan>&#x27;, endTime=3500)</text>
+<text xml:space="preserve" x="864" y="201.2" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">Room = nemos.Room(dx=3, …, name=&#x27;Room&#x27;)</text>
+<text xml:space="preserve" x="864" y="219.2" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">Dip_1 = nemos.Dip_type_01(x=1.0, z=1.5,</text>
+<text xml:space="preserve" x="864" y="237.2" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">    T_Flow=<tspan fill="#bf3989" font-weight="bold">291</tspan>, V_Flow=<tspan fill="#bf3989" font-weight="bold">-1.0</tspan>, …)</text>
+<text xml:space="preserve" x="864" y="255.2" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">Room.add([Dip_1])</text>
+<text xml:space="preserve" x="864" y="273.2" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start"><tspan fill="#1a7f37">mesh = nemos.Mesh(Room, m3DMaxSize=0.075)</tspan></text>
+<text xml:space="preserve" x="864" y="291.2" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start"><tspan fill="#1a7f37">mesh.create_mesh(export=True)</tspan></text>
+<text xml:space="preserve" x="864" y="309.2" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">case = nemos.run(sim)</text>
+<rect x="850" y="345.0" width="320" height="239.0" rx="8" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1.4"/>
+<path d="M850,353.0 q0,-8 8,-8 H1162 q8,0 8,8 V375.0 H850 z" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.4"/>
+<text xml:space="preserve" x="862" y="365.0" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#1f2328" text-anchor="start" font-weight="bold">scripts/script_1.py  (script_2 alike)</text>
+<text xml:space="preserve" x="864" y="398.2" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">import Simulation as nemos</text>
+<text xml:space="preserve" x="864" y="416.2" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">sim = nemos.Simulation(</text>
+<text xml:space="preserve" x="864" y="434.2" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">    case_path=&#x27;…/<tspan fill="#bf3989" font-weight="bold">SIM_1</tspan>&#x27;, endTime=3500)</text>
+<text xml:space="preserve" x="864" y="452.2" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">Room = nemos.Room(dx=3, …, name=&#x27;Room&#x27;)</text>
+<text xml:space="preserve" x="864" y="470.2" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">Dip_1 = nemos.Dip_type_01(x=1.0, z=1.5,</text>
+<text xml:space="preserve" x="864" y="488.2" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">    T_Flow=<tspan fill="#bf3989" font-weight="bold">293</tspan>, V_Flow=<tspan fill="#bf3989" font-weight="bold">-1.2</tspan>, …)</text>
+<text xml:space="preserve" x="864" y="506.2" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">Room.add([Dip_1])</text>
+<text xml:space="preserve" x="864" y="524.2" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start"><tspan fill="#1a7f37">mesh = nemos.Simulation.Import_mesh(</tspan></text>
+<text xml:space="preserve" x="864" y="542.2" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start"><tspan fill="#1a7f37">    &#x27;…/SIM_0/Mesh_1.unv&#x27;)</tspan></text>
+<text xml:space="preserve" x="864" y="560.2" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start">case = nemos.run(sim)</text>
+<polyline points="802,214 848,214" fill="none" stroke="#424a53" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#ah424a53)"/>
+<text xml:space="preserve" x="825" y="207.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="middle" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" paint-order="stroke">i = 0</text>
+<polyline points="802,465.0 848,465.0" fill="none" stroke="#424a53" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#ah424a53)"/>
+<text xml:space="preserve" x="825" y="458.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="middle" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" paint-order="stroke">i = 1, 2</text>
+<text xml:space="preserve" x="30" y="618" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="15" fill="#0969da" text-anchor="start" font-weight="bold">nemos.main(scripts)</text>
+<text xml:space="preserve" x="210" y="618" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="13" fill="#57606a" text-anchor="start">runs each script as its own Python process, one after another; stops at the first failure</text>
+<rect x="81.4" y="634" width="97.2" height="22" rx="11.0" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.2"/>
+<text xml:space="preserve" x="130.0" y="649.32" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="middle">script_0.py</text>
+<polyline points="130.0,658 130.0,698" fill="none" stroke="#424a53" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#ah424a53)"/>
+<text xml:space="preserve" x="138.0" y="682" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" paint-order="stroke">python</text>
+<path d="M30,704 q0,-4 4,-4 H218 L230,712 V792 q0,4 -4,4 H34 q-4,0 -4,-4 z" fill="#fff8c5" stroke="#9a6700" stroke-width="1.4"/>
+<path d="M218,700 V712 H230" fill="none" stroke="#9a6700" stroke-width="1.2"/>
+<text xml:space="preserve" x="40" y="721.05" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#4d3800" text-anchor="start" font-weight="bold">SIM_0/</text>
+<text xml:space="preserve" x="40" y="744" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">SALOME builds Mesh_1.unv</text>
+<text xml:space="preserve" x="40" y="761" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">OpenFOAM solves</text>
+<text xml:space="preserve" x="40" y="778" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">.nemos_done</text>
+<polyline points="180.0,645 324.0,645" fill="none" stroke="#424a53" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#ah424a53)"/>
+<text xml:space="preserve" x="252.0" y="639" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="middle" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" paint-order="stroke">if exit 0</text>
+<rect x="325.4" y="634" width="97.2" height="22" rx="11.0" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.2"/>
+<text xml:space="preserve" x="374.0" y="649.32" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="middle">script_1.py</text>
+<polyline points="374.0,658 374.0,698" fill="none" stroke="#424a53" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#ah424a53)"/>
+<text xml:space="preserve" x="382.0" y="682" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" paint-order="stroke">python</text>
+<path d="M274,704 q0,-4 4,-4 H462 L474,712 V792 q0,4 -4,4 H278 q-4,0 -4,-4 z" fill="#fff8c5" stroke="#9a6700" stroke-width="1.4"/>
+<path d="M462,700 V712 H474" fill="none" stroke="#9a6700" stroke-width="1.2"/>
+<text xml:space="preserve" x="284" y="721.05" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#4d3800" text-anchor="start" font-weight="bold">SIM_1/</text>
+<text xml:space="preserve" x="284" y="744" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">Mesh_1.unv copied in</text>
+<text xml:space="preserve" x="284" y="761" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">OpenFOAM solves</text>
+<text xml:space="preserve" x="284" y="778" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">.nemos_done</text>
+<polyline points="424.0,645 568.0,645" fill="none" stroke="#424a53" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#ah424a53)"/>
+<text xml:space="preserve" x="496.0" y="639" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="middle" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" paint-order="stroke">if exit 0</text>
+<rect x="569.4" y="634" width="97.2" height="22" rx="11.0" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.2"/>
+<text xml:space="preserve" x="618.0" y="649.32" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="middle">script_2.py</text>
+<polyline points="618.0,658 618.0,698" fill="none" stroke="#424a53" stroke-width="1.6" stroke-linejoin="round" marker-end="url(#ah424a53)"/>
+<text xml:space="preserve" x="626.0" y="682" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a" text-anchor="start" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" paint-order="stroke">python</text>
+<path d="M518,704 q0,-4 4,-4 H706 L718,712 V792 q0,4 -4,4 H522 q-4,0 -4,-4 z" fill="#fff8c5" stroke="#9a6700" stroke-width="1.4"/>
+<path d="M706,700 V712 H718" fill="none" stroke="#9a6700" stroke-width="1.2"/>
+<text xml:space="preserve" x="528" y="721.05" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#4d3800" text-anchor="start" font-weight="bold">SIM_2/</text>
+<text xml:space="preserve" x="528" y="744" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">Mesh_1.unv copied in</text>
+<text xml:space="preserve" x="528" y="761" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">OpenFOAM solves</text>
+<text xml:space="preserve" x="528" y="778" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start">.nemos_done</text>
+<polyline points="130.0,798 130.0,818 618.0,818 618.0,798" fill="none" stroke="#9a6700" stroke-width="1.6" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#ah9a6700)"/>
+<polyline points="374.0,818 374.0,798" fill="none" stroke="#9a6700" stroke-width="1.6" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#ah9a6700)"/>
+<text xml:space="preserve" x="140.0" y="834" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#9a6700" text-anchor="start">shared mesh: Import_mesh() copies SIM_0/Mesh_1.unv — so order matters</text>
+<text xml:space="preserve" x="240" y="718" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#1f2328" text-anchor="start"></text>
+<path d="M770,610 q0,-4 4,-4 H1158 L1170,618 V702 q0,4 -4,4 H774 q-4,0 -4,-4 z" fill="#fff8c5" stroke="#9a6700" stroke-width="1.4"/>
+<path d="M1158,606 V618 H1170" fill="none" stroke="#9a6700" stroke-width="1.2"/>
+<text xml:space="preserve" x="780" y="627.05" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#4d3800" text-anchor="start" font-weight="bold">CASE/</text>
+<text xml:space="preserve" x="784" y="652" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#4d3800" text-anchor="start" font-weight="bold">scripts/</text>
+<text xml:space="preserve" x="950" y="652" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">script_0.py … script_2.py</text>
+<text xml:space="preserve" x="784" y="674" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#4d3800" text-anchor="start" font-weight="bold">logs/</text>
+<text xml:space="preserve" x="950" y="674" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">script_0.log …  (stdout + stderr)</text>
+<text xml:space="preserve" x="784" y="696" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#4d3800" text-anchor="start" font-weight="bold">SIM_0/ SIM_1/ SIM_2/</text>
+<text xml:space="preserve" x="950" y="696" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">one full case each</text>
+<rect x="770" y="720" width="400" height="104" rx="8" fill="#ddf4ff" stroke="#0969da" stroke-width="1.6"/>
+<text xml:space="preserve" x="782" y="742.625" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2328" text-anchor="start"><tspan fill="#0a3069" font-weight="bold" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">nemos.resume(CASE)</tspan><tspan fill="#57606a">   after an interruption</tspan></text>
+<text xml:space="preserve" x="782" y="762.625" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2328" text-anchor="start">skips every SIM_i that has .nemos_done and re-runs</text>
+<text xml:space="preserve" x="782" y="782.625" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2328" text-anchor="start">the rest from the scripts already in scripts/. Each</text>
+<text xml:space="preserve" x="782" y="802.625" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2328" text-anchor="start">re-run is itself resumable (see Simulation.py part 2).</text>
+<text xml:space="preserve" x="30" y="867" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12.5" fill="#bf3989" text-anchor="start" font-weight="bold">T_Flow</text>
+<text xml:space="preserve" x="81.0" y="867" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#57606a" text-anchor="start">sweep list and the value it becomes</text>
+<text xml:space="preserve" x="298.25" y="867" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12.5" fill="#1a7f37" text-anchor="start" font-weight="bold">Import_mesh</text>
+<text xml:space="preserve" x="386.75" y="867" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#57606a" text-anchor="start">mesh handling that differs per SIM</text>
+<rect x="607.75" y="856" width="22" height="14" rx="3" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.3"/>
+<text xml:space="preserve" x="635.75" y="867" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#57606a" text-anchor="start">Python</text>
+<rect x="700.75" y="856" width="22" height="14" rx="3" fill="#fff8c5" stroke="#9a6700" stroke-width="1.3"/>
+<text xml:space="preserve" x="728.75" y="867" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#57606a" text-anchor="start">folders on disk</text>
+<polyline points="837.5,863 867.5,863" fill="none" stroke="#9a6700" stroke-width="1.6" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#ah9a6700)"/>
+<text xml:space="preserve" x="875.5" y="867" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#57606a" text-anchor="start">file copied</text>
+</svg>

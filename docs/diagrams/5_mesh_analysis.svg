@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 746" width="1200" height="746" role="img" aria-label="NEMOS_MeshAnalysis.py: LoadSimulation reads the converted mesh; MeshVerification produces slice views, cell-quality tables and near-wall growth rate; compared with SALOME&#x27;s check_quality">
+<title>NEMOS_MeshAnalysis.py: LoadSimulation reads the converted mesh; MeshVerification produces slice views, cell-quality tables and near-wall growth rate; compared with SALOME&#x27;s check_quality</title>
+<defs><marker id="ah9a6700" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9a6700"/></marker><marker id="ah424a53" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#424a53"/></marker><marker id="ah8250df" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8250df"/></marker></defs>
+<rect width="1200" height="746" fill="#ffffff"/>
+<text xml:space="preserve" x="30" y="42" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" fill="#1f2328" text-anchor="start" font-weight="bold">NEMOS_MeshAnalysis.py — inspect the mesh OpenFOAM actually solved on</text>
+<text xml:space="preserve" x="30" y="68" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#57606a" text-anchor="start">Reads the converted mesh from the case folder with PyVista and reports cell quality and near-wall growth rate. Run it from its own script.</text>
+<path d="M30,100 q0,-4 4,-4 H268 L280,108 V276 q0,4 -4,4 H34 q-4,0 -4,-4 z" fill="#fff8c5" stroke="#9a6700" stroke-width="1.4"/>
+<path d="M268,96 V108 H280" fill="none" stroke="#9a6700" stroke-width="1.2"/>
+<text xml:space="preserve" x="40" y="117.05" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#4d3800" text-anchor="start" font-weight="bold">&lt;case&gt;/</text>
+<text xml:space="preserve" x="42" y="148" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#4d3800" text-anchor="start" font-weight="bold">caso.foam</text>
+<text xml:space="preserve" x="42" y="164" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">marker the reader opens</text>
+<text xml:space="preserve" x="42" y="188" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#4d3800" text-anchor="start" font-weight="bold">constant/polyMesh/</text>
+<text xml:space="preserve" x="42" y="204" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">the converted mesh</text>
+<text xml:space="preserve" x="42" y="228" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#4d3800" text-anchor="start" font-weight="bold">200/ 400/ …</text>
+<text xml:space="preserve" x="42" y="244" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">at least one written time</text>
+<rect x="320" y="96" width="360" height="184" rx="8" fill="#fbefff" stroke="#8250df" stroke-width="1.8"/>
+<text xml:space="preserve" x="332" y="120" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="13" fill="#3e1f79" text-anchor="start"><tspan font-weight="bold">LoadSimulation</tspan>(case_path, time_step=None)</text>
+<text xml:space="preserve" x="332" y="140" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">this module&#x27;s own copy; same idea as in the simulation</text>
+<text xml:space="preserve" x="332" y="156" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">analysis module, without set_time()</text>
+<text xml:space="preserve" x="332" y="186" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start" font-weight="bold">.internal_mesh</text>
+<text xml:space="preserve" x="490" y="186" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">the volume cells</text>
+<text xml:space="preserve" x="332" y="216" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start" font-weight="bold">.boundaries</text>
+<text xml:space="preserve" x="490" y="216" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">{patch name: surface}</text>
+<text xml:space="preserve" x="332" y="246" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="12" fill="#1f2328" text-anchor="start" font-weight="bold">.available_times</text>
+<text xml:space="preserve" x="490" y="246" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">times found on disk</text>
+<polyline points="282,156 318,156" fill="none" stroke="#9a6700" stroke-width="1.6" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#ah9a6700)"/>
+<text xml:space="preserve" x="301" y="149" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#9a6700" text-anchor="middle" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" paint-order="stroke">reads</text>
+<rect x="720" y="96" width="450" height="184" rx="8" fill="#ffffff" stroke="#d0d7de" stroke-width="1.3"/>
+<text xml:space="preserve" x="734" y="120" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#1f2328" text-anchor="start" font-weight="bold">What the growth rate measures</text>
+<rect x="790" y="220" width="90" height="34" rx="0" fill="#fbefff" stroke="#8250df" stroke-width="1.4"/>
+<rect x="790" y="162" width="90" height="58" rx="0" fill="#ffffff" stroke="#8250df" stroke-width="1.4"/>
+<line x1="750" y1="254" x2="930" y2="254" stroke="#424a53" stroke-width="4"/>
+<text xml:space="preserve" x="934" y="258" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#57606a" text-anchor="start">wall</text>
+<polyline points="776,252 776,222" fill="none" stroke="#424a53" stroke-width="1.1" stroke-linejoin="round" marker-end="url(#ah424a53)" marker-start="url(#ah424a53)"/>
+<polyline points="776,218 776,164" fill="none" stroke="#424a53" stroke-width="1.1" stroke-linejoin="round" marker-end="url(#ah424a53)" marker-start="url(#ah424a53)"/>
+<text xml:space="preserve" x="770" y="241.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="end" font-style="italic">dy₁</text>
+<text xml:space="preserve" x="770" y="195.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="end" font-style="italic">dy₂</text>
+<text xml:space="preserve" x="835.0" y="241.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#8250df" text-anchor="middle">cell 1</text>
+<text xml:space="preserve" x="835.0" y="195.0" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#8250df" text-anchor="middle">cell 2</text>
+<text xml:space="preserve" x="970" y="152" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2328" text-anchor="start">for each wall face (area <tspan font-style="italic">A</tspan>):</text>
+<text xml:space="preserve" x="970" y="172" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2328" text-anchor="start"><tspan font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">dy₁ = V₁ / A</tspan></text>
+<text xml:space="preserve" x="970" y="192" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2328" text-anchor="start"><tspan font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">dy₂ = V₂ / A</tspan></text>
+<text xml:space="preserve" x="970" y="212" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2328" text-anchor="start"><tspan fill="#8250df" font-weight="bold" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace">growth = dy₂ / dy₁</tspan></text>
+<text xml:space="preserve" x="970" y="232" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2328" text-anchor="start"><tspan fill="#57606a">≈ 1.2 inside the viscous layers;</tspan></text>
+<text xml:space="preserve" x="970" y="252" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2328" text-anchor="start"><tspan fill="#57606a">large jumps hurt accuracy</tspan></text>
+<rect x="30" y="306" width="1140" height="270" rx="8" fill="#ffffff" stroke="#8250df" stroke-width="1.8"/>
+<rect x="30" y="306" width="1140" height="34" rx="8" fill="#fbefff" stroke="#8250df" stroke-width="1.8"/>
+<text xml:space="preserve" x="42" y="329" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="14.5" fill="#3e1f79" text-anchor="start" font-weight="bold">MeshVerification(sim)</text>
+<text xml:space="preserve" x="1158" y="328" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#57606a" text-anchor="end" font-style="italic">every image is a slice through &#x27;xy&#x27;, &#x27;xz&#x27; or &#x27;yz&#x27; at value (default: mid-plane)</text>
+<polyline points="500.0,282 500.0,304" fill="none" stroke="#8250df" stroke-width="2" stroke-linejoin="round" marker-end="url(#ah8250df)"/>
+<text xml:space="preserve" x="510.0" y="297" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#8250df" text-anchor="start" font-weight="bold" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" paint-order="stroke">sim</text>
+<text xml:space="preserve" x="46.0" y="366" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#1f2328" text-anchor="start" font-weight="bold">Look at the cells</text>
+<text xml:space="preserve" x="46.0" y="396" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start"><tspan font-weight="bold">plot_mesh</tspan><tspan fill="#57606a">(plane, value)</tspan></text>
+<text xml:space="preserve" x="46.0" y="414" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">cell edges on a slice</text>
+<rect x="346.03" y="400" width="49.97" height="22" rx="11.0" fill="#f6f8fa" stroke="#6e7781" stroke-width="1.2"/>
+<text xml:space="preserve" x="371.015" y="415.14" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="middle">window</text>
+<text xml:space="preserve" x="46.0" y="446" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start"><tspan font-weight="bold">save_plot_mesh</tspan><tspan fill="#57606a">(filename, out_dir, plane, value)</tspan></text>
+<text xml:space="preserve" x="46.0" y="464" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">the same, written to disk</text>
+<rect x="356.61" y="450" width="39.39" height="22" rx="11.0" fill="#fff8c5" stroke="#9a6700" stroke-width="1.2"/>
+<text xml:space="preserve" x="376.305" y="465.14" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#4d3800" text-anchor="middle">PNG</text>
+<line x1="410.0" y1="350" x2="410.0" y2="564" stroke="#d0d7de" stroke-width="1"/>
+<text xml:space="preserve" x="426.0" y="366" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#1f2328" text-anchor="start" font-weight="bold">Cell quality</text>
+<text xml:space="preserve" x="426.0" y="396" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start"><tspan font-weight="bold">quality_df</tspan><tspan fill="#57606a">(measurement)</tspan></text>
+<text xml:space="preserve" x="426.0" y="414" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">one row per cell: id, value, x, y, z, type</text>
+<rect x="703.49" y="400" width="72.50999999999999" height="22" rx="11.0" fill="#ffffff" stroke="#d0d7de" stroke-width="1.2"/>
+<text xml:space="preserve" x="739.745" y="415.14" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="middle">DataFrame</text>
+<text xml:space="preserve" x="426.0" y="446" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start"><tspan font-weight="bold">quality_df_to_csv</tspan><tspan fill="#57606a">(df, filename, out_dir)</tspan></text>
+<text xml:space="preserve" x="426.0" y="464" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">save that table</text>
+<rect x="736.61" y="450" width="39.39" height="22" rx="11.0" fill="#fff8c5" stroke="#9a6700" stroke-width="1.2"/>
+<text xml:space="preserve" x="756.3050000000001" y="465.14" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#4d3800" text-anchor="middle">CSV</text>
+<text xml:space="preserve" x="426.0" y="496" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start"><tspan font-weight="bold">quality_plot</tspan><tspan fill="#57606a">(measurement, filename, plane, …)</tspan></text>
+<text xml:space="preserve" x="426.0" y="514" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">slice coloured by the metric</text>
+<rect x="736.61" y="500" width="39.39" height="22" rx="11.0" fill="#fff8c5" stroke="#9a6700" stroke-width="1.2"/>
+<text xml:space="preserve" x="756.3050000000001" y="515.14" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#4d3800" text-anchor="middle">PNG</text>
+<text xml:space="preserve" x="426.0" y="542" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">measurement: &quot;volume&quot;, or a PyVista cell-quality</text>
+<text xml:space="preserve" x="426.0" y="558" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#57606a" text-anchor="start">name: &quot;aspect_ratio&quot;, &quot;skew&quot;, &quot;scaled_jacobian&quot;, …</text>
+<line x1="790.0" y1="350" x2="790.0" y2="564" stroke="#d0d7de" stroke-width="1"/>
+<text xml:space="preserve" x="806.0" y="366" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" fill="#1f2328" text-anchor="start" font-weight="bold">Growth rate</text>
+<text xml:space="preserve" x="806.0" y="396" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start"><tspan font-weight="bold">growth_rate_df</tspan><tspan fill="#57606a">()</tspan></text>
+<text xml:space="preserve" x="806.0" y="414" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">wall-adjacent cells only; NaN elsewhere</text>
+<rect x="1083.49" y="400" width="72.50999999999999" height="22" rx="11.0" fill="#ffffff" stroke="#d0d7de" stroke-width="1.2"/>
+<text xml:space="preserve" x="1119.745" y="415.14" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2328" text-anchor="middle">DataFrame</text>
+<text xml:space="preserve" x="806.0" y="446" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start"><tspan font-weight="bold">growth_rate_df_to_csv</tspan><tspan fill="#57606a">(filename, out_dir)</tspan></text>
+<text xml:space="preserve" x="806.0" y="464" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">save that table</text>
+<rect x="1116.61" y="450" width="39.39" height="22" rx="11.0" fill="#fff8c5" stroke="#9a6700" stroke-width="1.2"/>
+<text xml:space="preserve" x="1136.3049999999998" y="465.14" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#4d3800" text-anchor="middle">CSV</text>
+<text xml:space="preserve" x="806.0" y="496" font-family="Consolas, 'DejaVu Sans Mono', Menlo, monospace" font-size="11.5" fill="#1f2328" text-anchor="start"><tspan font-weight="bold">plot_growth_rate</tspan><tspan fill="#57606a">(filename, plane, out_dir, …)</tspan></text>
+<text xml:space="preserve" x="806.0" y="514" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328" text-anchor="start">coloured by growth rate</text>
+<rect x="1116.61" y="500" width="39.39" height="22" rx="11.0" fill="#fff8c5" stroke="#9a6700" stroke-width="1.2"/>
+<text xml:space="preserve" x="1136.3049999999998" y="515.14" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#4d3800" text-anchor="middle">PNG</text>
+<polyline points="945.0,282 945.0,304" fill="none" stroke="#424a53" stroke-width="1.2" stroke-linejoin="round" stroke-dasharray="3 3" marker-end="url(#ah424a53)"/>
+<text xml:space="preserve" x="30" y="606" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" fill="#1f2328" text-anchor="start" font-weight="bold">Two places to check mesh quality — they are not the same check</text>
+<text xml:space="preserve" x="170" y="632" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#0f4a22" text-anchor="start" font-weight="bold">Mesh.check_quality()  (GeoMesh, in SALOME)</text>
+<text xml:space="preserve" x="600" y="632" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#3e1f79" text-anchor="start" font-weight="bold">MeshVerification  (this module)</text>
+<line x1="30" y1="640" x2="1170" y2="640" stroke="#d0d7de" stroke-width="1"/>
+<text xml:space="preserve" x="30" y="654" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#57606a" text-anchor="start" font-weight="bold">When</text>
+<text xml:space="preserve" x="170" y="654" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2328" text-anchor="start">while meshing: run() stage 2, from your run script</text>
+<text xml:space="preserve" x="600" y="654" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2328" text-anchor="start">afterwards, from a separate analysis script</text>
+<text xml:space="preserve" x="30" y="676" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#57606a" text-anchor="start" font-weight="bold">Which mesh</text>
+<text xml:space="preserve" x="170" y="676" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2328" text-anchor="start">SALOME&#x27;s tetra mesh, before conversion</text>
+<text xml:space="preserve" x="600" y="676" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2328" text-anchor="start">the OpenFOAM mesh the solver used</text>
+<text xml:space="preserve" x="30" y="698" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#57606a" text-anchor="start" font-weight="bold">Metric names</text>
+<text xml:space="preserve" x="170" y="698" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2328" text-anchor="start">SMESH filters: &quot;AspectRatio&quot;, &quot;Skew&quot;, …</text>
+<text xml:space="preserve" x="600" y="698" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2328" text-anchor="start">PyVista measures: &quot;aspect_ratio&quot;, &quot;skew&quot;, …</text>
+<text xml:space="preserve" x="30" y="720" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#57606a" text-anchor="start" font-weight="bold">Output</text>
+<text xml:space="preserve" x="170" y="720" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2328" text-anchor="start">&lt;metric&gt;_df.csv, _summary.txt, optional SALOME group</text>
+<text xml:space="preserve" x="600" y="720" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2328" text-anchor="start">DataFrame, CSV, PNG slices</text>
+</svg>
