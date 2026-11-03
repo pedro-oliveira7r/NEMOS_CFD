@@ -2236,6 +2236,7 @@ class Simulation:
     def write_machine_script(self, output_path: str):
         script = self.generate_machine_script()
         output_file = Path(output_path)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
         output_file.write_text(script, encoding="utf-8")
         return output_file
 

@@ -792,10 +792,14 @@ class Person_seated(Object):
         x43, z43 = d6, 0
         x86, z86 = d6, 0.2
 
-        x_37, z_37 = x37, z37
-        x_38, z_38 = x38, z38
-        x_40, z_40 = x40, z40
-        x_43, z_43 = x43, z43
+        x_37 = x37 * math.cos(theta) + z37 * math.sin(theta)
+        z_37 = -x37 * math.sin(theta) + z37 * math.cos(theta)
+        x_38 = x38 * math.cos(theta) + z38 * math.sin(theta)
+        z_38 = -x38 * math.sin(theta) + z38 * math.cos(theta)
+        x_40 = x40 * math.cos(theta) + z40 * math.sin(theta)
+        z_40 = -x40 * math.sin(theta) + z40 * math.cos(theta)
+        x_43 = x43 * math.cos(theta) + z43 * math.sin(theta)
+        z_43 = -x43 * math.sin(theta) + z43 * math.cos(theta)
 
         P37 = self.salome_env.geompy.MakeVertex(x_37, 0, z_37)
         P38 = self.salome_env.geompy.MakeVertexWithRef(P37, x_38, 0, z_38)
@@ -819,10 +823,14 @@ class Person_seated(Object):
         x46, z46 = -(d1 / 2), 0
         x48, z48 = d1 / 4, 0
 
-        x_45, z_45 = x45, z45
-        x_46, z_46 = x46, z46
-        x_48, z_48 = x48, z48
-        x_86, z_86 = x86, z86
+        x_45 = x45 * math.cos(theta) + z45 * math.sin(theta)
+        z_45 = -x45 * math.sin(theta) + z45 * math.cos(theta)
+        x_46 = x46 * math.cos(theta) + z46 * math.sin(theta)
+        z_46 = -x46 * math.sin(theta) + z46 * math.cos(theta)
+        x_48 = x48 * math.cos(theta) + z48 * math.sin(theta)
+        z_48 = -x48 * math.sin(theta) + z48 * math.cos(theta)
+        x_86 = x86 * math.cos(theta) + z86 * math.sin(theta)
+        z_86 = -x86 * math.sin(theta) + z86 * math.cos(theta)
 
         P45 = self.salome_env.geompy.MakeVertexWithRef(P41, x_45, 0, z_45)
         P46 = self.salome_env.geompy.MakeVertexWithRef(P41, x_46, 0, z_46)
@@ -877,7 +885,6 @@ class Person_seated(Object):
                 FUSE3, fillet_radius, self.salome_env.geompy.ShapeType["EDGE"],
                 edges_to_fillet
             )
-        self.salome_env.geompy.Rotate(FIL3, self.salome_env.OY, theta)
 
         self.object = self.salome_env.geompy.MakeTranslation(FIL3, x, 0, z)
         self.salome_env.geompy.addToStudy(self.object, self.name)

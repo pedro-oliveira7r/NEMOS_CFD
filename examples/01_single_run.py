@@ -8,7 +8,7 @@ OpenFOAM case and run the solver.
 
 Demonstrates : Simulation (recording mode), Room, Person_seated, Dip_type_01,
                Table_circular, ceiling openings, Mesh, mesh quality check
-Runtime      : ~15-40 min (meshing dominates; endTime=20 iterations)
+Runtime      : ~5-15 min for the mesh, hours for the simulation
 Produces     : cases/01_single_run/ with Mesh_1.unv, 0/, constant/, system/,
                residuals.png, log.simulation and a .nemos_done marker
 
@@ -30,9 +30,9 @@ CASE_PATH = Path(__file__).resolve().parents[1] / "cases" / "01_single_run"
 sim = nemos.Simulation(
 	case_path=str(CASE_PATH),
 	startTime=0,
-	endTime=20,
+	endTime=1000,
 	delta=0.1,
-	writeInterval=3,
+	writeInterval=100,
 	parallel="Y",
 	T_internalField="uniform 300",
 	p_internalField="uniform 101322",
@@ -41,7 +41,7 @@ sim = nemos.Simulation(
 )
 a = nemos.Room(dx=3.0, dy=3.0, dz=3.0, T_Face=300, name = "Room")
 b = nemos.Person_seated(x=2.025, z=1.5, theta=0, thickness=0.15, T_Face=304, name = "Person_1")
-c = nemos.Person_seated(x=0.975, z=1.5, theta=180, thickness=0.15, T_Face=305, name = "Person_2")
+c = nemos.Person_seated(x=0.975, z=1.5, theta=180, thickness=0.15, T_Face=304, name = "Person_2")
 d = nemos.Dip_type_01(x=2.025, y=1.0, z=1.5, V_Flow=-1.2, T_Flow=291, T_Face=293, name = "Dip_1")
 e = nemos.Dip_type_01(x=0.975, y=1.2, z=1.5, V_Flow=-1.2, T_Flow=293, name = "Dip_2")
 f = nemos.Table_circular(x=1.5, y=0.6, z=1.5, T_Face=300, name = "Table")
@@ -56,6 +56,6 @@ a.add([b, c, d, e, f])
 #a.add_cilinder(salome_env=a, dip=f)
 mesh = nemos.Mesh(a, m2DMaxSize=0.2, m2DMinSize=0.02, m3DMaxSize=0.075, m3DMinSize=0.001, fineness=3)
 mesh.create_mesh(export=True)
-mesh.check_quality("AspectRatio", element_type="FACE", comparison=">", threshold=5)
+#mesh.check_quality("AspectRatio", element_type="FACE", comparison=">", threshold=5)
 
 case = nemos.run(sim)
