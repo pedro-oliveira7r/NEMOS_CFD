@@ -225,16 +225,8 @@ class Room:
             if salome.sg.hasDesktop():
                 salome.sg.updateObjBrowser()
 
-    def add_cilinder(self, salome_env=None, x=1.5, z=1.5, R_Tubo=0.05, R_Ponta=0.075,
+    def add_cilinder(self, x=1.5, z=1.5, R_Tubo=0.05, R_Ponta=0.075,
                      H_Tubo=1.2, H_Ponta=0.085, name='Box', dip=None):
-        geompy = self.salome_env.geompy
-
-        if salome_env is None:
-            salome_env = self.salome_env
-        self.salome_env = salome_env
-        if salome_env.room is None:
-            raise RuntimeError("Nenhuma Room foi criada.")
-        self.room = salome_env.room
 
         if dip is not None:
             x = dip.x
@@ -242,6 +234,8 @@ class Room:
             H_Tubo = dip.y
             if name == 'Box':
                 name = dip.name
+
+        geompy = geomBuilder.New()
 
         O = geompy.MakeVertex(0, 0, 0)
         OX = geompy.MakeVectorDXDYDZ(1, 0, 0)
@@ -251,9 +245,9 @@ class Room:
         Cylinder_1 = geompy.MakeCylinder(O, OY, R_Tubo, H_Tubo)
         Cylinder_2 = geompy.MakeCylinder(O, OY, R_Ponta, H_Ponta)
 
-        geompy.TranslateDXDYDZ(Cylinder_1, x, self.room.H - H_Tubo, z)
+        geompy.TranslateDXDYDZ(Cylinder_1, x, self.H - H_Tubo, z)
         geompy.TranslateDXDYDZ(
-            Cylinder_2, x, self.room.H - H_Tubo - H_Ponta, z
+            Cylinder_2, x, self.H - H_Tubo - H_Ponta, z
         )
         geompy.addToStudy(Cylinder_1, name)
         geompy.addToStudy(Cylinder_2, name + "_ponta")

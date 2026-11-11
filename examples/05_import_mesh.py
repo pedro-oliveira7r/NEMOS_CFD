@@ -35,9 +35,9 @@ MESH_PATH = Path(__file__).resolve().parents[1] / "cases" / "01_single_run" / "M
 sim = nemos.Simulation(
 	case_path=str(CASE_PATH),
 	startTime=0,
-	endTime=3,
+	endTime=1000,
 	delta=0.1,
-	writeInterval=3,
+	writeInterval=100,
 	parallel="Y",
 	T_internalField="uniform 300",
 	p_internalField="uniform 101322",
@@ -57,8 +57,8 @@ a.insert_ceiling_opening(x=2.5, z=2.5, d=0.1)
 a.add([b, c, d, e, f])
 #a.add_box_volume(person=c, H_Tubo=1.2)
 #a.add_box_volume(person=d)
-#a.add_cilinder(salome_env=a, dip=e)
-#a.add_cilinder(salome_env=a, dip=f)
+#a.add_cilinder(dip=e)
+#a.add_cilinder(dip=f)
 
 # Replaces the Mesh(...) + create_mesh(...) pair used in example 01: the .unv
 # is copied into the case folder instead of being built by SALOME.

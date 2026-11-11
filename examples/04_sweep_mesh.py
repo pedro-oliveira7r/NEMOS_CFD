@@ -27,9 +27,9 @@ sim = nemos.Simulation(
 	script_path=__file__,
 	case_path=str(CASE_PATH),
 	startTime=0,
-	endTime=5,
+	endTime=1000,
 	delta=0.1,
-	writeInterval=3,
+	writeInterval=100,
 	parallel="Y",
 	T_internalField="uniform 300",
 	p_internalField="uniform 101322",
@@ -50,8 +50,8 @@ a.insert_ceiling_opening(x=2.5, z=2.5, d=0.1)
 a.add([b, c, d, e, f])
 #a.add_box_volume(person=c, H_Tubo=1.2)
 #a.add_box_volume(person=d)
-#a.add_cilinder(salome_env=a, dip=e)
-#a.add_cilinder(salome_env=a, dip=f)
+#a.add_cilinder(dip=e)
+#a.add_cilinder(dip=f)
 
 # --- Sweep parameters: progressively finer meshes ---------------------------
 Max2D_List = [0.25, 0.25, 0.2, 0.2, 0.15]

@@ -35,7 +35,7 @@ sim = nemos.Simulation(
 	writeInterval=100,
 	parallel="Y",
 	T_internalField="uniform 300",
-	p_internalField="uniform 101322",
+	p_internalField="uniform 101325",
 	k_internalField="uniform 0.001",
 	epsilon_internalField="uniform 1e-5"
 )
@@ -50,12 +50,12 @@ a.insert_ceiling_opening(x=2.5, z=0.5, d=0.1)
 a.insert_ceiling_opening(x=0.5, z=0.5, d=0.1)
 a.insert_ceiling_opening(x=2.5, z=2.5, d=0.1)
 a.add([b, c, d, e, f])
-#a.add_box_volume(person=c, H_Tubo=1.2)
-#a.add_box_volume(person=d)
-#a.add_cilinder(salome_env=a, dip=e)
-#a.add_cilinder(salome_env=a, dip=f)
+a.add_box_volume(person=b, H_Tubo=1.2)
+a.add_box_volume(person=c)
+a.add_cilinder(dip=d)
+a.add_cilinder(dip=e)
 mesh = nemos.Mesh(a, m2DMaxSize=0.2, m2DMinSize=0.02, m3DMaxSize=0.075, m3DMinSize=0.001, fineness=3)
 mesh.create_mesh(export=True)
-#mesh.check_quality("AspectRatio", element_type="FACE", comparison=">", threshold=5)
+mesh.check_quality("AspectRatio", element_type="FACE", comparison=">", threshold=5)
 
 case = nemos.run(sim)
